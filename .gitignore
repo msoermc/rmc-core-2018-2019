@@ -309,3 +309,4 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+/rmc-beaglebone-core-2018-2019.iml
