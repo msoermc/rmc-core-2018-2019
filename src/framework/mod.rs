@@ -1,3 +1,5 @@
+use std::io;
+
 /// Represents a single subsystem onboard the robot,
 /// such as a trencher, bucket ladder, or chassis.
 pub trait Subsystem {
@@ -29,4 +31,6 @@ pub trait Subsystem {
     /// States should be represented using enums.
     /// Errors and failures should be represented as states.
     fn get_state<State>(&self) -> &State;
+
+    fn send_message<Message>(&mut self, message: Message) -> io::Result<()>;
 }
