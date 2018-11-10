@@ -26,11 +26,9 @@ pub trait Subsystem {
     /// Returns true if the Subsystem is currently enabled and false otherwise.
     fn is_enabled(&self) -> bool;
 
-    /// Returns the current state of the subsystem.
-    /// There should be a finite amount of states possible for any subsystem.
-    /// States should be represented using enums.
-    /// Errors and failures should be represented as states.
-    fn get_state<State>(&self) -> &State;
+    /// Returns the next message sent by the subsystem to the controller.
+    fn receive_message<Message>(&mut self) -> Option<Message>;
 
+    /// Sends a message to the subsystem.
     fn send_message<Message>(&mut self, message: Message) -> io::Result<()>;
 }
