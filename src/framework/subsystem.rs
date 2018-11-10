@@ -39,3 +39,23 @@ pub trait Subsystem<CommandMessage, ReportingMessage> {
     /// Subsystem revives are meant to be invoked on all subsystems simultaneously.
     fn revive<Err>(&mut self) -> Result<(), Err>;
 }
+
+/// Generates two pairs of mpsc sender and receiver objects.
+/// The two pairs do not correspond to the channels they are in.
+/// Instead, they are organized so that a thread can, through the usage of
+/// one pair maintain two-way communication with a thread in posession of
+/// another pair.
+pub fn generate_channel_pair<Command, Report>() -> ((mpsc::Sender<Command>,
+                                                     mpsc::Receiver<Report>),
+                                                    (mpsc::Sender<Report>,
+                                                     mpsc::Receiver<Command>)) {
+    let command_channel = mpsc::channel();
+
+    let report_channel = mpsc::channel();
+
+    let command_report_pair = (command_channel.0, report_channel.1);
+
+    let report_command_pair = (report_channel.0, command_channel.1);
+
+    return (command_report_pair, report_command_pair);
+}
