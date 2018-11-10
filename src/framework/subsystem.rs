@@ -1,14 +1,11 @@
 use std::sync::mpsc;
 
-/// Represents a single subsystem onboard the robot,
+/// Represents a single subsystem on the robot,
 /// such as a trencher, bucket ladder, or chassis.
 ///
-/// The CommandMessage type parameter represents the type for messages sent
+/// The Command type parameter represents the type for messages sent
 /// to the subsystem.
-///
-/// The ReportingMessage type parameter represents the type
-/// for messages received from the subsystem.
-pub trait Subsystem<CommandMessage, ReportingMessage> {
+pub trait Subsystem {
     /// Initializes the subsystem.
     /// This function will run once before any subsystems are enabled.
     ///
@@ -17,8 +14,11 @@ pub trait Subsystem<CommandMessage, ReportingMessage> {
     /// mpsc receiver which can be used to receive messages sent by the
     /// subsystem.
     ///
-    /// If unsuccessful, this method will return an Err object.
-    fn init<Err>(&mut self) -> Result<(mpsc::Sender<CommandMessage>, mpsc::Receiver<ReportingMessage>), Err>;
+    /// If unsuccessful, this method will return an InitError object.
+    fn init<Command, ReportOK, ReportError, InitError>(&mut self) -> Result<
+        (mpsc::Sender<Command>,
+         mpsc::Receiver<Result<ReportOK, ReportError>>),
+        InitError>;
 
     /// Enables the subsystem.
     /// While enabled, a subsystem will continuously run in it's own thread.
@@ -43,7 +43,7 @@ pub trait Subsystem<CommandMessage, ReportingMessage> {
 /// Generates two pairs of mpsc sender and receiver objects.
 /// The two pairs do not correspond to the channels they are in.
 /// Instead, they are organized so that a thread can, through the usage of
-/// one pair maintain two-way communication with a thread in posession of
+/// one pair maintain two-way communication with a thread in possession of
 /// another pair.
 pub fn generate_channel_pair<Command, Report>() -> ((mpsc::Sender<Command>,
                                                      mpsc::Receiver<Report>),
