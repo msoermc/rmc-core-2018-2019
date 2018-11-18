@@ -13,3 +13,7 @@ pub trait NonRecoverableError {
 pub trait InitError {
 
 }
+
+pub trait OKStatus {
+
+}

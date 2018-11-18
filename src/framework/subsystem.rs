@@ -1,36 +1,27 @@
 use std::sync::mpsc;
 use super::errors::*;
 
-pub trait Subsystem<S, R: RecoverableError, N: NonRecoverableError, I: InitError> {
+/// The subsystem trait represents different subsystems on the robot such as bucket ladders,
+/// drivetrains, and dumping mechanisms.
+///
+/// Subsystems are run in their own processes concurrently by the robot framework.
+pub trait Subsystem<S: OKStatus, R: RecoverableError, N: NonRecoverableError, I: InitError> {
+    /// Initializes the subsystem, returning a result object indicating whether the action was
+    /// successful.
     fn init(&mut self) -> Result<(), I>;
 
+    /// Runs a single loop of the subsystem. This function will be called repeatedly by the
+    /// framework.
     fn run(&mut self);
 
+    /// Enables the subsystem. The framework will run subsystems while they are enabled.
     fn enable(&mut self) -> Result<(), RobotError<R, N>>;
 
+    /// Disables the subsystem. The framework will not run subsystems while they are disabled.
     fn disable(&mut self) -> Result<(), RobotError<R, N>>;
 
+    /// Returns true if the subsystem is enabled and false otherwise.
     fn is_enabled(&self) -> bool;
 
     fn get_status(&self) -> Result<S, RobotError<R, N>>;
-}
-
-/// Generates two pairs of mpsc sender and receiver objects.
-/// The two pairs do not correspond to the channels they are in.
-/// Instead, they are organized so that a thread can, through the usage of
-/// one pair maintain two-way communication with a thread in possession of
-/// another pair.
-pub fn generate_channel_pair<ABMessage, BAMessage>() -> ((mpsc::Sender<ABMessage>,
-                                                          mpsc::Receiver<BAMessage>),
-                                                         (mpsc::Sender<BAMessage>,
-                                                          mpsc::Receiver<ABMessage>)) {
-    let command_channel = mpsc::channel();
-
-    let report_channel = mpsc::channel();
-
-    let command_report_pair = (command_channel.0, report_channel.1);
-
-    let report_command_pair = (report_channel.0, command_channel.1);
-
-    return (command_report_pair, report_command_pair);
 }
