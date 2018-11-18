@@ -1,43 +1,18 @@
 use std::sync::mpsc;
+use super::errors::*;
 
-/// Represents a single subsystem on the robot,
-/// such as a trencher, bucket ladder, or chassis.
-///
-/// The Command type parameter represents the type for messages sent
-/// to the subsystem.
-pub trait Subsystem {
-    /// Initializes the subsystem.
-    /// This function will run once before any subsystems are enabled.
-    ///
-    /// If successful, this function will return a tuple containing an mpsc
-    /// sender which can be used to send messages to the subsystem and an
-    /// mpsc receiver which can be used to receive messages sent by the
-    /// subsystem.
-    ///
-    /// If unsuccessful, this method will return an InitError object.
-    fn init<Command, ReportOK, ReportError, InitError>(&mut self) -> Result<
-        (mpsc::Sender<Command>,
-         mpsc::Receiver<Result<ReportOK, ReportError>>),
-        InitError>;
+pub trait Subsystem<S, R: RecoverableError, N: NonRecoverableError, I: InitError> {
+    fn init(&mut self) -> Result<(), I>;
 
-    /// Enables the subsystem.
-    /// While enabled, a subsystem will continuously run in it's own thread.
-    fn enable<Err>(&mut self) -> Result<(), Err>;
+    fn run(&mut self);
 
-    /// Disables the subsystem.
-    /// While disabled, a subsystem does not run.
-    fn disable<Err>(&mut self) -> Result<(), Err>;
+    fn enable(&mut self) -> Result<(), RobotError<R, N>>;
 
-    /// Returns true if the Subsystem is currently enabled and false otherwise.
+    fn disable(&mut self) -> Result<(), RobotError<R, N>>;
+
     fn is_enabled(&self) -> bool;
 
-    /// Kills the subsystem.
-    /// Subsystem kills are meant to be invoked on all subsystems simultaneously.
-    fn kill<Err>(&mut self) -> Result<(), Err>;
-
-    /// Revives the subsystem.
-    /// Subsystem revives are meant to be invoked on all subsystems simultaneously.
-    fn revive<Err>(&mut self) -> Result<(), Err>;
+    fn get_status(&self) -> Result<S, RobotError<R, N>>;
 }
 
 /// Generates two pairs of mpsc sender and receiver objects.
@@ -45,10 +20,10 @@ pub trait Subsystem {
 /// Instead, they are organized so that a thread can, through the usage of
 /// one pair maintain two-way communication with a thread in possession of
 /// another pair.
-pub fn generate_channel_pair<Command, Report>() -> ((mpsc::Sender<Command>,
-                                                     mpsc::Receiver<Report>),
-                                                    (mpsc::Sender<Report>,
-                                                     mpsc::Receiver<Command>)) {
+pub fn generate_channel_pair<ABMessage, BAMessage>() -> ((mpsc::Sender<ABMessage>,
+                                                          mpsc::Receiver<BAMessage>),
+                                                         (mpsc::Sender<BAMessage>,
+                                                          mpsc::Receiver<ABMessage>)) {
     let command_channel = mpsc::channel();
 
     let report_channel = mpsc::channel();
