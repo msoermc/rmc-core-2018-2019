@@ -1,27 +1,34 @@
-use std::sync::mpsc;
 use super::errors::*;
 
 /// The subsystem trait represents different subsystems on the robot such as bucket ladders,
 /// drivetrains, and dumping mechanisms.
 ///
 /// Subsystems are run in their own processes concurrently by the robot framework.
-pub trait Subsystem<S: OKStatus, R: RecoverableError, N: NonRecoverableError, I: InitError> {
+pub trait Subsystem<Debug, Info, Warning, Error, Fatal> {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
-    fn init(&mut self) -> Result<(), I>;
+    fn init(&mut self) -> SubsystemStatus<Debug, Info, Warning, Error, Fatal>;
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
     /// framework.
     fn run(&mut self);
 
     /// Enables the subsystem. The framework will run subsystems while they are enabled.
-    fn enable(&mut self) -> Result<(), RobotError<R, N>>;
+    ///
+    /// Subsystems may only be enabled by the framework. They should not enable themselves.
+    fn enable(&mut self);
 
     /// Disables the subsystem. The framework will not run subsystems while they are disabled.
-    fn disable(&mut self) -> Result<(), RobotError<R, N>>;
+    ///
+    /// Subsystems should not disable themselves.
+    fn disable(&mut self);
 
     /// Returns true if the subsystem is enabled and false otherwise.
     fn is_enabled(&self) -> bool;
 
-    fn get_status(&self) -> Result<S, RobotError<R, N>>;
+    /// Represents an action to be run in a loop while a Subsystem is disabled.
+    fn if_disabled(&mut self) -> SubsystemStatus<Debug, Info, Warning, Error, Fatal>;
+
+    /// Returns a Result object with the status of the Subsystem
+    fn get_status(&self) -> SubsystemStatus<Debug, Info, Warning, Error, Fatal>;
 }
