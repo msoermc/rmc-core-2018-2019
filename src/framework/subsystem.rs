@@ -5,10 +5,11 @@ use std::sync::mpsc;
 /// drivetrains, and dumping mechanisms.
 ///
 /// Subsystems are run in their own processes concurrently by the robot framework.
-pub trait Subsystem<T> {
+pub trait Subsystem<LogPayload> {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
-    fn init(&mut self, error_channel: mpsc::Sender<T>) -> LogTypes<T>;
+    fn init(&mut self, error_channel: mpsc::Sender<Box<LogData<LogPayload>>>)
+            -> Box<LogData<LogPayload>>;
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
     /// framework.
