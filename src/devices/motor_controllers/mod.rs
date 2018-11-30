@@ -1,6 +1,6 @@
 use super::*;
 
-pub trait Motor<E>: Device {
+pub trait MotorController<E>: Device {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), E>;
     fn stop(&mut self);
     fn invert(&mut self);

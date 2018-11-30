@@ -1,4 +1,4 @@
-pub mod motors;
+pub mod motor_controllers;
 pub mod sensors;
 
 use super::*;
