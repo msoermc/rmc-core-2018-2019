@@ -6,6 +6,6 @@ pub trait DriveTrainLogPayload {
 
 }
 
-pub trait DriveTrain<P: DriveTrainLogPayload>: Subsystem<P> {
-    fn brake(&mut self) -> P;
+pub trait DriveTrain: Subsystem {
+    fn brake(&mut self);
 }
