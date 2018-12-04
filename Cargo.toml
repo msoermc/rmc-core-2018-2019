@@ -1,7 +1,7 @@
 [package]
 name = "rmc-beaglebone-core-2018-2019"
 version = "0.1.0"
-authors = ["noah <nomaxx117@gmail.com>"]
+authors = ["Noah Kennedy <noah.kennedy.professional@gmail.com>", "Isaiah Rondeau <isaiahrondeau@gmail.com>", "Wallace Watler <watlerathome@gmail.com>", "Cody Nettesheim <nettesheimcj@msoe.edu>"]
 edition = "2018"
 build = "build.rs"
 

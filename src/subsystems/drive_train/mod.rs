@@ -1,11 +1,11 @@
-use crate::framework::Subsystem;
+use crate::framework::{Subsystem, RobotError};
 
 pub mod tank;
 
-pub trait DriveTrainLogPayload {
+pub trait DriveTrainError: RobotError {
 
 }
 
-pub trait DriveTrain<P: DriveTrainLogPayload>: Subsystem<P> {
-    fn brake(&mut self) -> P;
+pub trait DriveTrain<E: DriveTrainError>: Subsystem<E> {
+    fn brake(&mut self);
 }

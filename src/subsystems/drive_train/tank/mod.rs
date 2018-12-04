@@ -1,9 +1,9 @@
-use super::{DriveTrainLogPayload, DriveTrain};
+use super::{DriveTrain, DriveTrainError};
 
-pub trait TankDriveTrainLogPayload: DriveTrainLogPayload {
+pub trait TankError: DriveTrainError {
 
 }
 
-pub trait TankDriveTrain<P: TankDriveTrainLogPayload>: DriveTrain<P> {
+pub trait TankDriveTrain<E: DriveTrainError>: DriveTrain<E> {
     fn drive(&mut self, left_speed: f32, right_speed: f32);
 }
