@@ -3,5 +3,11 @@ name = "rmc-beaglebone-core-2018-2019"
 version = "0.1.0"
 authors = ["noah <nomaxx117@gmail.com>"]
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
+mml = "0.1.41"
+
+
+[build-dependencies.mml]
+version = "0.1"
