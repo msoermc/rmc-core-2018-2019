@@ -1,3 +1,5 @@
+//! ![uml](ml.svg)
+
 pub mod framework;
 pub mod subsystems;
 pub mod devices;
