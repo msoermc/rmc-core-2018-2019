@@ -38,10 +38,25 @@ pub enum LogType {
     Fatal(),
 }
 
-pub trait LogData {
-    fn get_severity(&self) -> &LogType;
-    fn get_short_description(&self) -> &str;
-    fn get_full_description(&self) -> Option<&str>;
+pub struct LogData {
+    severity: LogType,
+    short_description: String,
+    full_description: Option<String>,
+}
+
+impl LogData {
+    fn get_severity(&self) -> &LogType {
+        &self.severity
+    }
+    fn get_short_description(&self) -> &str {
+        &self.short_description
+    }
+    fn get_full_description(&self) -> Option<&str> {
+        match &self.full_description {
+            Some(des) => Option::Some(des.as_str()),
+            None => None
+        }
+    }
 }
 
 pub trait RobotError {
