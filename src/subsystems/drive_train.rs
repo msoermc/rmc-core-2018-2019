@@ -1,11 +1,9 @@
 use std::sync::mpsc::Sender;
 use crate::framework::{LogData, Subsystem, RobotError};
 
-pub enum DriveTrainError {}
+pub struct DriveTrainError {}
 
-impl RobotError for DriveTrainError {
-
-}
+impl RobotError for DriveTrainError {}
 
 pub struct DriveTrain {}
 
@@ -31,6 +29,12 @@ impl Subsystem<DriveTrainError> for DriveTrain {
     }
 
     fn if_disabled(&mut self) {
+        unimplemented!()
+    }
+}
+
+impl DriveTrain {
+    fn drive(left_speed: f32, right_speed: f32) {
         unimplemented!()
     }
 }
