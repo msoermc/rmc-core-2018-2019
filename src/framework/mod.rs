@@ -7,7 +7,7 @@ use std::sync::mpsc;
 pub trait Subsystem<E: RobotError> {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
-    fn init(&mut self, logging_channel: mpsc::Sender<LogData>, error_channel: mpsc::Sender<Box<E>>) -> E;
+    fn init(&mut self, logging_channel: mpsc::Sender<LogData>, error_channel: mpsc::Sender<E>) -> E;
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
     /// framework.

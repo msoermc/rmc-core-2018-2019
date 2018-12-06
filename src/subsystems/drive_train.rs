@@ -7,10 +7,13 @@ impl RobotError for DriveTrainError {}
 
 pub struct DriveTrain {
     test_mode: bool,
+    is_enabled: bool,
+    log_channel: Sender<LogData>,
+    error_channel: Sender<DriveTrainError>
 }
 
 impl Subsystem<DriveTrainError> for DriveTrain {
-    fn init(&mut self, logging_channel: Sender<LogData>, error_channel: Sender<Box<DriveTrainError>>) -> DriveTrainError {
+    fn init(&mut self, logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>) -> DriveTrainError {
         unimplemented!()
     }
 
@@ -19,15 +22,15 @@ impl Subsystem<DriveTrainError> for DriveTrain {
     }
 
     fn enable(&mut self) {
-        unimplemented!()
+        self.is_enabled = true;
     }
 
     fn disable(&mut self) {
-        unimplemented!()
+        self.is_enabled = false;
     }
 
     fn is_enabled(&self) -> bool {
-        unimplemented!()
+        self.is_enabled
     }
 
     fn if_disabled(&mut self) {
@@ -40,7 +43,7 @@ impl DriveTrain {
         unimplemented!()
     }
     pub fn new(test_mode: bool) -> DriveTrain {
-        DriveTrain {test_mode}
+        unimplemented!()
     }
 }
 
