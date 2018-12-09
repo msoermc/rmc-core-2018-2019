@@ -7,7 +7,7 @@ use std::sync::mpsc;
 pub trait Subsystem<E: RobotError> {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
-    fn init(&mut self, logging_channel: mpsc::Sender<LogData>, error_channel: mpsc::Sender<E>) -> E;
+    fn init(&mut self) -> E;
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
     /// framework.
@@ -28,6 +28,11 @@ pub trait Subsystem<E: RobotError> {
 
     /// Represents an action to be run in a loop while a Subsystem is disabled.
     fn if_disabled(&mut self);
+}
+
+pub enum TestMode {
+    OnRobot(),
+    Virtual(),
 }
 
 pub enum LogType {

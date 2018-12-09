@@ -1,5 +1,5 @@
 use std::sync::mpsc::Sender;
-use crate::framework::{LogData, Subsystem, RobotError};
+use crate::framework::{LogData, Subsystem, RobotError, TestMode};
 
 pub struct DriveTrainError {}
 
@@ -13,7 +13,7 @@ pub struct DriveTrain {
 }
 
 impl Subsystem<DriveTrainError> for DriveTrain {
-    fn init(&mut self, logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>) -> DriveTrainError {
+    fn init(&mut self) -> DriveTrainError {
         unimplemented!()
     }
 
@@ -42,7 +42,7 @@ impl DriveTrain {
     pub fn drive(left_speed: f32, right_speed: f32) {
         unimplemented!()
     }
-    pub fn new(test_mode: bool) -> DriveTrain {
+    pub fn new(&mut self, logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>, test_mode: TestMode) -> DriveTrain {
         unimplemented!()
     }
 }
