@@ -22,22 +22,27 @@ impl Subsystem<DriveTrainError> for DriveTrain {
         unimplemented!()
     }
 
+    
     fn run(&mut self) {
         unimplemented!()
     }
 
+    
     fn enable(&mut self) {
         self.is_enabled = true;
     }
 
+    
     fn disable(&mut self) {
         self.is_enabled = false;
     }
 
+    
     fn is_enabled(&self) -> bool {
         self.is_enabled
     }
 
+    
     fn if_disabled(&mut self) {
         unimplemented!()
     }
@@ -48,6 +53,8 @@ impl DriveTrain {
     pub fn drive(left_speed: f32, right_speed: f32) {
         unimplemented!()
     }
+    
+    
     pub fn new(&mut self,
                logging_channel: Sender<LogData>,
                error_channel: Sender<DriveTrainError>,
