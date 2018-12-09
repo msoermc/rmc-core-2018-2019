@@ -1,5 +1,6 @@
 use std::sync::mpsc;
 
+
 /// The subsystem trait represents different subsystems on the robot such as bucket ladders,
 /// drivetrains, and dumping mechanisms.
 ///
@@ -30,10 +31,12 @@ pub trait Subsystem<E: RobotError> {
     fn if_disabled(&mut self);
 }
 
+
 pub enum TestMode {
     OnRobot(),
     Virtual(),
 }
+
 
 pub enum LogType {
     Debug(),
@@ -43,19 +46,23 @@ pub enum LogType {
     Fatal(),
 }
 
+
 pub struct LogData {
     severity: LogType,
     short_description: String,
     full_description: Option<String>,
 }
 
+
 impl LogData {
     pub fn get_severity(&self) -> &LogType {
         &self.severity
     }
+
     pub fn get_short_description(&self) -> &str {
         &self.short_description
     }
+    
     pub fn get_full_description(&self) -> Option<&str> {
         match &self.full_description {
             Some(des) => Option::Some(des.as_str()),
@@ -64,6 +71,5 @@ impl LogData {
     }
 }
 
-pub trait RobotError {
 
-}
+pub trait RobotError {}

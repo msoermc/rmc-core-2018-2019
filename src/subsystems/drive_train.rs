@@ -1,16 +1,21 @@
 use std::sync::mpsc::Sender;
-use crate::framework::{LogData, Subsystem, RobotError, TestMode};
+
+use crate::framework::{LogData, RobotError, Subsystem, TestMode};
+
 
 pub struct DriveTrainError {}
 
+
 impl RobotError for DriveTrainError {}
+
 
 pub struct DriveTrain {
     test_mode: bool,
     is_enabled: bool,
     log_channel: Sender<LogData>,
-    error_channel: Sender<DriveTrainError>
+    error_channel: Sender<DriveTrainError>,
 }
+
 
 impl Subsystem<DriveTrainError> for DriveTrain {
     fn init(&mut self) -> DriveTrainError {
@@ -38,48 +43,61 @@ impl Subsystem<DriveTrainError> for DriveTrain {
     }
 }
 
+
 impl DriveTrain {
     pub fn drive(left_speed: f32, right_speed: f32) {
         unimplemented!()
     }
-    pub fn new(&mut self, logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>, test_mode: TestMode) -> DriveTrain {
+    pub fn new(&mut self,
+               logging_channel: Sender<LogData>,
+               error_channel: Sender<DriveTrainError>,
+               test_mode: TestMode)
+        -> DriveTrain {
         unimplemented!()
     }
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
 
     #[test]
     fn test_init() {
         unimplemented!()
     }
 
+
     #[test]
     fn test_run() {
         unimplemented!()
     }
+
 
     #[test]
     fn test_disabled() {
         unimplemented!()
     }
 
+
     #[test]
     fn test_is_enabled() {
         unimplemented!()
     }
+
 
     #[test]
     fn test_if_disabled() {
         unimplemented!()
     }
 
+
     #[test]
     fn test_drive() {
         unimplemented!()
     }
+
 
     #[test]
     fn test_new() {
