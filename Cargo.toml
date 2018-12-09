@@ -3,14 +3,8 @@ name = "rmc-beaglebone-core-2018-2019"
 version = "0.1.0"
 authors = ["Noah Kennedy <noah.kennedy.professional@gmail.com>", "Isaiah Rondeau <isaiahrondeau@gmail.com>", "Wallace Watler <watlerathome@gmail.com>", "Cody Nettesheim <nettesheimcj@msoe.edu>"]
 edition = "2018"
-# Used for generating UML
-# Requires nightly compiler
-# Also requires GraphViz to be installed
-#build = "build.rs"
 
 [dependencies]
-# Used for generating UML
-#mml = "0.1.41"
 
 
 [build-dependencies.mml]
