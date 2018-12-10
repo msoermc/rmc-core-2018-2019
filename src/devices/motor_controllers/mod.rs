@@ -1,16 +1,18 @@
 use super::*;
 
+use std::io::Result;
+
 pub mod hover_board;
 
-pub trait MotorController<E>: Device {
+pub trait MotorController: Device {
     /// Sets the current speed of the motor controller.
     /// The speed should be a floating point number between -1 and 1.
     /// A negative speed indicates that the direction is reversed.
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), E>;
+    fn set_speed(&mut self, new_speed: f32) -> Result<()>;
     
     
     /// Sets the current speed of the motor controller to zero.
-    fn stop(&mut self) -> Result<(), E>;
+    fn stop(&mut self) -> Result<()>;
     
     
     /// Inverts the directionality of the motor controller.
