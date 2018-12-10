@@ -1,5 +1,7 @@
 use super::*;
 
+pub mod hover_board;
+
 pub trait MotorController<E>: Device {
     /// Sets the current speed of the motor controller.
     /// The speed should be a floating point number between -1 and 1.
