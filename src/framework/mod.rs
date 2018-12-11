@@ -1,3 +1,5 @@
+pub mod logging;
+
 /// The subsystem trait represents different subsystems on the robot such as bucket ladders,
 /// drivetrains, and dumping mechanisms.
 ///

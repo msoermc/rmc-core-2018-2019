@@ -5,7 +5,4 @@ authors = ["Noah Kennedy <noah.kennedy.professional@gmail.com>", "Isaiah Rondeau
 edition = "2018"
 
 [dependencies]
-
-
-[build-dependencies.mml]
-version = "0.1"
+chrono = ""
