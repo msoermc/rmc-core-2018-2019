@@ -12,6 +12,11 @@ use std::fs::{
     OpenOptions,
 };
 
+use std::thread::{
+    Thread,
+    spawn,
+    JoinHandle
+};
 use std::path::Path;
 use std::io::Result;
 
@@ -61,12 +66,22 @@ impl Logger {
         self.log_sender_template.clone()
     }
     
-    fn start(&mut self) {
-        unimplemented!()
+    fn start(self) -> JoinHandle<Thread> {
+        let logging_thread = spawn(|| {
+            let receiver = self.log_receiver;
+            loop {
+                if receiver.can_recv() {
+                    let new_message = receiver.try_recv().unwrap();
+                    let message_string = new_message.
+                }
+            }
+        });
+        
+        logging_thread.join()
     }
 }
 
-fn get_file_to_use(path: & Path) -> Result<File> {
+fn get_file_to_use(path: &Path) -> Result<File> {
     OpenOptions::new()
         .create_new(true)
         .write(true).open(path)

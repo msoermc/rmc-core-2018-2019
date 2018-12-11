@@ -75,6 +75,10 @@ impl LogData {
             None => None
         }
     }
+    
+    pub fn to_string(&self) -> String {
+        unimplemented!()
+    }
 }
 
 
