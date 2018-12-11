@@ -1,11 +1,18 @@
-use super::{MotorController};
+use super::MotorController;
+use crate::devices::Device;
+
+use std::io::Result;
+
+pub struct HoverBoardMotor {
+
+}
 
 impl MotorController for HoverBoardMotor {
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorController> {
+    fn set_speed(&mut self, new_speed: f32) -> Result<()> {
         unimplemented!()
     }
     
-    fn stop(&mut self) -> Result<(), MotorController> {
+    fn stop(&mut self) -> Result<()> {
         unimplemented!()
     }
     
@@ -13,7 +20,7 @@ impl MotorController for HoverBoardMotor {
         unimplemented!()
     }
     
-    fn is_inverted(&self) {
+    fn is_inverted(&self) -> bool {
         unimplemented!()
     }
     
@@ -25,7 +32,11 @@ impl MotorController for HoverBoardMotor {
         unimplemented!()
     }
     
-    fn is_enabled(&self) {
+    fn is_enabled(&self) -> bool {
         unimplemented!()
     }
+}
+
+impl Device for HoverBoardMotor {
+
 }

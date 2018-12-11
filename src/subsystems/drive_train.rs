@@ -1,14 +1,17 @@
+use std::io::Result;
 use std::sync::mpsc::Sender;
+use std::io::Error;
 
+use crate::devices::Device;
+use crate::devices::motor_controllers::{
+    hover_board::HoverBoardMotor,
+    MotorController,
+};
 use crate::framework::{
     LogData,
     RobotError,
     Subsystem,
     TestMode,
-};
-use crate::devices::motor_controllers::{
-    MotorController,
-    hover_board::HoverBoardMotor,
 };
 
 
@@ -23,10 +26,8 @@ pub struct DriveTrain {
     is_enabled: bool,
     log_channel: Sender<LogData>,
     error_channel: Sender<DriveTrainError>,
-    front_left: Box<MotorController>,
-    front_right: Box<MotorController>,
-    back_left: Box<MotorController>,
-    back_right: Box<MotorController>,
+    left: TankSide,
+    right: TankSide,
 }
 
 
@@ -37,7 +38,8 @@ impl Subsystem<DriveTrainError> for DriveTrain {
     
     
     fn run(&mut self) {
-        unimplemented!()
+        self.left.run_at_previous_speed();
+        self.right.run_at_previous_speed();
     }
     
     
@@ -63,64 +65,76 @@ impl Subsystem<DriveTrainError> for DriveTrain {
 
 
 impl DriveTrain {
-    pub fn drive(left_speed: f32, right_speed: f32) {
-        unimplemented!()
+    pub fn drive(&mut self, left_speed: f32, right_speed: f32) {
+        self.right.set_speed(right_speed);
+        self.left.set_speed(left_speed);
     }
     
     
-    pub fn new(&mut self,
-               logging_channel: Sender<LogData>,
-               error_channel: Sender<DriveTrainError>,
-               test_mode: TestMode)
-        -> DriveTrain {
+    pub fn new(&mut self, logging_channel: Sender<LogData>,
+               error_channel: Sender<DriveTrainError>, test_mode: TestMode) -> DriveTrain {
         unimplemented!()
     }
 }
 
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    
-    #[test]
-    fn test_init() {
-        unimplemented!()
+struct TankSide {
+    is_inverted: bool,
+    front: Box<MotorController>,
+    back: Box<MotorController>,
+    previous_value: Option<f32>,
+    is_enabled: bool,
+}
+
+
+impl MotorController for TankSide {
+    fn set_speed(&mut self, new_speed: f32) -> Result<()> {
+        let new_speed = if self.is_inverted() {
+            new_speed
+        } else {
+            -new_speed
+        };
+        
+        self.previous_value = Some(new_speed);
+        if self.is_enabled() {
+            self.back.set_speed(new_speed)?;
+            self.front.set_speed(new_speed)?;
+        }
+        Ok(())
     }
     
-    
-    #[test]
-    fn test_run() {
-        unimplemented!()
+    fn stop(&mut self) -> Result<()> {
+        self.set_speed(0.0)
     }
     
-    
-    #[test]
-    fn test_disabled() {
-        unimplemented!()
+    fn invert(&mut self) {
+        self.is_inverted = true;
     }
     
-    
-    #[test]
-    fn test_is_enabled() {
-        unimplemented!()
+    fn is_inverted(&self) -> bool {
+        self.is_inverted
     }
     
-    
-    #[test]
-    fn test_if_disabled() {
-        unimplemented!()
+    fn enable(&mut self) {
+        self.is_inverted = true
     }
     
-    
-    #[test]
-    fn test_drive() {
-        unimplemented!()
+    fn disable(&mut self) {
+        self.stop();
+        self.is_enabled = false;
     }
     
+    fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
     
-    #[test]
-    fn test_new() {
-        unimplemented!()
+    fn run_at_previous_speed(&mut self) -> Result<()> {
+        match self.previous_value {
+            Some(val) => self.set_speed(val),
+            None =>
+        }
     }
 }
+
+
+impl Device for TankSide {}
