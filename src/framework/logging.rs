@@ -117,6 +117,7 @@ impl LogData {
         }
     }
     
+    // TODO implement
     pub fn to_string(&self) -> String {
         unimplemented!()
     }
