@@ -1,7 +1,4 @@
-use std::io::{
-    Result,
-    Error,
-};
+use std::io::Result;
 use std::sync::mpsc::Sender;
 
 use crate::devices::{
@@ -15,9 +12,7 @@ use crate::framework::{
     logging::LogData,
     RobotError,
     Subsystem,
-    TestMode,
 };
-
 
 pub struct DriveTrainError {}
 
@@ -69,8 +64,18 @@ impl Subsystem<DriveTrainError> for DriveTrain {
 
 impl DriveTrain {
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) {
-        self.right.set_speed(right_speed);
-        self.left.set_speed(left_speed);
+        let right_result = self.right.set_speed(right_speed);
+        let left_result = self.left.set_speed(left_speed);
+
+        match right_result {
+            Ok(_) => (),
+            Err(error) => unimplemented!(),
+        };
+
+        match left_result {
+            Ok(_) => (),
+            Err(error) => unimplemented!(),
+        };
     }
 
 

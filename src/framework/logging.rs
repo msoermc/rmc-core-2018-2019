@@ -24,7 +24,6 @@ use chrono::prelude::{
     Utc,
 };
 
-
 struct Logger {
     file: File,
     log_receiver: Receiver<LogData>,
@@ -100,8 +99,7 @@ pub enum LogType {
 pub struct LogData {
     severity: LogType,
     timestamp: DateTime<Utc>,
-    short_description: String,
-    full_description: Option<String>,
+    description: String,
 }
 
 
@@ -111,17 +109,10 @@ impl LogData {
     }
 
 
-    pub fn get_short_description(&self) -> &str {
-        &self.short_description
+    pub fn get_description(&self) -> &str {
+        &self.description
     }
 
-
-    pub fn get_full_description(&self) -> Option<&str> {
-        match &self.full_description {
-            Some(des) => Option::Some(des.as_str()),
-            None => None
-        }
-    }
 
     pub fn to_string(&self) -> String {
         let severity = match self.severity {
@@ -133,12 +124,8 @@ impl LogData {
         };
 
         let timestamp = &self.timestamp.to_string();
-        let short_description = &self.short_description;
+        let description = self.get_description();
 
-        if let Some(full_description) = &self.full_description {
-            format!("[{}]:\t{}\n{}\n{}", severity, timestamp, short_description, full_description)
-        } else {
-            format!("[{}]:\t{}\n{}", severity, timestamp, short_description)
-        }
+        format!("[{}]:\t{}\n{}", severity, timestamp, description)
     }
 }
