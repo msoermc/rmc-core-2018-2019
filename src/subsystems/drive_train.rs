@@ -1,11 +1,15 @@
-use std::io::Result;
+use std::io::{
+    Result,
+    Error,
+};
 use std::sync::mpsc::Sender;
-use std::io::Error;
 
-use crate::devices::Device;
-use crate::devices::motor_controllers::{
-    hover_board::HoverBoardMotor,
-    MotorController,
+use crate::devices::{
+    Device,
+    motor_controllers::{
+        hover_board::HoverBoardMotor,
+        MotorController,
+    },
 };
 use crate::framework::{
     logging::LogData,
@@ -70,8 +74,7 @@ impl DriveTrain {
     }
 
 
-    pub fn new(&mut self, logging_channel: Sender<LogData>,
-               error_channel: Sender<DriveTrainError>, test_mode: TestMode) -> DriveTrain {
+    pub fn new(logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>) -> DriveTrain {
         unimplemented!()
     }
 }
