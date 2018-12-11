@@ -4,10 +4,10 @@ pub mod logging;
 /// drivetrains, and dumping mechanisms.
 ///
 /// Subsystems are run in their own processes concurrently by the robot framework.
-pub trait Subsystem<E: RobotError> {
+pub trait Subsystem {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
-    fn init(&mut self) -> E;
+    fn init(&mut self);
 
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
@@ -40,6 +40,3 @@ pub enum TestMode {
     OnRobot(),
     Virtual(),
 }
-
-
-pub trait RobotError {}

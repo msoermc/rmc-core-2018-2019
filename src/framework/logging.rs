@@ -24,7 +24,7 @@ use chrono::prelude::{
     Utc,
 };
 
-struct Logger {
+pub struct Logger {
     file: File,
     log_receiver: Receiver<LogData>,
     log_sender_template: Sender<LogData>,
@@ -65,11 +65,11 @@ impl Logger {
 
             loop {
                 if let Ok(new_message) = receiver.recv() {
-                    writeln!(writer, "{}", new_message.to_string());
+                    writeln!(writer, "{}", new_message.to_string()).unwrap();
                 }
 
                 if flush_counter % 10 == 0 {
-                    writer.flush();
+                    writer.flush().unwrap();
                 }
 
                 flush_counter += 1;
@@ -77,6 +77,12 @@ impl Logger {
         });
 
         logging_thread.join().unwrap()
+    }
+}
+
+impl Default for Logger {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

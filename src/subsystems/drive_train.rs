@@ -3,35 +3,29 @@ use std::sync::mpsc::Sender;
 
 use crate::devices::{
     Device,
-    motor_controllers::{
-        hover_board::HoverBoardMotor,
-        MotorController,
-    },
+    motor_controllers::MotorController,
 };
 use crate::framework::{
     logging::LogData,
-    RobotError,
     Subsystem,
 };
 
-pub struct DriveTrainError {}
-
-
-impl RobotError for DriveTrainError {}
-
+pub enum DriveTrainState {
+    RightSideMotorError(),
+    LeftSideMotorError(),
+}
 
 pub struct DriveTrain {
-    test_mode: bool,
     is_enabled: bool,
     log_channel: Sender<LogData>,
-    error_channel: Sender<DriveTrainError>,
+    error_channel: Sender<DriveTrainState>,
     left: TankSide,
     right: TankSide,
 }
 
 
-impl Subsystem<DriveTrainError> for DriveTrain {
-    fn init(&mut self) -> DriveTrainError {
+impl Subsystem for DriveTrain {
+    fn init(&mut self) {
         unimplemented!()
     }
 
@@ -79,8 +73,14 @@ impl DriveTrain {
     }
 
 
-    pub fn new(logging_channel: Sender<LogData>, error_channel: Sender<DriveTrainError>) -> DriveTrain {
-        unimplemented!()
+    pub fn new(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainState>) -> DriveTrain {
+        DriveTrain {
+            is_enabled: true,
+            log_channel,
+            error_channel,
+            left: get_left_side(),
+            right: get_right_side(),
+        }
     }
 }
 
@@ -115,6 +115,14 @@ impl MotorController for TankSide {
     fn is_inverted(&self) -> bool {
         self.is_inverted
     }
+}
+
+fn get_left_side() -> TankSide {
+    unimplemented!()
+}
+
+fn get_right_side() -> TankSide {
+    unimplemented!()
 }
 
 
