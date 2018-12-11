@@ -8,7 +8,7 @@ use crate::devices::motor_controllers::{
     MotorController,
 };
 use crate::framework::{
-    LogData,
+    logging::LogData,
     RobotError,
     Subsystem,
     TestMode,

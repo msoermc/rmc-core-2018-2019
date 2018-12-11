@@ -42,44 +42,7 @@ pub enum TestMode {
 }
 
 
-pub enum LogType {
-    Debug(),
-    Info(),
-    Warning(),
-    Error(),
-    Fatal(),
-}
 
-
-pub struct LogData {
-    severity: LogType,
-    short_description: String,
-    full_description: Option<String>,
-}
-
-
-impl LogData {
-    pub fn get_severity(&self) -> &LogType {
-        &self.severity
-    }
-
-    
-    pub fn get_short_description(&self) -> &str {
-        &self.short_description
-    }
-    
-    
-    pub fn get_full_description(&self) -> Option<&str> {
-        match &self.full_description {
-            Some(des) => Option::Some(des.as_str()),
-            None => None
-        }
-    }
-    
-    pub fn to_string(&self) -> String {
-        unimplemented!()
-    }
-}
 
 
 pub trait RobotError {}
