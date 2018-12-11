@@ -8,10 +8,7 @@ use crate::framework::{
 };
 use crate::devices::motor_controllers::{
     MotorController,
-    hover_board::{
-        HoverBoardError,
-        HoverBoardMotor,
-    },
+    hover_board::HoverBoardMotor,
 };
 
 
