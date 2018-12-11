@@ -35,7 +35,7 @@ pub trait Subsystem<E: RobotError> {
     fn if_disabled(&mut self);
 }
 
-
+#[derive(Copy, Clone)]
 pub enum TestMode {
     OnRobot(),
     Virtual(),
