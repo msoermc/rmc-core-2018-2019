@@ -21,21 +21,4 @@ pub trait MotorController: Device {
     
     /// Returns true if the motor controller is inverted and false otherwise.
     fn is_inverted(&self) -> bool;
-    
-    
-    /// Enables the motor controller.
-    /// While enabled, motor controllers operate as normal.
-    /// Motor controllers should be enabled by default.
-    fn enable(&mut self);
-    
-    
-    /// Disables the motor controller.
-    /// While disabled, motor controllers will not run their motors.
-    fn disable(&mut self);
-    
-    
-    /// Returns true if the motor controller is enabled and false otherwise.
-    fn is_enabled(&self) -> bool;
-    
-    fn run_at_previous_speed(&mut self);
 }

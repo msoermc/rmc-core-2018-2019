@@ -23,18 +23,6 @@ impl MotorController for HoverBoardMotor {
     fn is_inverted(&self) -> bool {
         unimplemented!()
     }
-    
-    fn enable(&mut self) {
-        unimplemented!()
-    }
-    
-    fn disable(&mut self) {
-        unimplemented!()
-    }
-    
-    fn is_enabled(&self) -> bool {
-        unimplemented!()
-    }
 }
 
 impl Device for HoverBoardMotor {
