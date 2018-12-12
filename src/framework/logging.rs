@@ -1,22 +1,24 @@
-use std::fs::{
-    File,
-    OpenOptions,
-};
-use std::io::{
-    BufWriter,
-    Result,
-    Write,
-};
-use std::path::Path;
-use std::sync::mpsc::{
-    channel,
-    Receiver,
-    Sender,
-};
-use std::thread::{
-    JoinHandle,
-    spawn,
-    Thread,
+use std::{
+    fs::{
+        File,
+        OpenOptions,
+    },
+    io::{
+        BufWriter,
+        Result,
+        Write,
+    },
+    path::Path,
+    sync::mpsc::{
+        channel,
+        Receiver,
+        Sender,
+    },
+    thread::{
+        JoinHandle,
+        spawn,
+        Thread,
+    },
 };
 
 use chrono::prelude::{
