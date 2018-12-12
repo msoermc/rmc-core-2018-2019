@@ -2,6 +2,7 @@ use std::{
     fs::{
         File,
         OpenOptions,
+        create_dir_all,
     },
     io::{
         BufWriter,
@@ -43,7 +44,7 @@ impl Logger {
         let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
         // Use the current date and time to create a new log file
-        let file_name = format!("~/RMC_Logs/RMC_Log_{}", current_time);
+        let file_name = format!("./RMC_Logs/RMC_Log_{}", current_time);
 
         let file = get_file_to_use(Path::new(&file_name)).unwrap();
 
@@ -88,9 +89,11 @@ impl Default for Logger {
 }
 
 fn get_file_to_use(path: &Path) -> Result<File> {
+    create_dir_all(path.parent().unwrap())?;
     OpenOptions::new()
         .create_new(true)
-        .write(true).open(path)
+        .write(true)
+        .open(path)
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -134,5 +137,13 @@ impl LogData {
         let description = self.get_description();
 
         format!("[{}]:\t{}\n{}", severity, timestamp, description)
+    }
+
+    pub fn new(severity: LogType, timestamp: DateTime<Utc>, description: String) -> LogData {
+        LogData {
+            severity,
+            timestamp,
+            description
+        }
     }
 }
