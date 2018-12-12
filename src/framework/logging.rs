@@ -23,6 +23,8 @@ use std::{
     },
 };
 
+
+
 use chrono::prelude::{
     DateTime,
     Utc,
@@ -36,17 +38,9 @@ pub struct Logger {
 
 impl Logger {
     pub fn new() -> Logger {
-        let channel_pair = channel();
-        let log_sender_template = channel_pair.0;
-        let log_receiver = channel_pair.1;
-
-
-        // Get the current utc time in 'y-m-d h:m:s' form
+        let (log_sender_template, log_receiver) = channel();
         let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
-
-        // Use the current date and time to create a new log file
         let file_name = format!("./RMC_Logs/{}.log", current_time);
-
         let file = get_file_to_use(Path::new(&file_name)).unwrap();
 
         Logger {
@@ -73,9 +67,8 @@ impl Logger {
                         println!("{}", new_message.to_string());
                     }
                     Err(e) => {
-                        match e {
-                            TryRecvError::Empty => {}
-                            TryRecvError::Disconnected => panic!("Channel was disconnected!")
+                        if let TryRecvError::Disconnected = e {
+                            panic!("Channel was disconnected!")
                         }
                     }
                 }
@@ -126,11 +119,9 @@ impl LogData {
         &self.severity
     }
 
-
     pub fn get_description(&self) -> &str {
         &self.description
     }
-
 
     pub fn to_string(&self) -> String {
         let severity = match self.severity {
