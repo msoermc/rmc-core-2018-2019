@@ -45,7 +45,6 @@ impl Logger {
         // Use the current date and time to create a new log file
         let file_name = format!("~/RMC_Logs/RMC_Log_{}", current_time);
 
-        // TODO make this more resilient before competition by retrying file creation
         let file = get_file_to_use(Path::new(&file_name)).unwrap();
 
         Logger {

@@ -47,7 +47,7 @@ pub struct DriveTrain {
 
 impl Subsystem<DriveTrainCommand> for DriveTrain {
     fn init(&mut self) {
-        unimplemented!()
+        // Do nothing
     }
 
     fn run(&mut self) {
