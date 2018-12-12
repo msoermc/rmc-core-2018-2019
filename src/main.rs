@@ -28,15 +28,11 @@ fn main() {
     // Setup logger and get it's channels
     let logger = Logger::new();
     let log_sender = logger.get_sender();
-    logger.start();
-
-    println!("Started logger");
-
+    let logging_thread = logger.start();
 
     let test_log = LogData::new(LogType::Debug(), chrono::Utc::now(), String::from("Test"));
 
     log_sender.send(test_log).unwrap();
-    println!("Sent");
 
     // Setup DriveTrain and get it's channels
     let (drive_event_sender, drive_event_receiver) = channel();
@@ -50,8 +46,7 @@ fn main() {
         }
     });
 
-    println!("Started drivetrain");
-
+    logging_thread.join().unwrap();
     drive_thread.join().unwrap();
 
 }
