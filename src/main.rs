@@ -7,23 +7,19 @@ use crate::{
     framework::{
         logging::{
             Logger,
-            LogType
+            LogType,
+            LogData
         },
         Subsystem,
     },
     subsystems::drive_train::DriveTrain,
-};
-use crate::framework::logging::LogData;
-
-use chrono::prelude::{
-    Utc,
-    DateTime,
 };
 
 pub mod framework;
 pub mod subsystems;
 pub mod devices;
 
+//noinspection RsTypeCheck
 fn main() {
     // Setup logger and get it's channels
     let logger = Logger::new();
@@ -48,5 +44,4 @@ fn main() {
 
     logging_thread.join().unwrap();
     drive_thread.join().unwrap();
-
 }

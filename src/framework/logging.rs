@@ -1,8 +1,8 @@
 use std::{
     fs::{
+        create_dir_all,
         File,
         OpenOptions,
-        create_dir_all,
     },
     io::{
         BufWriter,
@@ -61,7 +61,7 @@ impl Logger {
     }
 
     pub fn start(self) -> JoinHandle<Thread> {
-        let logging_thread = spawn(|| {
+        spawn(|| {
             let receiver = self.log_receiver;
             let mut writer = BufWriter::new(self.file);
             let mut flush_counter: u64 = 0;
@@ -74,7 +74,7 @@ impl Logger {
                     }
                     Err(e) => {
                         match e {
-                            TryRecvError::Empty => {},
+                            TryRecvError::Empty => {}
                             TryRecvError::Disconnected => panic!("Channel was disconnected!")
                         }
                     }
@@ -86,9 +86,7 @@ impl Logger {
 
                 flush_counter += 1;
             }
-        });
-
-        logging_thread
+        })
     }
 }
 
@@ -153,7 +151,7 @@ impl LogData {
         LogData {
             severity,
             timestamp,
-            description
+            description,
         }
     }
 }
