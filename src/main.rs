@@ -19,7 +19,6 @@ pub mod framework;
 pub mod subsystems;
 pub mod devices;
 
-//noinspection RsTypeCheck
 fn main() {
     // Setup logger and get it's channels
     let logger = Logger::new();
