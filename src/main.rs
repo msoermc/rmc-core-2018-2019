@@ -30,6 +30,14 @@ fn main() {
     let log_sender = logger.get_sender();
     logger.start();
 
+    println!("Started logger");
+
+
+    let test_log = LogData::new(LogType::Debug(), chrono::Utc::now(), String::from("Test"));
+
+    log_sender.send(test_log).unwrap();
+    println!("Sent");
+
     // Setup DriveTrain and get it's channels
     let (drive_event_sender, drive_event_receiver) = channel();
     let mut drive_train = DriveTrain::new(log_sender.clone(), drive_event_sender);
@@ -42,9 +50,8 @@ fn main() {
         }
     });
 
+    println!("Started drivetrain");
+
     drive_thread.join().unwrap();
 
-    let test_log = LogData::new(LogType::Debug(), chrono::Utc::now(), String::from("Test"));
-
-    log_sender.send(test_log).unwrap();
 }

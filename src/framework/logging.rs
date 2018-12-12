@@ -14,6 +14,7 @@ use std::{
         channel,
         Receiver,
         Sender,
+        TryRecvError,
     },
     thread::{
         JoinHandle,
@@ -44,7 +45,7 @@ impl Logger {
         let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
         // Use the current date and time to create a new log file
-        let file_name = format!("./RMC_Logs/RMC_Log_{}", current_time);
+        let file_name = format!("./RMC_Logs/{}.log", current_time);
 
         let file = get_file_to_use(Path::new(&file_name)).unwrap();
 
@@ -66,8 +67,17 @@ impl Logger {
             let mut flush_counter: u64 = 0;
 
             loop {
-                if let Ok(new_message) = receiver.recv() {
-                    writeln!(writer, "{}", new_message.to_string()).unwrap();
+                match receiver.try_recv() {
+                    Ok(new_message) => {
+                        writeln!(writer, "{}", new_message.to_string()).unwrap();
+                        println!("{}", new_message.to_string());
+                    }
+                    Err(e) => {
+                        match e {
+                            TryRecvError::Empty => {},
+                            TryRecvError::Disconnected => panic!("Channel was disconnected!")
+                        }
+                    }
                 }
 
                 if flush_counter % 10 == 0 {
@@ -78,7 +88,7 @@ impl Logger {
             }
         });
 
-        logging_thread.join().unwrap()
+        logging_thread
     }
 }
 
