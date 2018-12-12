@@ -1,5 +1,4 @@
 use std::{
-    io::Result,
     sync::{
         mpsc::{
             channel,
@@ -11,7 +10,6 @@ use std::{
 
 use crate::{
     devices::{
-        Device,
         motor_controllers::MotorController,
     },
     framework::{
@@ -19,6 +17,7 @@ use crate::{
         Subsystem,
     },
 };
+use crate::devices::motor_controllers::hover_board::HoverBoardError;
 
 pub enum DriveTrainEvent {
     RightSideMotorError(),
@@ -103,34 +102,38 @@ impl DriveTrain {
 
 struct TankSide {
     is_inverted: bool,
-    front: Box<MotorController>,
-    back: Box<MotorController>,
+    front: Box<MotorController<HoverBoardError>>,
+    back: Box<MotorController<HoverBoardError>>,
 }
 
 
-impl MotorController for TankSide {
-    fn set_speed(&mut self, new_speed: f32) -> Result<()> {
-        let potentially_inverted_speed = if self.is_inverted() {
-            -new_speed
-        } else {
-            new_speed
-        };
+impl MotorController<TankSideError> for TankSide {
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), TankSideError> {
+        self.front.set_speed(new_speed).unwrap();
+        self.back.set_speed(new_speed).unwrap();
 
-        self.front.set_speed(potentially_inverted_speed)?;
-        self.back.set_speed(potentially_inverted_speed)
+        Ok(())
     }
 
-    fn stop(&mut self) -> Result<()> {
+    fn stop(&mut self) -> Result<(), TankSideError> {
         self.set_speed(0.0)
     }
 
-    fn invert(&mut self) {
-        self.is_inverted = !self.is_inverted()
+    fn invert(&mut self) -> Result<(), TankSideError> {
+        self.is_inverted = !self.is_inverted();
+        self.front.invert().unwrap();
+        self.back.invert().unwrap();
+        Ok(())
     }
 
     fn is_inverted(&self) -> bool {
         self.is_inverted
     }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum TankSideError {
+
 }
 
 fn get_left_side() -> TankSide {
@@ -140,6 +143,3 @@ fn get_left_side() -> TankSide {
 fn get_right_side() -> TankSide {
     unimplemented!()
 }
-
-
-impl Device for TankSide {}

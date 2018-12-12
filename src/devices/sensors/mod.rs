@@ -1,3 +1,1 @@
-use super::*;
-
-pub trait Sensor: Device {}
+pub trait Sensor: {}
