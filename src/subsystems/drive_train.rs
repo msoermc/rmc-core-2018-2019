@@ -54,24 +54,24 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
             match message {
                 DriveTrainCommand::Drive(left, right) => {
                     if self.is_alive && self.is_enabled {
-                        self.left.set_speed(left).unwrap();
-                        self.right.set_speed(right).unwrap();
+                        self.drive(left, right);
                     } else {
-                        self.left.stop().unwrap();
-                        self.right.stop().unwrap();
+                        self.stop();
                     }
                 }
                 DriveTrainCommand::Enable() => {
-                    self.is_enabled = true;
+                    self.enable();
                 }
                 DriveTrainCommand::Disable() => {
-                    self.is_enabled = false;
+                    self.disable();
+                    self.stop();
                 }
                 DriveTrainCommand::Kill() => {
-                    self.is_alive = false;
+                    self.kill();
+                    self.stop();
                 }
                 DriveTrainCommand::Revive() => {
-                    self.is_alive = true;
+                    self.revive();
                 }
             }
         }
@@ -96,6 +96,33 @@ impl DriveTrain {
             left: get_left_side(),
             right: get_right_side(),
         }
+    }
+
+    fn drive(&mut self, left_speed: f32, right_speed: f32) {
+        self.left.set_speed(left_speed).unwrap();
+        self.right.set_speed(right_speed).unwrap();
+    }
+
+    fn stop(&mut self) {
+        self.left.stop().unwrap();
+        self.right.stop().unwrap();
+    }
+
+    fn enable(&mut self) {
+        self.is_enabled = true;
+    }
+
+    fn disable(&mut self) {
+        self.is_enabled = false;
+    }
+
+    fn kill(&mut self) {
+        self.is_alive = false;
+        self.
+    }
+
+    fn revive(&mut self) {
+        self.is_alive = true;
     }
 }
 
@@ -132,9 +159,7 @@ impl MotorController<TankSideError> for TankSide {
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum TankSideError {
-
-}
+enum TankSideError {}
 
 fn get_left_side() -> TankSide {
     unimplemented!()
