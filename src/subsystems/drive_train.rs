@@ -61,16 +61,16 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
         match self.command_receiver.try_recv() {
             Ok(message) => match message {
                 DriveTrainCommand::Drive(left, right) => {
-                    self.drive(left, right);
+                    self.drive(left, right).unwrap(); // TODO Add handling to this
                 }
                 DriveTrainCommand::Enable() => {
                     self.enable();
                 }
                 DriveTrainCommand::Disable() => {
-                    self.disable();
+                    self.disable().unwrap(); // TODO Add handling to this
                 }
                 DriveTrainCommand::Kill() => {
-                    self.kill();
+                    self.kill().unwrap(); // TODO Add handling to this
                 }
                 DriveTrainCommand::Revive() => {
                     self.revive();
@@ -106,32 +106,38 @@ impl DriveTrain {
         }
     }
 
-    fn drive(&mut self, left_speed: f32, right_speed: f32) {
+    fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), TankSideError> {
         if self.is_alive && self.is_enabled {
-            self.left.set_speed(left_speed).unwrap();
-            self.right.set_speed(right_speed).unwrap();
+            self.left.set_speed(left_speed)?;
+            self.right.set_speed(right_speed)?;
         } else {
-            self.stop();
+            self.stop()?;
         }
+
+        Ok(())
     }
 
-    fn stop(&mut self) {
-        self.left.stop().unwrap();
-        self.right.stop().unwrap();
+    fn stop(&mut self) -> Result<(), TankSideError> {
+        self.left.stop()?;
+        self.right.stop()?;
+        Ok(())
     }
 
     fn enable(&mut self) {
         self.is_enabled = true;
     }
 
-    fn disable(&mut self) {
+    fn disable(&mut self) -> Result<(), TankSideError> {
         self.is_enabled = false;
-        self.stop();
+        self.stop()?;
+
+        Ok(())
     }
 
-    fn kill(&mut self) {
+    fn kill(&mut self) -> Result<(), TankSideError> {
         self.is_alive = false;
-        self.stop();
+        self.stop()?;
+        Ok(())
     }
 
     fn revive(&mut self) {
@@ -149,8 +155,14 @@ struct TankSide {
 
 impl MotorController<TankSideError> for TankSide {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), TankSideError> {
-        self.front.set_speed(new_speed).unwrap();
-        self.back.set_speed(new_speed).unwrap();
+        match self.front.set_speed(new_speed) {
+            Ok(x) => x,
+            Err(_) => unimplemented!(),
+        };
+        match self.back.set_speed(new_speed) {
+            Ok(x) => x,
+            Err(_) => unimplemented!(),
+        };
 
         Ok(())
     }
@@ -161,8 +173,14 @@ impl MotorController<TankSideError> for TankSide {
 
     fn invert(&mut self) -> Result<(), TankSideError> {
         self.is_inverted = !self.is_inverted();
-        self.front.invert().unwrap();
-        self.back.invert().unwrap();
+        match self.front.invert() {
+            Ok(x) => x,
+            Err(_) => unimplemented!(),
+        };
+        match self.back.invert() {
+            Ok(x) => x,
+            Err(_) => unimplemented!(),
+        };
         Ok(())
     }
 
