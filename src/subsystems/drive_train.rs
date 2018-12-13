@@ -4,20 +4,28 @@ use std::{
             channel,
             Receiver,
             Sender,
+            TryRecvError,
         }
-    },
+    }
 };
 
 use crate::{
     devices::{
-        motor_controllers::MotorController,
+        motor_controllers::{
+            MotorController,
+            hover_board::HoverBoardError,
+        }
     },
     framework::{
-        logging::LogData,
+        logging::{
+            LogData,
+            LogType,
+        },
         Subsystem,
     },
 };
-use crate::devices::motor_controllers::hover_board::HoverBoardError;
+
+use chrono::prelude::Utc;
 
 pub enum DriveTrainEvent {
     RightSideMotorError(),
@@ -50,28 +58,28 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
     }
 
     fn run(&mut self) {
-        if let Ok(message) = self.command_receiver.recv() {
-            match message {
+        match self.command_receiver.try_recv() {
+            Ok(message) => match message {
                 DriveTrainCommand::Drive(left, right) => {
-                    if self.is_alive && self.is_enabled {
-                        self.drive(left, right);
-                    } else {
-                        self.stop();
-                    }
+                    self.drive(left, right);
                 }
                 DriveTrainCommand::Enable() => {
                     self.enable();
                 }
                 DriveTrainCommand::Disable() => {
                     self.disable();
-                    self.stop();
                 }
                 DriveTrainCommand::Kill() => {
                     self.kill();
-                    self.stop();
                 }
                 DriveTrainCommand::Revive() => {
                     self.revive();
+                }
+            },
+            Err(e) => {
+                if let TryRecvError::Disconnected = e {
+                    let error_log = LogData::new(LogType::Fatal(), Utc::now(), e.to_string());
+                    self.log_channel.send(error_log).unwrap(); // Nothing we can do here, we are fucked
                 }
             }
         }
@@ -99,8 +107,12 @@ impl DriveTrain {
     }
 
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
-        self.left.set_speed(left_speed).unwrap();
-        self.right.set_speed(right_speed).unwrap();
+        if self.is_alive && self.is_enabled {
+            self.left.set_speed(left_speed).unwrap();
+            self.right.set_speed(right_speed).unwrap();
+        } else {
+            self.stop();
+        }
     }
 
     fn stop(&mut self) {
@@ -114,11 +126,12 @@ impl DriveTrain {
 
     fn disable(&mut self) {
         self.is_enabled = false;
+        self.stop();
     }
 
     fn kill(&mut self) {
         self.is_alive = false;
-        self.
+        self.stop();
     }
 
     fn revive(&mut self) {
