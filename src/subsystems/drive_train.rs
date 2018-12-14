@@ -32,8 +32,7 @@ use chrono::prelude::Utc;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// The DriveTrainEvent enum has values representing different events that can occur on the
 /// DriveTrain that are reported to the Controller thread.
-pub enum DriveTrainEvent {
-}
+pub enum DriveTrainEvent {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // enum DriveTrainCommand
@@ -52,6 +51,7 @@ pub enum DriveTrainCommand {
 // struct DriveTrain
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// The DriveTrain struct contains the data required to run the DriveTrain. The DriveTrain
+/// is normally run in it's own thread.
 pub struct DriveTrain {
     is_enabled: bool,
     is_alive: bool,
@@ -115,6 +115,13 @@ impl DriveTrain {
             command_sender,
             left: get_left_side(),
             right: get_right_side(),
+        }
+    }
+
+    pub fn start(mut self) {
+        self.init();
+        loop {
+            self.run();
         }
     }
 

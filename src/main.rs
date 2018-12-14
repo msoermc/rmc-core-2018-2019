@@ -34,12 +34,7 @@ fn main() {
     let mut drive_train = DriveTrain::new(log_sender.clone(), drive_event_sender);
     let drive_command_sender = drive_train.get_command_sender();
 
-    let drive_thread = thread::spawn(move || {
-        drive_train.init();
-        loop {
-            drive_train.run();
-        }
-    });
+    let drive_thread = thread::spawn(|| drive_train.start());
 
     logging_thread.join().unwrap();
     drive_thread.join().unwrap();
