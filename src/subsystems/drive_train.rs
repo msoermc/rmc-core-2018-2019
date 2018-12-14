@@ -92,22 +92,22 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
         match self.command_receiver.try_recv() {
             Ok(message) => match message {
                 DriveTrainCommand::Drive(left, right) => {
-                    self.drive(left, right).unwrap(); // TODO Add handling to this
+                    self.drive(left, right);
                 }
                 DriveTrainCommand::Enable() => {
                     self.enable();
                 }
                 DriveTrainCommand::Disable() => {
-                    self.disable().unwrap(); // TODO Add handling to this
+                    self.disable();
                 }
                 DriveTrainCommand::Kill() => {
-                    self.kill().unwrap(); // TODO Add handling to this
+                    self.kill();
                 }
                 DriveTrainCommand::Revive() => {
                     self.revive();
                 }
                 DriveTrainCommand::Stop() => {
-                    self.stop().unwrap(); // TODO add handling to this
+                    self.stop();
                 }
             },
             Err(e) => {
@@ -147,26 +147,19 @@ impl DriveTrain {
     /// Causes the DriveTrain to drive at the supplied speeds.
     /// If the subsystem is disabled or the robot has been killed, this method will instead cause
     /// the robot to brake.
-    ///
-    /// This method will return `Ok(())` if successful and `Err(TankSideError)` is an error occurs.
-    fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), TankSideError> {
+    fn drive(&mut self, left_speed: f32, right_speed: f32) {
         if self.is_alive && self.is_enabled {
-            self.left.set_speed(left_speed)?;
-            self.right.set_speed(right_speed)?;
+            self.left.set_speed(left_speed).unwrap(); // TODO handle errors
+            self.right.set_speed(right_speed).unwrap(); // TODO handle errors
         } else {
-            self.stop()?;
+            self.stop();
         }
-
-        Ok(())
     }
 
     /// Causes the DriveTrain to brake.
-    ///
-    /// This method will return `Ok(())` if successful and `Err(TankSideError)` is an error occurs.
-    fn stop(&mut self) -> Result<(), TankSideError> {
-        self.left.stop()?;
-        self.right.stop()?;
-        Ok(())
+    fn stop(&mut self) {
+        self.left.stop().unwrap(); // TODO handle errors
+        self.right.stop().unwrap(); // TODO handle errors
     }
 
     /// Enables the DriveTrain/
@@ -175,22 +168,15 @@ impl DriveTrain {
     }
 
     /// Causes the DriveTrain to brake and disables it.
-    ///
-    /// This method will return `Ok(())` if successful and `Err(TankSideError)` is an error occurs.
-    fn disable(&mut self) -> Result<(), TankSideError> {
+    fn disable(&mut self) {
         self.is_enabled = false;
-        self.stop()?;
-
-        Ok(())
+        self.stop();
     }
 
     /// Causes the DriveTrain to brake and informs it that the robot has been killed.
-    ///
-    /// This method will return `Ok(())` if successful and `Err(TankSideError)` is an error occurs.
-    fn kill(&mut self) -> Result<(), TankSideError> {
+    fn kill(&mut self) {
         self.is_alive = false;
-        self.stop()?;
-        Ok(())
+        self.stop();
     }
 
     /// Informs the DriveTrain that the robot is alive.
@@ -215,13 +201,11 @@ struct TankSide {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl MotorController<TankSideError> for TankSide {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), TankSideError> {
-        match self.front.set_speed(new_speed) {
-            Ok(x) => x,
-            Err(_) => unimplemented!(),
+        if let Err(_) = self.front.set_speed(new_speed) {
+            unimplemented!()
         };
-        match self.back.set_speed(new_speed) {
-            Ok(x) => x,
-            Err(_) => unimplemented!(),
+        if let Err(_) = self.back.set_speed(new_speed) {
+            unimplemented!()
         };
 
         Ok(())
@@ -233,14 +217,13 @@ impl MotorController<TankSideError> for TankSide {
 
     fn invert(&mut self) -> Result<(), TankSideError> {
         self.is_inverted = !self.is_inverted();
-        match self.front.invert() {
-            Ok(x) => x,
-            Err(_) => unimplemented!(),
+        if let Err(_) = self.front.invert() {
+            unimplemented!()
         };
-        match self.back.invert() {
-            Ok(x) => x,
-            Err(_) => unimplemented!(),
+        if let Err(_) = self.back.invert() {
+            unimplemented!()
         };
+
         Ok(())
     }
 
@@ -261,7 +244,7 @@ enum TankSideError {}
 // fn get_left_side
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Factory function to generate the left side of the DriveTrain.
-fn get_left_side() -> TankSide {
+fn get_left_side(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> TankSide {
     unimplemented!()
 }
 
@@ -269,6 +252,6 @@ fn get_left_side() -> TankSide {
 // fn get_right_side
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Factory function to generate the right side of the DriveTrain.
-fn get_right_side() -> TankSide {
+fn get_right_side(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> TankSide {
     unimplemented!()
 }
