@@ -112,7 +112,7 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
             },
             Err(e) => {
                 if let TryRecvError::Disconnected = e {
-                    let error_log = LogData::new(LogType::Fatal(), Utc::now(), e.to_string());
+                    let error_log = LogData::new(LogType::Fatal, Utc::now(), e.to_string());
                     self.log_channel.send(error_log).unwrap(); // Nothing we can do here, we are fucked
                 }
             }
@@ -135,12 +135,12 @@ impl DriveTrain {
         DriveTrain {
             is_enabled: true,
             is_alive: true,
-            log_channel,
-            error_channel,
+            log_channel: log_channel.clone(),
+            error_channel: error_channel.clone(),
             command_receiver,
             command_sender,
-            left: get_left_side(),
-            right: get_right_side(),
+            left: get_left_side(log_channel.clone(), error_channel.clone()),
+            right: get_right_side(log_channel, error_channel),
         }
     }
 

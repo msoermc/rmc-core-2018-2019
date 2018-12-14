@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     fs::{
         create_dir_all,
         File,
@@ -16,11 +17,6 @@ use std::{
         Sender,
         TryRecvError,
     },
-    thread::{
-        JoinHandle,
-        spawn,
-        Thread,
-    },
 };
 
 use chrono::prelude::{
@@ -28,78 +24,144 @@ use chrono::prelude::{
     Utc,
 };
 
+use crate::{
+    framework::Subsystem,
+    subsystems::comms::Message,
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // struct Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 pub struct Logger {
-    file: File,
+    writer: Option<BufWriter<File>>,
+    backlog: VecDeque<LogData>,
     log_receiver: Receiver<LogData>,
     log_sender_template: Sender<LogData>,
+    comms_channel: Option<Sender<Message>>,
+}
+
+impl Subsystem<LogData> for Logger {
+    fn init(&mut self) {
+        unimplemented!()
+    }
+
+    fn run(&mut self) {
+        // reestablish writer if not present
+        if self.writer.is_none() {
+            match get_file_to_use() {
+                Ok(file) => {
+                    let new_writer = BufWriter::new(file);
+                    self.writer = Some(new_writer);
+                },
+                Err(_) => {
+                    let severity = LogType::Error;
+                    let description = "Could not get new log file!".to_string();
+                    let timestamp = get_timestamp();
+
+                    let error = LogData::new(severity, timestamp, description);
+                    self.log_to_file(error.clone());
+                    self.log_to_driver_station(error);
+                },
+            }
+        }
+
+        // log message from backlog
+        if let Some(log_data) = self.backlog.pop_front() {
+            self.log_to_file(log_data);
+        }
+
+        // log new message
+        match self.log_receiver.try_recv() {
+            Ok(log) => {
+                self.log_to_file(log.clone());
+                self.log_to_driver_station(log);
+            }
+            Err(e) => {
+                if let TryRecvError::Disconnected = e {
+                    let severity = LogType::Fatal;
+                    let timestamp = get_timestamp();
+                    let description = "Lost logging channel!".to_string();
+                    let log = LogData::new(severity, timestamp, description);
+
+                    self.log_to_file(log.clone());
+                    self.log_to_driver_station(log);
+                }
+            }
+        }
+    }
+
+    fn get_command_sender(&mut self) -> Sender<LogData> {
+        self.log_sender_template.clone()
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // impl Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl Logger {
-    pub fn new() -> Logger {
+    pub fn new(comms_channel: Sender<Message>) -> Logger {
         let (log_sender_template, log_receiver) = channel();
-        let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
-        let file_name = format!("./RMC_Logs/{}.log", current_time);
-        let file = get_file_to_use(Path::new(&file_name)).unwrap();
+        let file_result = get_file_to_use();
+
+        let writer = match file_result {
+            Ok(file) => Some(BufWriter::new(file)),
+            Err(_) => None,
+        };
 
         Logger {
-            file,
+            writer,
+            backlog: VecDeque::new(),
             log_receiver,
             log_sender_template,
+            comms_channel: Some(comms_channel),
         }
     }
 
-    pub fn get_sender(&self) -> Sender<LogData> {
-        self.log_sender_template.clone()
-    }
+    fn log_to_driver_station(&mut self, report: LogData) {
+        if let Some(comms) = &mut self.comms_channel {
+            if comms.send(Message::Log(report)).is_err() {
+                self.comms_channel = None;
 
-    pub fn start(self) -> JoinHandle<Thread> {
-        spawn(|| {
-            let receiver = self.log_receiver;
-            let mut writer = BufWriter::new(self.file);
-            let mut flush_counter: u64 = 0;
+                let severity = LogType::Error;
+                let description = "Lost comms channel!".to_string();
+                let timestamp = get_timestamp();
+                let error = LogData::new(severity, timestamp, description);
 
-            loop {
-                match receiver.try_recv() {
-                    Ok(new_message) => {
-                        writeln!(writer, "{}", new_message.to_string()).unwrap();
-                        println!("{}", new_message.to_string());
-                    }
-                    Err(e) => {
-                        if let TryRecvError::Disconnected = e {
-                            panic!("Channel was disconnected!")
-                        }
-                    }
-                }
-
-                if flush_counter % 10 == 0 {
-                    writer.flush().unwrap();
-                }
-
-                flush_counter += 1;
+                self.log_to_file(error);
             }
-        })
+        }
     }
-}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// impl Default for Logger
-///////////////////////////////////////////////////////////////////////////////////////////////////
-impl Default for Logger {
-    fn default() -> Self {
-        Self::new()
+    fn log_to_file(&mut self, log_data: LogData) {
+        match &mut self.writer {
+            Some(writer) => {
+                if writeln!(writer, "{}", log_data.to_string()).is_err() {
+                    self.writer = None;
+
+                    let severity = LogType::Error;
+                    let description = "Lost writer!".to_string();
+                    let timestamp = get_timestamp();
+                    let error = LogData::new(severity, timestamp, description);
+
+                    self.log_to_driver_station(error.clone());
+
+                    self.backlog.push_back(log_data);
+                    self.backlog.push_back(error);
+                }
+            }
+            None => self.backlog.push_back(log_data)
+        }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // fn get_file_to_use
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-fn get_file_to_use(path: &Path) -> Result<File> {
+fn get_file_to_use() -> Result<File> {
+    let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    let file_name = format!("./RMC_Logs/{}.log", current_time);
+    let path = Path::new(&file_name);
+
     create_dir_all(path.parent().unwrap())?;
     OpenOptions::new()
         .create_new(true)
@@ -112,11 +174,11 @@ fn get_file_to_use(path: &Path) -> Result<File> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum LogType {
-    Debug(),
-    Info(),
-    Warning(),
-    Error(),
-    Fatal(),
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,11 +205,11 @@ impl LogData {
 
     pub fn to_string(&self) -> String {
         let severity = match self.severity {
-            LogType::Debug() => "Debug",
-            LogType::Info() => "Info",
-            LogType::Warning() => "Warning",
-            LogType::Error() => "Error",
-            LogType::Fatal() => "Fatal",
+            LogType::Debug => "Debug",
+            LogType::Info => "Info",
+            LogType::Warning => "Warning",
+            LogType::Error => "Error",
+            LogType::Fatal => "Fatal",
         };
 
         let timestamp = &self.timestamp.to_string();
@@ -163,4 +225,8 @@ impl LogData {
             description,
         }
     }
+}
+
+pub fn get_timestamp() -> DateTime<Utc> {
+    Utc::now()
 }
