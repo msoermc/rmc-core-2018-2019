@@ -33,6 +33,7 @@ use crate::{
 // struct Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 pub struct Logger {
+    counter: u64,
     writer: Option<BufWriter<File>>,
     backlog: VecDeque<LogData>,
     log_receiver: Receiver<LogData>,
@@ -42,7 +43,7 @@ pub struct Logger {
 
 impl Subsystem<LogData> for Logger {
     fn init(&mut self) {
-        unimplemented!()
+        // Do nothing
     }
 
     fn run(&mut self) {
@@ -88,6 +89,21 @@ impl Subsystem<LogData> for Logger {
                 }
             }
         }
+
+        if self.counter % 10 == 0 {
+            if let Some(writer) = &mut self.writer {
+                if writer.flush().is_err() {
+                    let severity = LogType::Error;
+                    let timestamp = get_timestamp();
+                    let description = "Lost logging channel!\n We lost logs!!!".to_string();
+
+                    let log = LogData::new(severity, timestamp, description);
+
+                    self.log_to_file(log.clone());
+                    self.log_to_driver_station(log);
+                }
+            }
+        }
     }
 
     fn get_command_sender(&mut self) -> Sender<LogData> {
@@ -109,6 +125,7 @@ impl Logger {
         };
 
         Logger {
+            counter: 0,
             writer,
             backlog: VecDeque::new(),
             log_receiver,
