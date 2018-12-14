@@ -51,7 +51,7 @@ pub enum DriveTrainCommand {
 // struct DriveTrain
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// The DriveTrain struct contains the data required to run the DriveTrain. The DriveTrain
-/// is normally run in it's own thread.
+/// is normally run in it's own thread and communication with it is done via channels.
 pub struct DriveTrain {
     is_enabled: bool,
     is_alive: bool,
@@ -63,7 +63,9 @@ pub struct DriveTrain {
     right: TankSide,
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// impl Subsystem<DriveTrainCommand> for DriveTrain
+///////////////////////////////////////////////////////////////////////////////////////////////////
 impl Subsystem<DriveTrainCommand> for DriveTrain {
     fn init(&mut self) {
         // Do nothing
@@ -102,8 +104,12 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
     }
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// impl DriveTrain
+///////////////////////////////////////////////////////////////////////////////////////////////////
 impl DriveTrain {
+    /// Creates a new drive_train object which leverages the supplied channels for reporting errors
+    /// and logging.
     pub fn new(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> DriveTrain {
         let (command_sender, command_receiver) = channel();
         DriveTrain {
@@ -115,13 +121,6 @@ impl DriveTrain {
             command_sender,
             left: get_left_side(),
             right: get_right_side(),
-        }
-    }
-
-    pub fn start(mut self) {
-        self.init();
-        loop {
-            self.run();
         }
     }
 

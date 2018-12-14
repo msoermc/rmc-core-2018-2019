@@ -15,6 +15,15 @@ pub trait Subsystem<Command> {
     /// framework.
     fn run(&mut self);
 
+    /// Starts the subsystem in the current thread. The subsystem will take over the current thread
+    /// when this method is invoked.
+    fn start(& mut self) {
+        self.init();
+        loop {
+            self.run();
+        }
+    }
+
     fn get_command_sender(&mut self) -> Sender<Command>;
 }
 
