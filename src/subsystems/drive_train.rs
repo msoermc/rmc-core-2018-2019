@@ -40,7 +40,13 @@ pub enum DriveTrainEvent {}
 /// The DriveTrainCommand enum has values representing different commands that can be sent to the
 /// DriveTrain over the command channel.
 pub enum DriveTrainCommand {
+    /// Drives both sides of the robot at their respective speeds.
+    /// Speeds should be float values between -1 and 1.
+    ///
+    /// If the robot is currently in a dead state or the DriveTrain has been disabled, this command
+    /// will cause the robot to brake instead.
     Drive(f32, f32),
+    Stop(),
     Enable(),
     Disable(),
     Kill(),
@@ -88,6 +94,9 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
                 }
                 DriveTrainCommand::Revive() => {
                     self.revive();
+                }
+                DriveTrainCommand::Stop() => {
+                    self.stop();
                 }
             },
             Err(e) => {
