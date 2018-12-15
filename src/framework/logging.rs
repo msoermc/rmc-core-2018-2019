@@ -175,7 +175,7 @@ impl Logger {
 // fn get_file_to_use
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 fn get_file_to_use() -> Result<File> {
-    let current_time = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    let current_time = Utc::now().format("%Y-%m-%d_%H:%M:%S").to_string().trim().to_string();
     let file_name = format!("./RMC_Logs/{}.log", current_time);
     let path = Path::new(&file_name);
 
