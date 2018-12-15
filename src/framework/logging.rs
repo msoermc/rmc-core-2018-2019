@@ -232,7 +232,7 @@ impl LogData {
         let timestamp = &self.timestamp.to_string();
         let description = self.get_description();
 
-        format!("[{}]:\t{}\n{}", severity, timestamp, description)
+        format!("[{}]\n[TIMESTAMP]:\t{}\n[DESCRIPTION]:\t{}\n\n", severity, timestamp, description)
     }
 
     pub fn new(severity: LogType, timestamp: DateTime<Utc>, description: String) -> LogData {

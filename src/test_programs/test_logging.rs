@@ -27,7 +27,7 @@ pub fn run_test() {
     thread::spawn(move || {
         loop {
             let Message::Log(log) = comms_receiver.recv().unwrap();
-            println!("[COMMS]:\t{}", log.to_string());
+            println!("[COMMS]:\n{}", log.to_string());
         }
     });
 
