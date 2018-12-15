@@ -48,20 +48,20 @@ pub enum DriveTrainCommand {
     Drive(f32, f32),
 
     /// Commands the DriveTrain to begin braking.
-    Stop(),
+    Stop,
 
     /// Enables the DriveTrain, allowing it to move if commanded to as normal.
-    Enable(),
+    Enable,
 
     /// Disables the DriveTrain, causing it to halt it's motion.
-    Disable(),
+    Disable,
 
     /// Informs the DriveTrain that the robot is now dead and that it should stop moving.
-    Kill(),
+    Kill,
 
     /// Informs the subsystem that the robot is no longer dead and that the DriveTrain may resume
     /// normal operation.
-    Revive(),
+    Revive,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,19 +94,19 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
                 DriveTrainCommand::Drive(left, right) => {
                     self.drive(left, right);
                 }
-                DriveTrainCommand::Enable() => {
+                DriveTrainCommand::Enable => {
                     self.enable();
                 }
-                DriveTrainCommand::Disable() => {
+                DriveTrainCommand::Disable => {
                     self.disable();
                 }
-                DriveTrainCommand::Kill() => {
+                DriveTrainCommand::Kill => {
                     self.kill();
                 }
-                DriveTrainCommand::Revive() => {
+                DriveTrainCommand::Revive => {
                     self.revive();
                 }
-                DriveTrainCommand::Stop() => {
+                DriveTrainCommand::Stop => {
                     self.stop();
                 }
             },
