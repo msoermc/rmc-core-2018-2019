@@ -9,8 +9,6 @@ use std::{
     }
 };
 
-use chrono::prelude::Utc;
-
 use crate::{
     devices::{
         motor_controllers::{
@@ -20,6 +18,7 @@ use crate::{
     },
     framework::{
         logging::{
+            get_timestamp,
             LogData,
             LogType,
         },
@@ -39,6 +38,7 @@ pub enum DriveTrainEvent {}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// The DriveTrainCommand enum has values representing different commands that can be sent to the
 /// DriveTrain over the command channel.
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DriveTrainCommand {
     /// Drives both sides of the robot at their respective speeds.
     /// Speeds should be float values between -1 and 1.
@@ -73,7 +73,7 @@ pub struct DriveTrain {
     is_enabled: bool,
     is_alive: bool,
     log_channel: Sender<LogData>,
-    error_channel: Sender<DriveTrainEvent>,
+    event_channel: Sender<DriveTrainEvent>,
     command_receiver: Receiver<DriveTrainCommand>,
     command_sender: Sender<DriveTrainCommand>,
     left: TankSide,
@@ -90,32 +90,11 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
 
     fn run(&mut self) {
         match self.command_receiver.try_recv() {
-            Ok(message) => match message {
-                DriveTrainCommand::Drive(left, right) => {
-                    self.drive(left, right);
-                }
-                DriveTrainCommand::Enable => {
-                    self.enable();
-                }
-                DriveTrainCommand::Disable => {
-                    self.disable();
-                }
-                DriveTrainCommand::Kill => {
-                    self.kill();
-                }
-                DriveTrainCommand::Revive => {
-                    self.revive();
-                }
-                DriveTrainCommand::Stop => {
-                    self.stop();
-                }
-            },
-            Err(e) => {
-                if let TryRecvError::Disconnected = e {
-                    let error_log = LogData::new(LogType::Fatal, Utc::now(), e.to_string());
-                    self.log_channel.send(error_log).unwrap(); // Nothing we can do here, we are fucked
-                }
+            Ok(command) => self.handle_new_command(command),
+            Err(TryRecvError::Disconnected) => {
+                self.handle_command_channel_disconnect();
             }
+            Err(TryRecvError::Empty) => ()
         }
     }
 
@@ -136,12 +115,44 @@ impl DriveTrain {
             is_enabled: true,
             is_alive: true,
             log_channel: log_channel.clone(),
-            error_channel: error_channel.clone(),
+            event_channel: error_channel.clone(),
             command_receiver,
             command_sender,
             left: get_left_side(log_channel.clone(), error_channel.clone()),
             right: get_right_side(log_channel, error_channel),
         }
+    }
+
+    /// Respond to a new command that has been received using the appropriate method.
+    fn handle_new_command(&mut self, command: DriveTrainCommand) {
+        match command {
+            DriveTrainCommand::Drive(left, right) => {
+                self.drive(left, right);
+            }
+            DriveTrainCommand::Enable => {
+                self.enable();
+            }
+            DriveTrainCommand::Disable => {
+                self.disable();
+            }
+            DriveTrainCommand::Kill => {
+                self.kill();
+            }
+            DriveTrainCommand::Revive => {
+                self.revive();
+            }
+            DriveTrainCommand::Stop => {
+                self.stop();
+            }
+        }
+    }
+
+    fn handle_command_channel_disconnect(&mut self) {
+        let severity = LogType::Fatal;
+        let timestamp = get_timestamp();
+        let description = "Drivetrain: Command channel was disconnected!".to_string();
+        let error_log = LogData::new(severity, timestamp, description);
+        self.log_channel.send(error_log).unwrap(); // Fail-fast if logger dies
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.
@@ -201,10 +212,10 @@ struct TankSide {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl MotorController<TankSideError> for TankSide {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), TankSideError> {
-        if let Err(_) = self.front.set_speed(new_speed) {
+        if let Err(error) = self.front.set_speed(new_speed) {
             unimplemented!()
         };
-        if let Err(_) = self.back.set_speed(new_speed) {
+        if let Err(error) = self.back.set_speed(new_speed) {
             unimplemented!()
         };
 
@@ -217,10 +228,10 @@ impl MotorController<TankSideError> for TankSide {
 
     fn invert(&mut self) -> Result<(), TankSideError> {
         self.is_inverted = !self.is_inverted();
-        if let Err(_) = self.front.invert() {
+        if let Err(error) = self.front.invert() {
             unimplemented!()
         };
-        if let Err(_) = self.back.invert() {
+        if let Err(error) = self.back.invert() {
             unimplemented!()
         };
 
