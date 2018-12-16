@@ -4,6 +4,7 @@ use std::{
         mpsc::{
             Sender,
             Receiver,
+            TryRecvError
         }
     },
     thread::spawn,
@@ -14,7 +15,7 @@ use tokio::{
         TcpListener,
         TcpStream,
     },
-    prelude::*
+    prelude::*,
 };
 
 use crate::{
@@ -24,14 +25,12 @@ use crate::{
             get_timestamp,
             LogType,
         }
-    }
+    },
+    comms::SendableMessage
 };
-use tokio::prelude::Async;
-use std::sync::mpsc::TryRecvError;
-use crate::comms::SendableMessage;
 
 const ADDRESS: &str = "127.0.0.1";
-const PORT: u16 = 343;
+const PORT: u16 = 2401;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ProtocolSubsystem {
@@ -65,24 +64,7 @@ impl ExternalComms {
             ADDRESS.parse().expect("Could not parse address"),
             PORT);
 
-        let listener = match TcpListener::bind(&address) {
-            Ok(lis) => lis,
-            Err(_) => {
-                let description = "Could not bind listener for external comms!";
-                let timestamp = get_timestamp();
-                let severity = LogType::Fatal;
-
-                let log = LogData::new(severity, timestamp, description.to_string());
-
-                let could_log = logging_channel.send(log).is_ok();
-
-                if could_log {
-                    panic!(description);
-                } else {
-                    panic!("Could not bind listener for external comms and could not log either!");
-                }
-            }
-        };
+        let listener = TcpListener::bind(&address).unwrap();
 
         ExternalComms {
             sending_channel,

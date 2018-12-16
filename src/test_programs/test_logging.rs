@@ -32,12 +32,12 @@ pub fn run_test() {
     loop {
         let mut buffer = String::new();
         println!("Please enter a single-line log message.");
-        stdin().read_line(&mut buffer).unwrap();
+        stdin().read_line(&mut buffer).expect("problem on read line");
         let timestamp = chrono::Utc::now();
         let severity = LogType::Info;
 
         let log = LogData::new(severity, timestamp, buffer);
 
-        comms_sender.send(Box::new(log)).unwrap();
+        comms_sender.send(Box::new(log)).expect("Problem sending typed message");
     }
 }
