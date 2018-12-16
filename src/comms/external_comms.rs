@@ -1,24 +1,22 @@
 use std::{
-    net::SocketAddr,
+    net::{
+        SocketAddr,
+        TcpListener,
+        TcpStream,
+    },
     sync::{
         mpsc::{
             Sender,
             Receiver,
-            TryRecvError
+            TryRecvError,
         }
     },
     thread::spawn,
-};
-
-use tokio::{
-    net::{
-        TcpListener,
-        TcpStream,
-    },
-    prelude::*,
+    io::Write
 };
 
 use crate::{
+    comms::SendableMessage,
     framework::{
         logging::{
             LogData,
@@ -26,8 +24,8 @@ use crate::{
             LogType,
         }
     },
-    comms::SendableMessage
 };
+use std::io::ErrorKind;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
@@ -66,6 +64,8 @@ impl ExternalComms {
 
         let listener = TcpListener::bind(&address).unwrap();
 
+        listener.set_nonblocking(true).expect("Could not set listener to be nonblocking!");
+
         ExternalComms {
             sending_channel,
             logging_channel,
@@ -90,15 +90,16 @@ impl ExternalComms {
     }
 
     fn check_connections(&mut self) {
-        let connection_result = self.listener.poll_accept();
+        let connection_result = self.listener.accept();
         match connection_result {
             Ok(potential_connection) => {
-                if let Async::Ready((socket, _)) = potential_connection {
-                    self.clients.push(socket);
-                }
+                let (socket, _) = potential_connection;
+                self.clients.push(socket);
             }
-            Err(_) => {
-                self.handle_lost_listener();
+            Err(error) => {
+                if error.kind() != ErrorKind::WouldBlock {
+                    self.handle_lost_listener();
+                }
             }
         }
     }
