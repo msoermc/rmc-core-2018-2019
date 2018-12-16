@@ -26,7 +26,7 @@ use chrono::prelude::{
 
 use crate::{
     framework::Subsystem,
-    comms::external_comms::Message
+    comms::external_comms::SendableMessage
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ pub struct Logger {
     backlog: VecDeque<LogData>,
     log_receiver: Receiver<LogData>,
     log_sender_template: Sender<LogData>,
-    comms_channel: Option<Sender<Message>>,
+    comms_channel: Option<Sender<SendableMessage>>,
 }
 
 impl Subsystem<LogData> for Logger {
@@ -115,7 +115,7 @@ impl Subsystem<LogData> for Logger {
 // impl Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl Logger {
-    pub fn new(comms_channel: Sender<Message>) -> Logger {
+    pub fn new(comms_channel: Sender<SendableMessage>) -> Logger {
         let (log_sender_template, log_receiver) = channel();
         let file_result = get_file_to_use();
 
@@ -136,7 +136,7 @@ impl Logger {
 
     fn log_to_driver_station(&mut self, report: LogData) {
         if let Some(comms) = &mut self.comms_channel {
-            if comms.send(Message::Log(report)).is_err() {
+            if comms.send(SendableMessage::Log(report)).is_err() {
                 self.comms_channel = None;
 
                 let severity = LogType::Error;

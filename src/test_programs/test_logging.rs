@@ -13,7 +13,7 @@ use crate::{
         },
         Subsystem,
     },
-    comms::external_comms::Message
+    comms::external_comms::SendableMessage
 };
 
 pub fn run_test() {
@@ -26,7 +26,7 @@ pub fn run_test() {
 
     thread::spawn(move || {
         loop {
-            let Message::Log(log) = comms_receiver.recv().unwrap();
+            let SendableMessage::Log(log) = comms_receiver.recv().unwrap();
             println!("[COMMS]:\n{}", log.to_string());
         }
     });
