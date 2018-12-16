@@ -106,7 +106,7 @@ impl ExternalComms {
 
     fn send_messages(&mut self) {
         match self.sending_channel.try_recv() {
-            Ok(message) => {}
+            Ok(message) => self.send_message(message),
             Err(try_error) => {
                 if let TryRecvError::Disconnected = try_error {
                     self.handle_sending_channel_disconnect();
@@ -116,7 +116,7 @@ impl ExternalComms {
     }
 
     fn receive_messages(&mut self) {
-        unimplemented!()
+        // TODO implement
     }
 
     fn handle_lost_listener(&mut self) {
@@ -127,7 +127,8 @@ impl ExternalComms {
         let sending_string = message.encode();
 
         for client in &mut self.clients {
-            writeln!(client, "{}", sending_string);
+            writeln!(client, "{}", sending_string).expect("Could not write line");
+            client.flush().expect("Failed to flush");
         }
     }
 
