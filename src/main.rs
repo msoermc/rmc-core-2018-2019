@@ -4,6 +4,7 @@ pub mod framework;
 pub mod subsystems;
 pub mod devices;
 pub mod test_programs;
+pub mod comms;
 
 fn main() {
     test_logging::run_test();

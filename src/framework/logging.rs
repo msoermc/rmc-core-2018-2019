@@ -26,7 +26,7 @@ use chrono::prelude::{
 
 use crate::{
     framework::Subsystem,
-    subsystems::comms::Message,
+    comms::external_comms::Message
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,6 +218,10 @@ impl LogData {
 
     pub fn get_description(&self) -> &str {
         &self.description
+    }
+
+    pub fn get_timestamp(&self) -> DateTime<Utc> {
+        self.timestamp
     }
 
     pub fn to_string(&self) -> String {

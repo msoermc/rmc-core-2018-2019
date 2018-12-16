@@ -12,9 +12,9 @@ use crate::{
             LogData,
         },
         Subsystem,
-    }
+    },
+    comms::external_comms::Message
 };
-use crate::subsystems::comms::Message;
 
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
