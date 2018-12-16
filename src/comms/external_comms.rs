@@ -1,40 +1,44 @@
+use std::{
+    net::SocketAddr,
+    sync::{
+        mpsc::{
+            Sender,
+            Receiver,
+            TryRecvError,
+        }
+    },
+    thread::spawn,
+};
+use std::io::BufReader;
+
+use tokio::net::TcpListener;
+use tokio::net::TcpStream;
+
 use crate::{
     framework::{
         logging::{
             LogData,
             get_timestamp,
-            LogType
+            LogType,
         }
     }
 };
-use std::{
-    net::{
-        TcpStream,
-        TcpListener
-    },
-    thread::spawn,
-    sync::mpsc::Sender,
-    collections::HashSet,
-    io::ErrorKind::WouldBlock,
-    error::Error
-};
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::TryRecvError;
 
-const ADDRESS: &str = "127.0.0.1:343";
+const ADDRESS: &str = "127.0.0.1";
+const PORT: u16 = 343;
 
 pub enum SendableMessage {
     Log(LogData),
 }
 
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ProtocolSubsystem {
     DriveTrain,
 }
 
-enum ParsingError {
+enum ParsingError {}
 
-}
-
+#[derive(Copy, Clone)]
 enum ReceivableMessage {
     Kill,
     Revive,
@@ -44,16 +48,46 @@ enum ReceivableMessage {
     Brake,
 }
 
-pub struct Communicator {
+pub struct ExternalComms {
     sending_channel: Receiver<SendableMessage>,
     logging_channel: Sender<LogData>,
     listener: TcpListener,
-    clients: Vec<TcpStream>,
+    clients: Vec<BufReader<TcpStream>>,
 }
 
-impl Communicator {
-    pub fn new(logging_channel: Sender<LogData>, sending_channel: Sender<SendableMessage>) -> Communicator {
-        unimplemented!()
+impl ExternalComms {
+    pub fn new(logging_channel: Sender<LogData>, sending_channel: Receiver<SendableMessage>) -> ExternalComms {
+        let address = SocketAddr::new(
+            ADDRESS.parse().expect("Could not parse address"),
+            PORT);
+
+        let listener = match TcpListener::bind(&address) {
+            Ok(lis) => lis,
+            Err(_) => {
+                let description = "Could not bind listener for external comms!";
+                let timestamp = get_timestamp();
+                let severity = LogType::Fatal;
+
+                let log = LogData::new(severity, timestamp, description.to_string());
+
+                let could_log = logging_channel.send(log).is_ok();
+
+                if could_log {
+                    panic!(description);
+                } else {
+                    panic!("Could not bind listener for external comms and could not log either!");
+                }
+            },
+        };
+
+        let clients = Vec::new();
+
+        ExternalComms {
+            sending_channel,
+            logging_channel,
+            listener,
+            clients,
+        }
     }
 
     pub fn start(mut self) {
@@ -64,26 +98,25 @@ impl Communicator {
         });
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Running loop
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     fn run(&mut self) {
         self.check_for_new_connections();
         self.receive_messages();
         self.send_messages();
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Checking for new connections
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     fn check_for_new_connections(&mut self) {
-        match self.listener.accept() {
-            Ok((stream, _)) => self.clients.push(stream),
-            Err(e) => {
-                if e.kind() != WouldBlock {
-                    let severity = LogType::Error;
-                    let description = e.description().to_string();
-                    let timestamp = get_timestamp();
-                    LogData::new(severity, timestamp, description);
-                }
-            },
-        };
+        unimplemented!()
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Sending messages
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     fn send_messages(&mut self) {
         match self.sending_channel.try_recv() {
             Ok(message) => self.handle_new_sendable_message(message),
@@ -91,7 +124,7 @@ impl Communicator {
                 if TryRecvError::Disconnected == e {
                     self.handle_sending_channel_hangup();
                 }
-            },
+            }
         }
     }
 
@@ -103,11 +136,14 @@ impl Communicator {
         self.logging_channel.send(log).unwrap(); // fail fast if the logger dies
     }
 
-    fn receive_messages(&mut self) {
+    fn handle_new_sendable_message(&mut self, message: SendableMessage) {
         unimplemented!()
     }
 
-    fn handle_new_sendable_message(&mut self, message: SendableMessage) {
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Receiving messages
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    fn receive_messages(&mut self) {
         unimplemented!()
     }
 
