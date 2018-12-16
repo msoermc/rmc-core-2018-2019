@@ -13,23 +13,21 @@ use crate::{
         },
         Subsystem,
     },
-    comms::external_comms::SendableMessage
+    comms::SendableMessage,
 };
+use crate::comms::external_comms::ExternalComms;
 
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
-    let mut logger = Logger::new(comms_sender);
+    let mut logger = Logger::new(comms_sender.clone());
 
     let log_channel = logger.get_command_sender();
 
-    thread::spawn(move || logger.start());
+    let comms = ExternalComms::new(log_channel.clone(), comms_receiver);
 
-    thread::spawn(move || {
-        loop {
-            let SendableMessage::Log(log) = comms_receiver.recv().unwrap();
-            println!("[COMMS]:\n{}", log.to_string());
-        }
-    });
+    comms.start();
+
+    thread::spawn(move || logger.start());
 
     loop {
         let mut buffer = String::new();
@@ -40,6 +38,6 @@ pub fn run_test() {
 
         let log = LogData::new(severity, timestamp, buffer);
 
-        log_channel.send(log).unwrap();
+        comms_sender.send(Box::new(log)).unwrap();
     }
 }
