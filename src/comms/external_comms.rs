@@ -1,31 +1,15 @@
-use std::{
-    net::{
-        SocketAddr,
-        TcpListener,
-        TcpStream,
-    },
-    sync::{
-        mpsc::{
-            Sender,
-            Receiver,
-            TryRecvError,
-        }
-    },
-    thread::spawn,
-    io::Write
-};
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::sync::mpsc::TryRecvError;
+use std::thread::spawn;
 
-use crate::{
-    comms::SendableMessage,
-    framework::{
-        logging::{
-            LogData,
-            get_timestamp,
-            LogType,
-        }
-    },
-};
-use std::io::ErrorKind;
+use crate::comms::Communicator;
+use crate::comms::CommunicatorError;
+use crate::comms::SendableMessage;
+use crate::framework::logging::get_timestamp;
+use crate::framework::logging::LogData;
+use crate::framework::logging::LogType;
+use crate::subsystems::drive_train::DriveTrainCommand;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
@@ -34,8 +18,6 @@ const PORT: u16 = 2401;
 pub enum ProtocolSubsystem {
     DriveTrain,
 }
-
-enum ParsingError {}
 
 #[derive(Copy, Clone)]
 enum ReceivableMessage {
@@ -50,27 +32,23 @@ enum ReceivableMessage {
 pub struct ExternalComms {
     sending_channel: Receiver<Box<SendableMessage>>,
     logging_channel: Sender<LogData>,
-    listener: TcpListener,
-    clients: Vec<TcpStream>,
+    communicator: Communicator,
+    drive_train_channel: Sender<DriveTrainCommand>,
 }
 
 impl ExternalComms {
     /// Instantiates the comms.
     /// This constructor will bind the listener.
-    pub fn new(logging_channel: Sender<LogData>, sending_channel: Receiver<Box<SendableMessage>>) -> ExternalComms {
-        let address = SocketAddr::new(
-            ADDRESS.parse().expect("Could not parse address"),
-            PORT);
-
-        let listener = TcpListener::bind(&address).unwrap();
-
-        listener.set_nonblocking(true).expect("Could not set listener to be nonblocking!");
+    pub fn new(logging_channel: Sender<LogData>, sending_channel: Receiver<Box<SendableMessage>>,
+               drive_train_channel: Sender<DriveTrainCommand>) -> ExternalComms {
+        let communicator = Communicator::from(ADDRESS, PORT)
+            .expect("Could not create communicator for external comms!");
 
         ExternalComms {
             sending_channel,
             logging_channel,
-            listener,
-            clients: Vec::new(),
+            communicator,
+            drive_train_channel,
         }
     }
 
@@ -90,16 +68,10 @@ impl ExternalComms {
     }
 
     fn check_connections(&mut self) {
-        let connection_result = self.listener.accept();
-        match connection_result {
-            Ok(potential_connection) => {
-                let (socket, _) = potential_connection;
-                self.clients.push(socket);
-            }
-            Err(error) => {
-                if error.kind() != ErrorKind::WouldBlock {
-                    self.handle_lost_listener();
-                }
+        if let Err(error) = self.communicator.check_connections() {
+            match error {
+                CommunicatorError::InvalidAddressError => panic!("Invalid address error for check_connections! This should not be possible"),
+                CommunicatorError::DisconnectedListenerError => self.handle_lost_listener(),
             }
         }
     }
@@ -116,7 +88,7 @@ impl ExternalComms {
     }
 
     fn receive_messages(&mut self) {
-        // TODO implement
+        unimplemented!()
     }
 
     fn handle_lost_listener(&mut self) {
@@ -126,10 +98,7 @@ impl ExternalComms {
     fn send_message(&mut self, message: Box<SendableMessage>) {
         let sending_string = message.encode();
 
-        for client in &mut self.clients {
-            writeln!(client, "{}", sending_string).expect("Could not write line");
-            client.flush().expect("Failed to flush");
-        }
+        self.communicator.send_line(sending_string).expect("Error in sending a line!");
     }
 
     fn handle_sending_channel_disconnect(&mut self) {
