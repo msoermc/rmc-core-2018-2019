@@ -1,3 +1,4 @@
+use std::str::SplitWhitespace;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
@@ -10,8 +11,6 @@ use crate::framework::logging::get_timestamp;
 use crate::framework::logging::LogData;
 use crate::framework::logging::LogType;
 use crate::subsystems::drive_train::DriveTrainCommand;
-use std::io;
-use std::str::SplitWhitespace;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
@@ -81,7 +80,7 @@ impl ExternalComms {
 
     fn send_messages(&mut self) {
         match self.sending_channel.try_recv() {
-            Ok(message) => self.send_message(message),
+            Ok(message) => self.send_message(message.as_ref()),
             Err(try_error) => {
                 if let TryRecvError::Disconnected = try_error {
                     self.handle_sending_channel_disconnect();
@@ -93,22 +92,25 @@ impl ExternalComms {
     fn receive_messages(&mut self) {
         for result in self.communicator.receive_next_lines() {
             match result {
-                Ok(message) => self.handle_message(message),
-                Err(error) => {}
+                Ok(message) => self.handle_message(message.as_str()),
+                Err(error) => unimplemented!()
             }
         }
     }
 
-    fn handle_message(&mut self, message: String) {
+    fn handle_message(&mut self, message: &str) {
         let parsed_result = parse_message(message);
-        unimplemented!()
+        match parsed_result {
+            Ok(parsed_message) => self.handle_valid_command(parsed_message),
+            Err(log) => self.logging_channel.send(log).unwrap(),
+        }
     }
 
     fn handle_lost_listener(&mut self) {
         unimplemented!()
     }
 
-    fn send_message(&mut self, message: Box<SendableMessage>) {
+    fn send_message(&mut self, message: & SendableMessage) {
         let sending_string = message.encode();
 
         self.communicator.send_line(sending_string).expect("Error in sending a line!");
@@ -122,16 +124,58 @@ impl ExternalComms {
         self.logging_channel.send(log).expect("Sending and logging channels disconnected in external comms");
         panic!("{}", "Sending channel disconnected in external comms!");
     }
+
+    fn handle_valid_command(&mut self, message: ReceivableMessage) {
+        match message {
+            ReceivableMessage::Kill => self.handle_kill_command(),
+            ReceivableMessage::Revive => self.handle_revive_command(),
+            ReceivableMessage::Enable(subsystem) => self.handle_enable_command(subsystem),
+            ReceivableMessage::Disable(subsystem) => self.handle_disable_command(subsystem),
+            ReceivableMessage::Drive(left_speed, right_speed) => self.handle_drive_command(left_speed, right_speed),
+            ReceivableMessage::Brake => self.handle_brake_command(),
+        }
+    }
+
+    fn handle_kill_command(&mut self) {
+        self.drive_train_channel.send(DriveTrainCommand::Kill).unwrap();
+    }
+
+    fn handle_revive_command(&mut self) {
+        self.drive_train_channel.send(DriveTrainCommand::Revive).unwrap();
+    }
+
+    fn handle_enable_command(&mut self, subsystem: ProtocolSubsystem) {
+        match subsystem {
+            ProtocolSubsystem::DriveTrain => self.drive_train_channel
+                .send(DriveTrainCommand::Enable)
+                .unwrap(),
+        }
+    }
+
+    fn handle_disable_command(&mut self, subsystem: ProtocolSubsystem) {
+        match subsystem {
+            ProtocolSubsystem::DriveTrain => self.drive_train_channel
+                .send(DriveTrainCommand::Disable)
+                .unwrap(),
+        }
+    }
+
+    fn handle_drive_command(&mut self, left_speed: f32, right_speed: f32) {
+        self.drive_train_channel.send(DriveTrainCommand::Drive(left_speed, right_speed)).unwrap();
+    }
+
+    fn handle_brake_command(&mut self) {
+        self.drive_train_channel.send(DriveTrainCommand::Stop).unwrap();
+    }
 }
 
-fn parse_message(message: String) -> Result<ReceivableMessage, LogData> {
-    let message_clone = message.clone();
-    let mut elements = message_clone.split_whitespace();
+fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
+    let mut elements = message.split_whitespace();
     let command = match elements.next() {
         Some(com) => com,
         None => {
             unimplemented!()
-        },
+        }
     };
 
     match command {
@@ -151,7 +195,7 @@ fn parse_message(message: String) -> Result<ReceivableMessage, LogData> {
     }
 }
 
-fn parse_drive_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_drive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 2 as usize {
         let log = get_wrong_arg_count_log(original_message, 2, args.count() as u64);
         Err(log)
@@ -181,31 +225,34 @@ fn parse_drive_command(original_message: String, mut args: SplitWhitespace) -> R
     }
 }
 
-fn parse_enable_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_enable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
     } else {
-        let parsed_subsystem = parse_subsystem(args)?;
+        let parsed_subsystem = parse_subsystem(args.next().unwrap())?;
         Ok(ReceivableMessage::Enable(parsed_subsystem))
     }
 }
 
-fn parse_disable_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_disable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
     } else {
-        let parsed_subsystem = parse_subsystem(args)?;
+        let parsed_subsystem = parse_subsystem(args.next().unwrap())?;
         Ok(ReceivableMessage::Disable(parsed_subsystem))
     }
 }
 
-fn parse_subsystem(mut args: SplitWhitespace) -> Result<ProtocolSubsystem, LogData> {
-    unimplemented!()
+fn parse_subsystem(field: &str) -> Result<ProtocolSubsystem, LogData> {
+    match field {
+        "drive_train" => Ok(ProtocolSubsystem::DriveTrain),
+        _ => Err(LogData::warning("Unrecognized subsystem in message!"))
+    }
 }
 
-fn parse_revive_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_revive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
@@ -214,7 +261,7 @@ fn parse_revive_command(original_message: String, mut args: SplitWhitespace) -> 
     }
 }
 
-fn parse_kill_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_kill_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
@@ -223,7 +270,7 @@ fn parse_kill_command(original_message: String, mut args: SplitWhitespace) -> Re
     }
 }
 
-fn parse_brake_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_brake_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
@@ -232,7 +279,7 @@ fn parse_brake_command(original_message: String, mut args: SplitWhitespace) -> R
     }
 }
 
-fn get_wrong_arg_count_log(message: String, expected: u64, actual: u64) -> LogData {
+fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> LogData {
     let description = format!(
         "Wrong number of elements in message '{}'. Expected {} args, instead got {}!",
         message, expected, actual);

@@ -52,30 +52,30 @@ impl Communicator {
                 let (socket, _) = potential_connection;
                 socket.set_nonblocking(true).expect("Could not set socket to be nonblocking!");
                 self.clients.push(socket);
-                return Ok(());
+                Ok(())
             }
             Err(error) => {
                 if error.kind() != ErrorKind::WouldBlock {
-                    return Err(CommunicatorError::DisconnectedListener);
+                    Err(CommunicatorError::DisconnectedListener)
                 } else {
-                    return Ok(());
+                    Ok(())
                 }
             }
         }
     }
 
-    fn send(&mut self, message: String) -> Result<(), Vec<CommunicatorError>> {
+    fn send(&mut self, message: & str) -> Result<(), Vec<CommunicatorError>> {
         // TODO add error handling
         for client in &mut self.clients {
             write!(client, "{}", message).expect("Could not write line");
             client.flush().expect("Failed to flush");
         }
 
-        return Ok(());
+        Ok(())
     }
 
     fn send_line(&mut self, message: String) -> Result<(), Vec<CommunicatorError>> {
-        self.send(message + "\n")
+        self.send(&(message + "\n"))
     }
 
     fn receive_next_lines(&mut self) -> Vec<Result<String, CommunicatorError>> {
@@ -94,6 +94,6 @@ impl Communicator {
             }
         }
 
-        return lines;
+        lines
     }
 }
