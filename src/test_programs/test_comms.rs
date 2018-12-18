@@ -8,7 +8,8 @@ pub fn run_test() {
     let (log_sender, log_receiver) = channel();
     let (comms_sender, comms_receiver) = channel();
 
-    let comms = ExternalComms::new(log_sender, comms_receiver);
+    let (drive_sender, drive_receiver) = channel();
+    let comms = ExternalComms::new(log_sender, comms_receiver, drive_sender);
 
     comms.start();
 

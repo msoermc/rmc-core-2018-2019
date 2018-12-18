@@ -20,10 +20,11 @@ use crate::comms::external_comms::ExternalComms;
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
     let mut logger = Logger::new(comms_sender.clone());
+    let (drive_sender, drive_receiver) = channel();
 
     let log_channel = logger.get_command_sender();
 
-    let comms = ExternalComms::new(log_channel.clone(), comms_receiver);
+    let comms = ExternalComms::new(log_channel.clone(), comms_receiver, drive_sender);
 
     comms.start();
 

@@ -72,6 +72,7 @@ impl ExternalComms {
             match error {
                 CommunicatorError::InvalidAddressError => panic!("Invalid address error for check_connections! This should not be possible"),
                 CommunicatorError::DisconnectedListenerError => self.handle_lost_listener(),
+                CommunicatorError::BadReadError => unimplemented!(),
             }
         }
     }

@@ -18,6 +18,7 @@ pub trait SendableMessage: Send {
 enum CommunicatorError {
     InvalidAddressError,
     DisconnectedListenerError,
+    BadReadError
 }
 
 struct Communicator {
@@ -77,11 +78,22 @@ impl Communicator {
         self.send(message + "\n")
     }
 
-    fn receive_next_lines(&mut self) {
+    fn receive_next_lines(&mut self) -> Vec<Result<String, CommunicatorError>> {
         let mut lines = Vec::new();
 
         for client in &self.clients {
-            unimplemented!() // TODO
+            let mut reader = BufReader::new(client);
+            let mut buffer = String::new();
+
+            if let Err(error) = reader.read_line(&mut buffer) {
+                if error.kind() != ErrorKind::WouldBlock {
+                    lines.push(Err(CommunicatorError::BadReadError));
+                }
+            } else {
+                lines.push(Ok(buffer));
+            }
         }
+
+        return lines;
     }
 }
