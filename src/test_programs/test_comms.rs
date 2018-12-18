@@ -1,5 +1,5 @@
 use std::sync::mpsc::channel;
-use crate::comms::external_comms::ExternalComms;
+use crate::comms::driver_station::ExternalComms;
 use crate::framework::logging::get_timestamp;
 use crate::framework::logging::LogType;
 use crate::framework::logging::LogData;

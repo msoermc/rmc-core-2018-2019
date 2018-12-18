@@ -7,7 +7,9 @@ use std::net::SocketAddr;
 use std::net::TcpListener;
 use std::net::TcpStream;
 
-pub mod external_comms;
+use crate::framework::logging::LogData;
+
+pub mod driver_station;
 pub mod internal_comms;
 
 pub trait SendableMessage: Send {
@@ -64,7 +66,7 @@ impl Communicator {
         }
     }
 
-    fn send(&mut self, message: & str) -> Result<(), Vec<CommunicatorError>> {
+    fn send(&mut self, message: &str) -> Result<(), Vec<CommunicatorError>> {
         // TODO add error handling
         for client in &mut self.clients {
             write!(client, "{}", message).expect("Could not write line");
@@ -96,4 +98,12 @@ impl Communicator {
 
         lines
     }
+}
+
+pub fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> LogData {
+    let description = format!(
+        "Wrong number of elements in message '{}'. Expected {} args, instead got {}!",
+        message, expected, actual);
+
+    LogData::warning(description.as_str())
 }

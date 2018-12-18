@@ -2,7 +2,7 @@ use std::sync::mpsc::channel;
 use std::thread;
 use std::io::stdin;
 
-use crate::comms::external_comms::ExternalComms;
+use crate::comms::driver_station::ExternalComms;
 use crate::framework::logging::Logger;
 use crate::framework::Subsystem;
 use crate::framework::logging::LogType;

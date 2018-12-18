@@ -1,4 +1,3 @@
-use std::str::SplitWhitespace;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
@@ -6,29 +5,16 @@ use std::thread::spawn;
 
 use crate::comms::Communicator;
 use crate::comms::CommunicatorError;
+use crate::comms::driver_station::parsing::*;
 use crate::comms::SendableMessage;
-use crate::framework::logging::get_timestamp;
 use crate::framework::logging::LogData;
-use crate::framework::logging::LogType;
 use crate::subsystems::drive_train::DriveTrainCommand;
+
+mod parsing;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
 
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ProtocolSubsystem {
-    DriveTrain,
-}
-
-#[derive(Copy, Clone)]
-enum ReceivableMessage {
-    Kill,
-    Revive,
-    Enable(ProtocolSubsystem),
-    Disable(ProtocolSubsystem),
-    Drive(f32, f32),
-    Brake,
-}
 
 pub struct ExternalComms {
     sending_channel: Receiver<Box<SendableMessage>>,
@@ -110,18 +96,16 @@ impl ExternalComms {
         unimplemented!()
     }
 
-    fn send_message(&mut self, message: & SendableMessage) {
+    fn send_message(&mut self, message: &SendableMessage) {
         let sending_string = message.encode();
 
         self.communicator.send_line(sending_string).expect("Error in sending a line!");
     }
 
     fn handle_sending_channel_disconnect(&mut self) {
-        let timestamp = get_timestamp();
-        let severity = LogType::Fatal;
-        let description = "Sending channel disconnected in external comms!";
-        let log = LogData::new(severity, timestamp, description.to_string());
-        self.logging_channel.send(log).expect("Sending and logging channels disconnected in external comms");
+        let log = LogData::fatal("Sending channel disconnected in external comms!");
+        self.logging_channel.send(log)
+            .expect("Sending channel and logging channel disconnected in Driver Station Comms!");
         panic!("{}", "Sending channel disconnected in external comms!");
     }
 
@@ -193,96 +177,4 @@ fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
 
         _ => unimplemented!(),
     }
-}
-
-fn parse_drive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 2 as usize {
-        let log = get_wrong_arg_count_log(original_message, 2, args.count() as u64);
-        Err(log)
-    } else {
-        // It should not be possible here for us to have too few arguments since we already
-        // checked our that, so it should be safe to unwrap
-        let left_speed_string = args.next().unwrap();
-        let right_speed_string = args.next().unwrap();
-
-        let left_speed: f32 = match left_speed_string.parse() {
-            Ok(speed) => speed,
-            Err(_) => {
-                let log = LogData::warning("Left speed not parsable!");
-                return Err(log);
-            }
-        };
-
-        let right_speed: f32 = match right_speed_string.parse() {
-            Ok(speed) => speed,
-            Err(_) => {
-                let log = LogData::warning("Right speed not parsable!");
-                return Err(log);
-            }
-        };
-
-        Ok(ReceivableMessage::Drive(left_speed, right_speed))
-    }
-}
-
-fn parse_enable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 1 {
-        let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
-        Err(log)
-    } else {
-        let parsed_subsystem = parse_subsystem(args.next().unwrap())?;
-        Ok(ReceivableMessage::Enable(parsed_subsystem))
-    }
-}
-
-fn parse_disable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 1 {
-        let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
-        Err(log)
-    } else {
-        let parsed_subsystem = parse_subsystem(args.next().unwrap())?;
-        Ok(ReceivableMessage::Disable(parsed_subsystem))
-    }
-}
-
-fn parse_subsystem(field: &str) -> Result<ProtocolSubsystem, LogData> {
-    match field {
-        "drive_train" => Ok(ProtocolSubsystem::DriveTrain),
-        _ => Err(LogData::warning("Unrecognized subsystem in message!"))
-    }
-}
-
-fn parse_revive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 0 {
-        let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
-        Err(log)
-    } else {
-        Ok(ReceivableMessage::Revive)
-    }
-}
-
-fn parse_kill_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 0 {
-        let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
-        Err(log)
-    } else {
-        Ok(ReceivableMessage::Kill)
-    }
-}
-
-fn parse_brake_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.by_ref().count() != 0 {
-        let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
-        Err(log)
-    } else {
-        Ok(ReceivableMessage::Brake)
-    }
-}
-
-fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> LogData {
-    let description = format!(
-        "Wrong number of elements in message '{}'. Expected {} args, instead got {}!",
-        message, expected, actual);
-
-    LogData::warning(description.as_str())
 }
