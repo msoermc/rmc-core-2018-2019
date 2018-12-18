@@ -140,6 +140,7 @@ mod tests {
         let valid_i_i = parse_message("drive 2 1").unwrap();
         let valid_i_f = parse_message("drive 2 1.0").unwrap();
         let valid_f_i = parse_message("drive 2.0 1").unwrap();
+        let invalid = parse_message("drive 2 3 4");
 
         let expected = ReceivableMessage::Drive(2.0, 1.0);
 
@@ -147,5 +148,6 @@ mod tests {
         assert_eq!(valid_i_i, expected);
         assert_eq!(valid_i_f, expected);
         assert_eq!(valid_f_i, expected);
+        assert!(invalid.is_err());
     }
 }
