@@ -18,7 +18,7 @@ pub trait SendableMessage: Send {
 enum CommunicatorError {
     InvalidAddress,
     DisconnectedListener,
-    BadRead
+    BadRead,
 }
 
 struct Communicator {

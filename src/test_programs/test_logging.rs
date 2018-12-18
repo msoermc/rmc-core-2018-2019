@@ -1,21 +1,12 @@
-use std::{
-    io::stdin,
-    sync::mpsc::channel,
-    thread,
-};
+use std::sync::mpsc::channel;
+use std::thread;
+use std::io::stdin;
 
-use crate::{
-    framework::{
-        logging::{
-            LogType,
-            Logger,
-            LogData,
-        },
-        Subsystem,
-    },
-    comms::SendableMessage,
-};
 use crate::comms::external_comms::ExternalComms;
+use crate::framework::logging::Logger;
+use crate::framework::Subsystem;
+use crate::framework::logging::LogType;
+use crate::framework::logging::LogData;
 
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
