@@ -70,9 +70,9 @@ impl ExternalComms {
     fn check_connections(&mut self) {
         if let Err(error) = self.communicator.check_connections() {
             match error {
-                CommunicatorError::InvalidAddressError => panic!("Invalid address error for check_connections! This should not be possible"),
-                CommunicatorError::DisconnectedListenerError => self.handle_lost_listener(),
-                CommunicatorError::BadReadError => unimplemented!(),
+                CommunicatorError::InvalidAddress => panic!("Invalid address error for check_connections! This should not be possible"),
+                CommunicatorError::DisconnectedListener => self.handle_lost_listener(),
+                CommunicatorError::BadRead => unimplemented!(),
             }
         }
     }

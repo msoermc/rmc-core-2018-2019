@@ -16,9 +16,9 @@ pub trait SendableMessage: Send {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum CommunicatorError {
-    InvalidAddressError,
-    DisconnectedListenerError,
-    BadReadError
+    InvalidAddress,
+    DisconnectedListener,
+    BadRead
 }
 
 struct Communicator {
@@ -31,7 +31,7 @@ impl Communicator {
     fn from(address: &str, port: u16) -> Result<Communicator, CommunicatorError> {
         let parsed_address: IpAddr = match address.parse() {
             Ok(addr) => addr,
-            Err(_) => return Err(CommunicatorError::InvalidAddressError),
+            Err(_) => return Err(CommunicatorError::InvalidAddress),
         };
 
         let address = SocketAddr::new(parsed_address, port);
@@ -56,7 +56,7 @@ impl Communicator {
             }
             Err(error) => {
                 if error.kind() != ErrorKind::WouldBlock {
-                    return Err(CommunicatorError::DisconnectedListenerError);
+                    return Err(CommunicatorError::DisconnectedListener);
                 } else {
                     return Ok(());
                 }
@@ -87,7 +87,7 @@ impl Communicator {
 
             if let Err(error) = reader.read_line(&mut buffer) {
                 if error.kind() != ErrorKind::WouldBlock {
-                    lines.push(Err(CommunicatorError::BadReadError));
+                    lines.push(Err(CommunicatorError::BadRead));
                 }
             } else {
                 lines.push(Ok(buffer));
