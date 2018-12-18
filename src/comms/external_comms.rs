@@ -152,7 +152,7 @@ fn parse_message(message: String) -> Result<ReceivableMessage, LogData> {
 }
 
 fn parse_drive_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count().clone() != 2 as usize {
+    if args.by_ref().count() != 2 as usize {
         let log = get_wrong_arg_count_log(original_message, 2, args.count() as u64);
         Err(log)
     } else {
@@ -182,7 +182,7 @@ fn parse_drive_command(original_message: String, mut args: SplitWhitespace) -> R
 }
 
 fn parse_enable_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count() != 1 {
+    if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
     } else {
@@ -192,7 +192,7 @@ fn parse_enable_command(original_message: String, mut args: SplitWhitespace) -> 
 }
 
 fn parse_disable_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count() != 1 {
+    if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
     } else {
@@ -206,7 +206,7 @@ fn parse_subsystem(mut args: SplitWhitespace) -> Result<ProtocolSubsystem, LogDa
 }
 
 fn parse_revive_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count() != 0 {
+    if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
     } else {
@@ -215,7 +215,7 @@ fn parse_revive_command(original_message: String, mut args: SplitWhitespace) -> 
 }
 
 fn parse_kill_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count() != 0 {
+    if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
     } else {
@@ -224,7 +224,7 @@ fn parse_kill_command(original_message: String, mut args: SplitWhitespace) -> Re
 }
 
 fn parse_brake_command(original_message: String, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
-    if args.count() != 0 {
+    if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
     } else {
