@@ -152,29 +152,3 @@ impl ExternalComms {
         self.drive_train_channel.send(DriveTrainCommand::Stop).unwrap();
     }
 }
-
-fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
-    let mut elements = message.split_whitespace();
-    let command = match elements.next() {
-        Some(com) => com,
-        None => {
-            unimplemented!()
-        }
-    };
-
-    match command {
-        "drive" => parse_drive_command(message, elements),
-
-        "enable" => parse_enable_command(message, elements),
-
-        "disable" => parse_disable_command(message, elements),
-
-        "kill" => parse_kill_command(message, elements),
-
-        "revive" => parse_revive_command(message, elements),
-
-        "brake" => parse_brake_command(message, elements),
-
-        _ => unimplemented!(),
-    }
-}

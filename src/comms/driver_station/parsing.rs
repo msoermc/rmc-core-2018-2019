@@ -18,7 +18,35 @@ pub enum ReceivableMessage {
     Brake,
 }
 
-pub fn parse_drive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+
+pub fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
+    let mut elements = message.split_whitespace();
+    let command = match elements.next() {
+        Some(com) => com,
+        None => {
+            unimplemented!()
+        }
+    };
+
+    match command {
+        "drive" => parse_drive_command(message, elements),
+
+        "enable" => parse_enable_command(message, elements),
+
+        "disable" => parse_disable_command(message, elements),
+
+        "kill" => parse_kill_command(message, elements),
+
+        "revive" => parse_revive_command(message, elements),
+
+        "brake" => parse_brake_command(message, elements),
+
+        _ => unimplemented!(),
+    }
+}
+
+
+fn parse_drive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 2 as usize {
         let log = get_wrong_arg_count_log(original_message, 2, args.count() as u64);
         Err(log)
@@ -48,7 +76,7 @@ pub fn parse_drive_command(original_message: &str, mut args: SplitWhitespace) ->
     }
 }
 
-pub fn parse_enable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_enable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
@@ -58,7 +86,7 @@ pub fn parse_enable_command(original_message: &str, mut args: SplitWhitespace) -
     }
 }
 
-pub fn parse_disable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_disable_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 1 {
         let log = get_wrong_arg_count_log(original_message, 1, args.count() as u64);
         Err(log)
@@ -68,14 +96,14 @@ pub fn parse_disable_command(original_message: &str, mut args: SplitWhitespace) 
     }
 }
 
-pub fn parse_subsystem(field: &str) -> Result<ProtocolSubsystem, LogData> {
+fn parse_subsystem(field: &str) -> Result<ProtocolSubsystem, LogData> {
     match field {
         "drive_train" => Ok(ProtocolSubsystem::DriveTrain),
         _ => Err(LogData::warning("Unrecognized subsystem in message!"))
     }
 }
 
-pub fn parse_revive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_revive_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
@@ -84,7 +112,7 @@ pub fn parse_revive_command(original_message: &str, mut args: SplitWhitespace) -
     }
 }
 
-pub fn parse_kill_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_kill_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
@@ -93,7 +121,7 @@ pub fn parse_kill_command(original_message: &str, mut args: SplitWhitespace) -> 
     }
 }
 
-pub fn parse_brake_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
+fn parse_brake_command(original_message: &str, mut args: SplitWhitespace) -> Result<ReceivableMessage, LogData> {
     if args.by_ref().count() != 0 {
         let log = get_wrong_arg_count_log(original_message, 0, args.count() as u64);
         Err(log)
