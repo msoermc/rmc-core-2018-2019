@@ -1,30 +1,13 @@
-use std::{
-    sync::{
-        mpsc::{
-            channel,
-            Receiver,
-            Sender,
-            TryRecvError,
-        }
-    }
-};
+use std::sync::mpsc::channel;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::sync::mpsc::TryRecvError;
 
-use crate::{
-    devices::{
-        motor_controllers::{
-            MotorController,
-            hover_board::HoverBoardError,
-        }
-    },
-    framework::{
-        logging::{
-            get_timestamp,
-            LogData,
-            LogType,
-        },
-        Subsystem,
-    },
-};
+use crate::devices::motor_controllers::MotorController;
+use crate::framework::logging::get_timestamp;
+use crate::framework::logging::LogData;
+use crate::framework::logging::LogType;
+use crate::framework::Subsystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // enum DriveTrainEvent
@@ -73,7 +56,6 @@ pub struct DriveTrain {
     is_enabled: bool,
     is_alive: bool,
     log_channel: Sender<LogData>,
-    event_channel: Sender<DriveTrainEvent>,
     command_receiver: Receiver<DriveTrainCommand>,
     command_sender: Sender<DriveTrainCommand>,
     left: TankSide,
@@ -109,41 +91,28 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> DriveTrain {
+    pub fn new(log_channel: Sender<LogData>, left: TankSide, right: TankSide) -> DriveTrain {
         let (command_sender, command_receiver) = channel();
         DriveTrain {
             is_enabled: true,
             is_alive: true,
-            log_channel: log_channel.clone(),
-            event_channel: error_channel.clone(),
+            log_channel,
             command_receiver,
             command_sender,
-            left: get_left_side(log_channel.clone(), error_channel.clone()),
-            right: get_right_side(log_channel, error_channel),
+            left,
+            right,
         }
     }
 
     /// Respond to a new command that has been received using the appropriate method.
     fn handle_new_command(&mut self, command: DriveTrainCommand) {
         match command {
-            DriveTrainCommand::Drive(left, right) => {
-                self.drive(left, right);
-            }
-            DriveTrainCommand::Enable => {
-                self.enable();
-            }
-            DriveTrainCommand::Disable => {
-                self.disable();
-            }
-            DriveTrainCommand::Kill => {
-                self.kill();
-            }
-            DriveTrainCommand::Revive => {
-                self.revive();
-            }
-            DriveTrainCommand::Stop => {
-                self.stop();
-            }
+            DriveTrainCommand::Drive(left, right) => self.drive(left, right),
+            DriveTrainCommand::Enable => self.enable(),
+            DriveTrainCommand::Disable => self.disable(),
+            DriveTrainCommand::Kill => self.kill(),
+            DriveTrainCommand::Revive => self.revive(),
+            DriveTrainCommand::Stop => self.stop(),
         }
     }
 
@@ -160,37 +129,32 @@ impl DriveTrain {
     /// the robot to brake.
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
         if self.is_alive && self.is_enabled {
-            self.left.set_speed(left_speed).unwrap(); // TODO handle errors
-            self.right.set_speed(right_speed).unwrap(); // TODO handle errors
+            self.left.set_speed(left_speed); // TODO handle errors
+            self.right.set_speed(right_speed); // TODO handle errors
         } else {
             self.stop();
         }
     }
 
-    /// Causes the DriveTrain to brake.
     fn stop(&mut self) {
-        self.left.stop().unwrap(); // TODO handle errors
-        self.right.stop().unwrap(); // TODO handle errors
+        self.left.stop();
+        self.right.stop();
     }
 
-    /// Enables the DriveTrain/
     fn enable(&mut self) {
         self.is_enabled = true;
     }
 
-    /// Causes the DriveTrain to brake and disables it.
     fn disable(&mut self) {
         self.is_enabled = false;
         self.stop();
     }
 
-    /// Causes the DriveTrain to brake and informs it that the robot has been killed.
     fn kill(&mut self) {
         self.is_alive = false;
         self.stop();
     }
 
-    /// Informs the DriveTrain that the robot is alive.
     fn revive(&mut self) {
         self.is_alive = true;
     }
@@ -201,41 +165,31 @@ impl DriveTrain {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Represents one side of the drive train. This structure serves as an abstraction, allowing the
 /// rest of the subsystem to function the same regardless of the amount of motors on each side.
-struct TankSide {
+pub struct TankSide {
     is_inverted: bool,
-    front: Box<MotorController<HoverBoardError>>,
-    back: Box<MotorController<HoverBoardError>>,
+    motors: Vec<Box<MotorController>>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // impl MotorController<TankSideError> for TankSide
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-impl MotorController<TankSideError> for TankSide {
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), TankSideError> {
-        if let Err(error) = self.front.set_speed(new_speed) {
-            unimplemented!()
-        };
-        if let Err(error) = self.back.set_speed(new_speed) {
-            unimplemented!()
-        };
-
-        Ok(())
+impl MotorController for TankSide {
+    fn set_speed(&mut self, new_speed: f32) {
+        for motor in &mut self.motors {
+            motor.set_speed(new_speed);
+        }
     }
 
-    fn stop(&mut self) -> Result<(), TankSideError> {
+    fn stop(&mut self) {
         self.set_speed(0.0)
     }
 
-    fn invert(&mut self) -> Result<(), TankSideError> {
+    fn invert(&mut self) {
         self.is_inverted = !self.is_inverted();
-        if let Err(error) = self.front.invert() {
-            unimplemented!()
-        };
-        if let Err(error) = self.back.invert() {
-            unimplemented!()
-        };
 
-        Ok(())
+        for motor in &mut self.motors {
+            motor.invert();
+        }
     }
 
     fn is_inverted(&self) -> bool {
@@ -243,26 +197,11 @@ impl MotorController<TankSideError> for TankSide {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// enum TankSideError
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-/// The TankSideError enum serves as an abstraction over the various physical errors which can
-/// occur with different hardware configurations.
-enum TankSideError {}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// fn get_left_side
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Factory function to generate the left side of the DriveTrain.
-fn get_left_side(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> TankSide {
-    unimplemented!()
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// fn get_right_side
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Factory function to generate the right side of the DriveTrain.
-fn get_right_side(log_channel: Sender<LogData>, error_channel: Sender<DriveTrainEvent>) -> TankSide {
-    unimplemented!()
+impl TankSide {
+    pub fn new(motors: Vec<Box<MotorController>>) -> TankSide {
+        TankSide {
+            is_inverted: false,
+            motors,
+        }
+    }
 }
