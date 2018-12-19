@@ -10,13 +10,6 @@ use crate::framework::logging::LogType;
 use crate::framework::Subsystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// enum DriveTrainEvent
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// The DriveTrainEvent enum has values representing different events that can occur on the
-/// DriveTrain that are reported to the Controller thread.
-pub enum DriveTrainEvent {}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // enum DriveTrainCommand
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// The DriveTrainCommand enum has values representing different commands that can be sent to the
@@ -58,8 +51,8 @@ pub struct DriveTrain {
     log_channel: Sender<LogData>,
     command_receiver: Receiver<DriveTrainCommand>,
     command_sender: Sender<DriveTrainCommand>,
-    left: TankSide,
-    right: TankSide,
+    left: Box<MotorController>,
+    right: Box<MotorController>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +84,7 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(log_channel: Sender<LogData>, left: TankSide, right: TankSide) -> DriveTrain {
+    pub fn new(log_channel: Sender<LogData>, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
         let (command_sender, command_receiver) = channel();
         DriveTrain {
             is_enabled: true,
@@ -119,7 +112,7 @@ impl DriveTrain {
     fn handle_command_channel_disconnect(&mut self) {
         let severity = LogType::Fatal;
         let timestamp = get_timestamp();
-        let description = "Drivetrain: Command channel was disconnected!".to_string();
+        let description = "DriveTrain: Command channel was disconnected!".to_string();
         let error_log = LogData::new(severity, timestamp, description);
         self.log_channel.send(error_log).unwrap(); // Fail-fast if logger dies
     }
@@ -129,8 +122,8 @@ impl DriveTrain {
     /// the robot to brake.
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
         if self.is_alive && self.is_enabled {
-            self.left.set_speed(left_speed); // TODO handle errors
-            self.right.set_speed(right_speed); // TODO handle errors
+            self.left.set_speed(left_speed);
+            self.right.set_speed(right_speed);
         } else {
             self.stop();
         }
@@ -171,7 +164,7 @@ pub struct TankSide {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// impl MotorController<TankSideError> for TankSide
+// impl MotorController for TankSide
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl MotorController for TankSide {
     fn set_speed(&mut self, new_speed: f32) {
@@ -197,6 +190,9 @@ impl MotorController for TankSide {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// impl TankSide
+///////////////////////////////////////////////////////////////////////////////////////////////////
 impl TankSide {
     pub fn new(motors: Vec<Box<MotorController>>) -> TankSide {
         TankSide {
