@@ -30,4 +30,8 @@ impl TestMotor {
             speed: 0.0
         }
     }
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
+    }
 }

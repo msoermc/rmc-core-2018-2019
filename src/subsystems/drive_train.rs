@@ -84,7 +84,6 @@ impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
     pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_channel: Sender<LogData>, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
-        let (command_sender, command_receiver) = channel();
         DriveTrain {
             is_enabled: true,
             is_alive: true,
@@ -108,11 +107,7 @@ impl DriveTrain {
     }
 
     fn handle_command_channel_disconnect(&mut self) {
-        let severity = LogType::Fatal;
-        let timestamp = get_timestamp();
-        let description = "DriveTrain: Command channel was disconnected!".to_string();
-        let error_log = LogData::new(severity, timestamp, description);
-        self.log_channel.send(error_log).unwrap(); // Fail-fast if logger dies
+        // TODO
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.
@@ -207,6 +202,7 @@ mod tests {
     use std::thread::spawn;
     use std::thread::sleep;
     use std::time::Duration;
+    use std::cell::UnsafeCell;
 
     fn create_test_drive(left_side: TestMotor, right_side: TestMotor) -> (DriveTrain, Sender<DriveTrainCommand>, Receiver<LogData>) {
         let (command_sender, command_receiver) = channel();
@@ -223,12 +219,12 @@ mod tests {
             let left_side = TestMotor::new();
             let right_side = TestMotor::new();
 
-            let left_test = & left_side as *const TestMotor;
-            let right_test = & right_side as *const TestMotor;
+            let left_test = UnsafeCell::new( left_side);
+            let right_test = UnsafeCell::new(right_side);
 
-            let (mut drive_train, mut command_sender, _) = create_test_drive(left_side, right_side);
+            let (mut drive_train, command_sender, _) = create_test_drive(*left_test.get(), *right_test.get());
 
-            spawn(move || drive_train.start());
+            drive_train.init();
 
             let both_forward = DriveTrainCommand::Drive(1.0, 1.0);
             let both_backward = DriveTrainCommand::Drive(-1.0, -1.0);
@@ -236,12 +232,13 @@ mod tests {
             let for_bac = DriveTrainCommand::Drive(1.0, -1.0);
             let bac_for = DriveTrainCommand::Drive(-1.0, 1.0);
 
-            sleep(Duration::new(0, 1000));
-
             command_sender.send(both_forward).unwrap();
 
-            assert_eq!(1.0, (*left_test).speed);
-            assert_eq!(1.0, (*right_test).speed);
+            drive_train.run();
+            drive_train.run();
+
+            assert_eq!(1.0, (*left_test.get()).get_speed());
+            assert_eq!(1.0, (*right_test.get()).get_speed());
         }
     }
 }
