@@ -50,7 +50,6 @@ pub struct DriveTrain {
     is_alive: bool,
     log_channel: Sender<LogData>,
     command_receiver: Receiver<DriveTrainCommand>,
-    command_sender: Sender<DriveTrainCommand>,
     left: Box<MotorController>,
     right: Box<MotorController>,
 }
@@ -74,7 +73,7 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
     }
 
     fn get_command_sender(&mut self) -> Sender<DriveTrainCommand> {
-        self.command_sender.clone()
+        unimplemented!()
     }
 }
 
@@ -84,14 +83,13 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(log_channel: Sender<LogData>, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
+    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_channel: Sender<LogData>, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
         let (command_sender, command_receiver) = channel();
         DriveTrain {
             is_enabled: true,
             is_alive: true,
             log_channel,
             command_receiver,
-            command_sender,
             left,
             right,
         }
@@ -198,6 +196,52 @@ impl TankSide {
         TankSide {
             is_inverted: false,
             motors,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::devices::motor_controllers::test_motor::TestMotor;
+    use std::thread::spawn;
+    use std::thread::sleep;
+    use std::time::Duration;
+
+    fn create_test_drive(left_side: TestMotor, right_side: TestMotor) -> (DriveTrain, Sender<DriveTrainCommand>, Receiver<LogData>) {
+        let (command_sender, command_receiver) = channel();
+        let (log_sender, log_receiver) = channel();
+
+        let drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_side), Box::new(right_side));
+
+        (drive_train, command_sender, log_receiver)
+    }
+
+    #[test]
+    fn test_drive() {
+        unsafe {
+            let left_side = TestMotor::new();
+            let right_side = TestMotor::new();
+
+            let left_test = & left_side as *const TestMotor;
+            let right_test = & right_side as *const TestMotor;
+
+            let (mut drive_train, mut command_sender, _) = create_test_drive(left_side, right_side);
+
+            spawn(move || drive_train.start());
+
+            let both_forward = DriveTrainCommand::Drive(1.0, 1.0);
+            let both_backward = DriveTrainCommand::Drive(-1.0, -1.0);
+
+            let for_bac = DriveTrainCommand::Drive(1.0, -1.0);
+            let bac_for = DriveTrainCommand::Drive(-1.0, 1.0);
+
+            sleep(Duration::new(0, 1000));
+
+            command_sender.send(both_forward).unwrap();
+
+            assert_eq!(1.0, (*left_test).speed);
+            assert_eq!(1.0, (*right_test).speed);
         }
     }
 }

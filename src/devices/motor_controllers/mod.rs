@@ -1,4 +1,5 @@
 pub mod hover_board;
+pub mod test_motor;
 
 pub trait MotorController: Send {
     /// Sets the current speed of the motor controller.
