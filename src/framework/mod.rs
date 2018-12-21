@@ -11,14 +11,16 @@ pub trait Runnable {
 
     /// Runs a single loop of the subsystem. This function will be called repeatedly by the
     /// framework.
-    fn run(&mut self);
+    fn run(&mut self) -> bool;
 
     /// Starts the subsystem in the current thread. The subsystem will take over the current thread
     /// when this method is invoked.
-    fn start(& mut self) {
+    fn start(&mut self) {
         self.init();
         loop {
-            self.run();
+            if !self.run() {
+                break;
+            }
         }
     }
 }

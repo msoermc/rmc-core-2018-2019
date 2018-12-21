@@ -29,7 +29,7 @@ impl Runnable for Logger {
         // Do nothing
     }
 
-    fn run(&mut self) {
+    fn run(&mut self) -> bool {
         // reestablish writer if not present
         if self.writer.is_none() {
             match get_file_to_use() {
@@ -87,6 +87,8 @@ impl Runnable for Logger {
                 }
             }
         }
+
+        true
     }
 }
 

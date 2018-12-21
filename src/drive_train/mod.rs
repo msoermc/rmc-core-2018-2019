@@ -62,13 +62,17 @@ impl Runnable for DriveTrain {
         // Do nothing
     }
 
-    fn run(&mut self) {
+    fn run(&mut self) -> bool {
         match self.command_receiver.try_recv() {
-            Ok(command) => self.handle_new_command(command),
+            Ok(command) => {
+                self.handle_new_command(command);
+                true
+            }
             Err(TryRecvError::Disconnected) => {
                 self.handle_command_channel_disconnect();
+                false
             }
-            Err(TryRecvError::Empty) => ()
+            Err(TryRecvError::Empty) => true
         }
     }
 }
@@ -105,8 +109,7 @@ impl DriveTrain {
     fn handle_command_channel_disconnect(&mut self) {
         let description = "DriveTrain command channel disconnected!";
         let log = LogData::fatal(description);
-        self.log_channel.send(log).unwrap();
-        panic!(description);
+        self.log_channel.send(log);
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.
