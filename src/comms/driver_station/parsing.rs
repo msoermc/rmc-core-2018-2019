@@ -73,7 +73,6 @@ fn parse_drive_command(original_message: &str, args: &[&str]) -> Result<Receivab
             }
         };
 
-        println!("Drive!");
         Ok(ReceivableMessage::Drive(left_speed, right_speed))
     }
 }
