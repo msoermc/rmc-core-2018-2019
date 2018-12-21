@@ -13,17 +13,13 @@ pub fn run_test() {
 
     comms.start();
 
-    //let mut counter: u64 = 0;
-    //loop {
-    //    let description = format!("test {}\n", counter);
-    //    let timestamp = get_timestamp();
-    //    let severity = LogType::Debug;
-    //    let log = LogData::new(severity, timestamp, description);
-    //    comms_sender.send(Box::new(log)).expect("Could not send to comms");
-    //    counter += 1;
-    //}
-
+    let mut counter: u64 = 0;
     loop {
-
+        let description = format!("test {}\n", counter);
+        let timestamp = get_timestamp();
+        let severity = LogType::Debug;
+        let log = LogData::new(severity, timestamp, description);
+        comms_sender.send(Box::new(log)).expect("Could not send to comms");
+        counter += 1;
     }
 }
