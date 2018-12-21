@@ -1,37 +1,22 @@
-use std::{
-    collections::VecDeque,
-    fs::{
-        create_dir_all,
-        File,
-        OpenOptions,
-    },
-    io::{
-        BufWriter,
-        Result,
-        Write,
-    },
-    path::Path,
-    sync::mpsc::{
-        channel,
-        Receiver,
-        Sender,
-        TryRecvError,
-    },
-};
+use std::collections::VecDeque;
+use std::fs::create_dir_all;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::io::BufWriter;
+use std::io::Result;
+use std::io::Write;
+use std::path::Path;
+use std::sync::mpsc::channel;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::sync::mpsc::TryRecvError;
 
-use chrono::prelude::{
-    DateTime,
-    Utc,
-};
+use chrono::DateTime;
+use chrono::Utc;
 
-use crate::{
-    framework::Subsystem,
-    comms::SendableMessage,
-};
+use crate::comms::SendableMessage;
+use crate::framework::Subsystem;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// struct Logger
-///////////////////////////////////////////////////////////////////////////////////////////////////
 pub struct Logger {
     counter: u64,
     writer: Option<BufWriter<File>>,
@@ -53,7 +38,7 @@ impl Subsystem<LogData> for Logger {
                 Ok(file) => {
                     let new_writer = BufWriter::new(file);
                     self.writer = Some(new_writer);
-                },
+                }
                 Err(_) => {
                     let severity = LogType::Error;
                     let description = "Could not get new log file!".to_string();
@@ -62,7 +47,7 @@ impl Subsystem<LogData> for Logger {
                     let error = LogData::new(severity, timestamp, description);
                     self.log_to_file(error.clone());
                     self.log_to_driver_station(error);
-                },
+                }
             }
         }
 
@@ -247,31 +232,31 @@ impl LogData {
         }
     }
 
-    pub fn fatal(description: &str) -> Self{
+    pub fn fatal(description: &str) -> Self {
         let severity = LogType::Fatal;
 
         self::create_log_data(severity, description)
     }
 
-    pub fn error(description: &str) -> Self{
+    pub fn error(description: &str) -> Self {
         let severity = LogType::Error;
 
         self::create_log_data(severity, description)
     }
 
-    pub fn warning(description: &str) -> Self{
+    pub fn warning(description: &str) -> Self {
         let severity = LogType::Warning;
 
         self::create_log_data(severity, description)
     }
 
-    pub fn info(description: &str) -> Self{
+    pub fn info(description: &str) -> Self {
         let severity = LogType::Info;
 
         self::create_log_data(severity, description)
     }
 
-    pub fn debug(description: &str) -> Self{
+    pub fn debug(description: &str) -> Self {
         let severity = LogType::Debug;
 
         self::create_log_data(severity, description)
