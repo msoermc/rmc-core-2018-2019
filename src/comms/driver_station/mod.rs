@@ -4,7 +4,6 @@ use std::sync::mpsc::TryRecvError;
 use std::thread::spawn;
 
 use crate::comms::Communicator;
-use crate::comms::CommunicatorError;
 use crate::comms::driver_station::parsing::*;
 use crate::comms::SendableMessage;
 use crate::framework::logging::LogData;
@@ -28,8 +27,7 @@ impl ExternalComms {
     /// This constructor will bind the listener.
     pub fn new(logging_channel: Sender<LogData>, sending_channel: Receiver<Box<SendableMessage>>,
                drive_train_channel: Sender<DriveTrainCommand>) -> ExternalComms {
-        let communicator = Communicator::from(ADDRESS, PORT)
-            .expect("Could not create communicator for external comms!");
+        let communicator = Communicator::from(ADDRESS, PORT);
 
         ExternalComms {
             sending_channel,
@@ -56,11 +54,7 @@ impl ExternalComms {
 
     fn check_connections(&mut self) {
         if let Err(error) = self.communicator.check_connections() {
-            match error {
-                CommunicatorError::InvalidAddress => panic!("Invalid address error for check_connections! This should not be possible"),
-                CommunicatorError::DisconnectedListener => self.handle_lost_listener(),
-                CommunicatorError::BadRead => unimplemented!(),
-            }
+            self.logging_channel.send(error).unwrap();
         }
     }
 
@@ -79,7 +73,7 @@ impl ExternalComms {
         for result in self.communicator.receive_next_lines() {
             match result {
                 Ok(message) => self.handle_message(message.as_str()),
-                Err(error) => unimplemented!()
+                Err(error) => self.logging_channel.send(error).unwrap()
             }
         }
     }
@@ -90,10 +84,6 @@ impl ExternalComms {
             Ok(parsed_message) => self.handle_valid_command(parsed_message),
             Err(log) => self.logging_channel.send(log).unwrap(),
         }
-    }
-
-    fn handle_lost_listener(&mut self) {
-        unimplemented!()
     }
 
     fn send_message(&mut self, message: &SendableMessage) {
