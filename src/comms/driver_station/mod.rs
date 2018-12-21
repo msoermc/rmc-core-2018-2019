@@ -15,22 +15,22 @@ const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
 
 
-pub struct ExternalComms {
-    sending_channel: Receiver<Box<SendableMessage>>,
+pub struct DriverStationComms {
+    message_queue: Receiver<Box<SendableMessage>>,
     logging_channel: Sender<LogData>,
     communicator: Communicator,
     drive_train_channel: Sender<DriveTrainCommand>,
 }
 
-impl ExternalComms {
+impl DriverStationComms {
     /// Instantiates the comms.
     /// This constructor will bind the listener.
-    pub fn new(logging_channel: Sender<LogData>, sending_channel: Receiver<Box<SendableMessage>>,
-               drive_train_channel: Sender<DriveTrainCommand>) -> ExternalComms {
+    pub fn new(logging_channel: Sender<LogData>, message_queue: Receiver<Box<SendableMessage>>,
+               drive_train_channel: Sender<DriveTrainCommand>) -> DriverStationComms {
         let communicator = Communicator::from(ADDRESS, PORT);
 
-        ExternalComms {
-            sending_channel,
+        DriverStationComms {
+            message_queue,
             logging_channel,
             communicator,
             drive_train_channel,
@@ -59,7 +59,7 @@ impl ExternalComms {
     }
 
     fn send_messages(&mut self) {
-        match self.sending_channel.try_recv() {
+        match self.message_queue.try_recv() {
             Ok(message) => self.send_message(message.as_ref()),
             Err(try_error) => {
                 if let TryRecvError::Disconnected = try_error {

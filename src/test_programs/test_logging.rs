@@ -2,7 +2,7 @@ use std::io::stdin;
 use std::sync::mpsc::channel;
 use std::thread;
 
-use crate::comms::driver_station::ExternalComms;
+use crate::comms::driver_station::DriverStationComms;
 use crate::framework::Runnable;
 use crate::logging::log_data::LogData;
 use crate::logging::log_data::LogType;
@@ -16,7 +16,7 @@ pub fn run_test() {
     let (drive_sender, _) = channel();
 
 
-    let comms = ExternalComms::new(log_sender.clone(), comms_receiver, drive_sender);
+    let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender);
 
     comms.start();
 
