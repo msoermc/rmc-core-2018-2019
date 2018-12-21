@@ -6,6 +6,7 @@ use std::io::BufWriter;
 use std::io::Result;
 use std::io::Write;
 use std::path::Path;
+use std::string::ToString;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;

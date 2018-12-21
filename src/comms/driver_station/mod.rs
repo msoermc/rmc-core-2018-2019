@@ -6,8 +6,8 @@ use std::thread::spawn;
 use crate::comms::Communicator;
 use crate::comms::driver_station::parsing::*;
 use crate::comms::SendableMessage;
-use crate::framework::logging::LogData;
 use crate::drive_train::DriveTrainCommand;
+use crate::logging::LogData;
 
 mod parsing;
 

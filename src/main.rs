@@ -5,6 +5,7 @@ pub mod devices;
 pub mod test_programs;
 pub mod comms;
 pub mod drive_train;
+pub mod logging;
 
 fn main() {
     test_comms::run_test();

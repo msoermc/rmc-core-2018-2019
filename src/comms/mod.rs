@@ -7,7 +7,7 @@ use std::net::SocketAddr;
 use std::net::TcpListener;
 use std::net::TcpStream;
 
-use crate::framework::logging::LogData;
+use crate::logging::LogData;
 
 pub mod driver_station;
 pub mod internal_comms;

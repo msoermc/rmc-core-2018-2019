@@ -1,5 +1,5 @@
 use crate::comms::get_wrong_arg_count_log;
-use crate::framework::logging::LogData;
+use crate::logging::LogData;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ProtocolSubsystem {
@@ -42,12 +42,12 @@ pub fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
         _ => {
             let description = format!("Received nonexistent command, message is '{}'", message);
             Err(LogData::warning(description.as_str()))
-        },
+        }
     }
 }
 
 
-fn parse_drive_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_drive_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 3 as usize {
         let log = get_wrong_arg_count_log(original_message, 2, args.len() as u64);
         Err(log)
@@ -78,7 +78,7 @@ fn parse_drive_command(original_message: &str, args: & [&str]) -> Result<Receiva
     }
 }
 
-fn parse_enable_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_enable_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 2 {
         let log = get_wrong_arg_count_log(original_message, 1, args.len() as u64);
         Err(log)
@@ -88,7 +88,7 @@ fn parse_enable_command(original_message: &str, args: & [&str]) -> Result<Receiv
     }
 }
 
-fn parse_disable_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_disable_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 2 {
         let log = get_wrong_arg_count_log(original_message, 1, args.len() as u64);
         Err(log)
@@ -105,7 +105,7 @@ fn parse_subsystem(field: &str) -> Result<ProtocolSubsystem, LogData> {
     }
 }
 
-fn parse_revive_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_revive_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 1 {
         let log = get_wrong_arg_count_log(original_message, 0, args.len() as u64);
         Err(log)
@@ -114,7 +114,7 @@ fn parse_revive_command(original_message: &str, args: & [&str]) -> Result<Receiv
     }
 }
 
-fn parse_kill_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_kill_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 1 {
         let log = get_wrong_arg_count_log(original_message, 0, args.len() as u64);
         Err(log)
@@ -123,7 +123,7 @@ fn parse_kill_command(original_message: &str, args: & [&str]) -> Result<Receivab
     }
 }
 
-fn parse_brake_command(original_message: &str, args: & [&str]) -> Result<ReceivableMessage, LogData> {
+fn parse_brake_command(original_message: &str, args: &[&str]) -> Result<ReceivableMessage, LogData> {
     if args.len() != 1 {
         let log = get_wrong_arg_count_log(original_message, 0, args.len() as u64);
         Err(log)
