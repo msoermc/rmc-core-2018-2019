@@ -103,7 +103,10 @@ impl DriveTrain {
     }
 
     fn handle_command_channel_disconnect(&mut self) {
-        // TODO
+        let description = "DriveTrain command channel disconnected!";
+        let log = LogData::fatal(description);
+        self.log_channel.send(log).unwrap();
+        panic!(description);
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.
