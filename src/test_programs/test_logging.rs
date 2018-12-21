@@ -4,9 +4,9 @@ use std::thread;
 
 use crate::comms::driver_station::ExternalComms;
 use crate::framework::Runnable;
-use crate::logging::LogData;
+use crate::logging::log_data::LogData;
+use crate::logging::log_data::LogType;
 use crate::logging::Logger;
-use crate::logging::LogType;
 
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();

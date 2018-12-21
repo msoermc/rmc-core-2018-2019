@@ -7,7 +7,7 @@ use crate::comms::Communicator;
 use crate::comms::driver_station::parsing::*;
 use crate::comms::SendableMessage;
 use crate::drive_train::DriveTrainCommand;
-use crate::logging::LogData;
+use crate::logging::log_data::LogData;
 
 mod parsing;
 

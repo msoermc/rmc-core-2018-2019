@@ -4,7 +4,7 @@ use std::sync::mpsc::TryRecvError;
 
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
-use crate::logging::LogData;
+use crate::logging::log_data::LogData;
 
 #[cfg(test)]
 mod tests;

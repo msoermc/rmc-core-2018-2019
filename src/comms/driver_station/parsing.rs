@@ -1,5 +1,5 @@
 use crate::comms::get_wrong_arg_count_log;
-use crate::logging::LogData;
+use crate::logging::log_data::LogData;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ProtocolSubsystem {

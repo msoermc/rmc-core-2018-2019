@@ -1,9 +1,9 @@
 use std::sync::mpsc::channel;
 
 use crate::comms::driver_station::ExternalComms;
-use crate::logging::get_timestamp;
-use crate::logging::LogData;
-use crate::logging::LogType;
+use crate::logging::log_data::get_timestamp;
+use crate::logging::log_data::LogData;
+use crate::logging::log_data::LogType;
 
 pub fn run_test() {
     let (log_sender, _) = channel();
