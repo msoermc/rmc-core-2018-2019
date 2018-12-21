@@ -6,7 +6,6 @@ use std::io::BufWriter;
 use std::io::Result;
 use std::io::Write;
 use std::path::Path;
-use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
@@ -15,18 +14,17 @@ use chrono::DateTime;
 use chrono::Utc;
 
 use crate::comms::SendableMessage;
-use crate::framework::Subsystem;
+use crate::framework::Runnable;
 
 pub struct Logger {
     counter: u64,
     writer: Option<BufWriter<File>>,
     backlog: VecDeque<LogData>,
-    log_receiver: Receiver<LogData>,
-    log_sender_template: Sender<LogData>,
+    logging_queue: Receiver<LogData>,
     comms_channel: Option<Sender<Box<SendableMessage>>>,
 }
 
-impl Subsystem<LogData> for Logger {
+impl Runnable for Logger {
     fn init(&mut self) {
         // Do nothing
     }
@@ -57,7 +55,7 @@ impl Subsystem<LogData> for Logger {
         }
 
         // log new message
-        match self.log_receiver.try_recv() {
+        match self.logging_queue.try_recv() {
             Ok(log) => {
                 self.log_to_file(log.clone());
                 self.log_to_driver_station(log);
@@ -90,18 +88,13 @@ impl Subsystem<LogData> for Logger {
             }
         }
     }
-
-    fn get_command_sender(&mut self) -> Sender<LogData> {
-        self.log_sender_template.clone()
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // impl Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl Logger {
-    pub fn new(comms_channel: Sender<Box<SendableMessage>>) -> Logger {
-        let (log_sender_template, log_receiver) = channel();
+    pub fn new(comms_channel: Sender<Box<SendableMessage>>, logging_queue: Receiver<LogData>) -> Logger {
         let file_result = get_file_to_use();
 
         let writer = match file_result {
@@ -113,8 +106,7 @@ impl Logger {
             counter: 0,
             writer,
             backlog: VecDeque::new(),
-            log_receiver,
-            log_sender_template,
+            logging_queue,
             comms_channel: Some(comms_channel),
         }
     }

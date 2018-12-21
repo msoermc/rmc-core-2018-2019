@@ -1,12 +1,10 @@
-use std::sync::mpsc::Sender;
-
 pub mod logging;
 
 /// The subsystem trait represents different subsystems on the robot such as bucket ladders,
 /// drivetrains, and dumping mechanisms.
 ///
 /// Subsystems are run in their own processes concurrently by the robot framework.
-pub trait Subsystem<Command> {
+pub trait Runnable {
     /// Initializes the subsystem, returning a result object indicating whether the action was
     /// successful.
     fn init(&mut self);
@@ -23,8 +21,6 @@ pub trait Subsystem<Command> {
             self.run();
         }
     }
-
-    fn get_command_sender(&mut self) -> Sender<Command>;
 }
 
 #[derive(Copy, Clone)]

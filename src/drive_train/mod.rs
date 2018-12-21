@@ -4,7 +4,7 @@ use std::sync::mpsc::TryRecvError;
 
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::logging::LogData;
-use crate::framework::Subsystem;
+use crate::framework::Runnable;
 
 #[cfg(test)]
 mod tests;
@@ -57,7 +57,7 @@ pub struct DriveTrain {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // impl Subsystem<DriveTrainCommand> for DriveTrain
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-impl Subsystem<DriveTrainCommand> for DriveTrain {
+impl Runnable for DriveTrain {
     fn init(&mut self) {
         // Do nothing
     }
@@ -70,10 +70,6 @@ impl Subsystem<DriveTrainCommand> for DriveTrain {
             }
             Err(TryRecvError::Empty) => ()
         }
-    }
-
-    fn get_command_sender(&mut self) -> Sender<DriveTrainCommand> {
-        unimplemented!()
     }
 }
 

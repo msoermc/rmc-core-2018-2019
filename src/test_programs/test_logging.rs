@@ -4,18 +4,19 @@ use std::io::stdin;
 
 use crate::comms::driver_station::ExternalComms;
 use crate::framework::logging::Logger;
-use crate::framework::Subsystem;
+use crate::framework::Runnable;
 use crate::framework::logging::LogType;
 use crate::framework::logging::LogData;
 
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
-    let mut logger = Logger::new(comms_sender.clone());
+    let (log_sender, log_receiver) = channel();
+
+    let mut logger = Logger::new(comms_sender.clone(), log_receiver);
     let (drive_sender, _) = channel();
 
-    let log_channel = logger.get_command_sender();
 
-    let comms = ExternalComms::new(log_channel.clone(), comms_receiver, drive_sender);
+    let comms = ExternalComms::new(log_sender.clone(), comms_receiver, drive_sender);
 
     comms.start();
 
