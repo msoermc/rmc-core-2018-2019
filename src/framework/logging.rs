@@ -26,7 +26,7 @@ use chrono::prelude::{
 
 use crate::{
     framework::Subsystem,
-    subsystems::comms::Message,
+    comms::SendableMessage,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ pub struct Logger {
     backlog: VecDeque<LogData>,
     log_receiver: Receiver<LogData>,
     log_sender_template: Sender<LogData>,
-    comms_channel: Option<Sender<Message>>,
+    comms_channel: Option<Sender<Box<SendableMessage>>>,
 }
 
 impl Subsystem<LogData> for Logger {
@@ -115,7 +115,7 @@ impl Subsystem<LogData> for Logger {
 // impl Logger
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl Logger {
-    pub fn new(comms_channel: Sender<Message>) -> Logger {
+    pub fn new(comms_channel: Sender<Box<SendableMessage>>) -> Logger {
         let (log_sender_template, log_receiver) = channel();
         let file_result = get_file_to_use();
 
@@ -136,7 +136,7 @@ impl Logger {
 
     fn log_to_driver_station(&mut self, report: LogData) {
         if let Some(comms) = &mut self.comms_channel {
-            if comms.send(Message::Log(report)).is_err() {
+            if comms.send(Box::new(report)).is_err() {
                 self.comms_channel = None;
 
                 let severity = LogType::Error;
@@ -209,7 +209,7 @@ pub struct LogData {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// LogData
+// impl LogData
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 impl LogData {
     pub fn get_severity(&self) -> &LogType {
@@ -218,6 +218,10 @@ impl LogData {
 
     pub fn get_description(&self) -> &str {
         &self.description
+    }
+
+    pub fn get_timestamp(&self) -> DateTime<Utc> {
+        self.timestamp
     }
 
     pub fn to_string(&self) -> String {
@@ -242,8 +246,59 @@ impl LogData {
             description,
         }
     }
+
+    pub fn fatal(description: &str) -> Self{
+        let severity = LogType::Fatal;
+
+        self::create_log_data(severity, description)
+    }
+
+    pub fn error(description: &str) -> Self{
+        let severity = LogType::Error;
+
+        self::create_log_data(severity, description)
+    }
+
+    pub fn warning(description: &str) -> Self{
+        let severity = LogType::Warning;
+
+        self::create_log_data(severity, description)
+    }
+
+    pub fn info(description: &str) -> Self{
+        let severity = LogType::Info;
+
+        self::create_log_data(severity, description)
+    }
+
+    pub fn debug(description: &str) -> Self{
+        let severity = LogType::Debug;
+
+        self::create_log_data(severity, description)
+    }
+}
+
+impl SendableMessage for LogData {
+    fn encode(&self) -> String {
+        let timestamp = self.timestamp.to_string();
+        let severity = match self.severity {
+            LogType::Debug => "debug",
+            LogType::Info => "info",
+            LogType::Warning => "warning",
+            LogType::Error => "error",
+            LogType::Fatal => "fatal",
+        };
+        let description = &self.description;
+        "log".to_string() + &severity.to_string() + &timestamp.to_string() + description
+    }
 }
 
 pub fn get_timestamp() -> DateTime<Utc> {
     Utc::now()
+}
+
+fn create_log_data(severity: LogType, description: &str) -> LogData {
+    let timestamp = get_timestamp();
+
+    LogData::new(severity, timestamp, description.to_string())
 }
