@@ -5,10 +5,10 @@ use crate::framework::logging::LogType;
 use crate::framework::logging::LogData;
 
 pub fn run_test() {
-    let (log_sender, log_receiver) = channel();
+    let (log_sender, _) = channel();
     let (comms_sender, comms_receiver) = channel();
 
-    let (drive_sender, drive_receiver) = channel();
+    let (drive_sender, _) = channel();
     let comms = ExternalComms::new(log_sender, comms_receiver, drive_sender);
 
     comms.start();

@@ -1,4 +1,3 @@
-use crate::test_programs::test_logging;
 use crate::test_programs::test_comms;
 
 pub mod framework;

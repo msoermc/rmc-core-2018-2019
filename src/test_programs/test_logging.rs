@@ -11,7 +11,7 @@ use crate::framework::logging::LogData;
 pub fn run_test() {
     let (comms_sender, comms_receiver) = channel();
     let mut logger = Logger::new(comms_sender.clone());
-    let (drive_sender, drive_receiver) = channel();
+    let (drive_sender, _) = channel();
 
     let log_channel = logger.get_command_sender();
 
