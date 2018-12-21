@@ -16,6 +16,7 @@ pub trait SendableMessage: Send {
     fn encode(&self) -> String;
 }
 
+/// An object used to take care of the TCP IO and abstract other objects from those details.
 struct Communicator {
     listener: TcpListener,
     clients: Vec<TcpStream>,
