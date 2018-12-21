@@ -1,5 +1,3 @@
-use std::str::SplitWhitespace;
-
 use crate::comms::get_wrong_arg_count_log;
 use crate::framework::logging::LogData;
 
@@ -75,6 +73,7 @@ fn parse_drive_command(original_message: &str, args: & [&str]) -> Result<Receiva
             }
         };
 
+        println!("Drive!");
         Ok(ReceivableMessage::Drive(left_speed, right_speed))
     }
 }
