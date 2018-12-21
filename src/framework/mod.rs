@@ -23,9 +23,3 @@ pub trait Runnable {
         }
     }
 }
-
-#[derive(Copy, Clone)]
-pub enum TestMode {
-    OnRobot(),
-    Virtual(),
-}
