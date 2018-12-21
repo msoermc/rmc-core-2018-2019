@@ -107,7 +107,7 @@ impl DriveTrain {
     }
 
     fn handle_command_channel_disconnect(&mut self) {
-        // TODO
+        unimplemented!()
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.
