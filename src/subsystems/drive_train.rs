@@ -146,99 +146,226 @@ impl DriveTrain {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// struct TankSide
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Represents one side of the drive train. This structure serves as an abstraction, allowing the
-/// rest of the subsystem to function the same regardless of the amount of motors on each side.
-pub struct TankSide {
-    is_inverted: bool,
-    motors: Vec<Box<MotorController>>,
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// impl MotorController for TankSide
-///////////////////////////////////////////////////////////////////////////////////////////////////
-impl MotorController for TankSide {
-    fn set_speed(&mut self, new_speed: f32) {
-        for motor in &mut self.motors {
-            motor.set_speed(new_speed);
-        }
-    }
-
-    fn stop(&mut self) {
-        self.set_speed(0.0)
-    }
-
-    fn invert(&mut self) {
-        self.is_inverted = !self.is_inverted();
-
-        for motor in &mut self.motors {
-            motor.invert();
-        }
-    }
-
-    fn is_inverted(&self) -> bool {
-        self.is_inverted
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// impl TankSide
-///////////////////////////////////////////////////////////////////////////////////////////////////
-impl TankSide {
-    pub fn new(motors: Vec<Box<MotorController>>) -> TankSide {
-        TankSide {
-            is_inverted: false,
-            motors,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::devices::motor_controllers::test_motor::TestMotor;
     use std::thread::spawn;
-    use std::thread::sleep;
     use std::time::Duration;
-    use std::cell::UnsafeCell;
 
-    fn create_test_drive(left_side: TestMotor, right_side: TestMotor) -> (DriveTrain, Sender<DriveTrainCommand>, Receiver<LogData>) {
-        let (command_sender, command_receiver) = channel();
-        let (log_sender, log_receiver) = channel();
+    use crate::devices::motor_controllers::test_motor::TestAction;
+    use crate::devices::motor_controllers::test_motor::TestMotor;
 
-        let drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_side), Box::new(right_side));
+    use super::*;
 
-        (drive_train, command_sender, log_receiver)
-    }
+    const TIMEOUT: u64 = 100;
 
     #[test]
     fn test_drive() {
-        unsafe {
-            let left_side = TestMotor::new();
-            let right_side = TestMotor::new();
+        let (left_test_sender, left_test_receiver) = channel();
+        let (right_test_sender, right_test_receiver) = channel();
+        let (log_sender, log_receiver) = channel();
+        let (command_sender, command_receiver) = channel();
 
-            let left_test = UnsafeCell::new( left_side);
-            let right_test = UnsafeCell::new(right_side);
+        let left_motor = TestMotor::new(left_test_sender);
+        let right_motor = TestMotor::new(right_test_sender);
 
-            let (mut drive_train, command_sender, _) = create_test_drive(*left_test.get(), *right_test.get());
+        let mut drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_motor), Box::new(right_motor));
 
-            drive_train.init();
+        spawn(move || {
+            drive_train.start();
+        });
 
-            let both_forward = DriveTrainCommand::Drive(1.0, 1.0);
-            let both_backward = DriveTrainCommand::Drive(-1.0, -1.0);
+        // test both forward
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
 
-            let for_bac = DriveTrainCommand::Drive(1.0, -1.0);
-            let bac_for = DriveTrainCommand::Drive(-1.0, 1.0);
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), left_result);
 
-            command_sender.send(both_forward).unwrap();
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), right_result);
 
-            drive_train.run();
-            drive_train.run();
+        // test both backward
+        command_sender.send(DriveTrainCommand::Drive(-1.0, -1.0)).unwrap();
 
-            assert_eq!(1.0, (*left_test.get()).get_speed());
-            assert_eq!(1.0, (*right_test.get()).get_speed());
-        }
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(-1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(-1.0), right_result);
+
+        // test left forward right back
+        command_sender.send(DriveTrainCommand::Drive(1.0, -1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(-1.0), right_result);
+
+        // test right forward left back
+        command_sender.send(DriveTrainCommand::Drive(-1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(-1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), right_result);
+    }
+
+    #[test]
+    fn test_enable() {
+        let (left_test_sender, left_test_receiver) = channel();
+        let (right_test_sender, right_test_receiver) = channel();
+        let (log_sender, log_receiver) = channel();
+        let (command_sender, command_receiver) = channel();
+
+        let left_motor = TestMotor::new(left_test_sender);
+        let right_motor = TestMotor::new(right_test_sender);
+
+        let mut drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_motor), Box::new(right_motor));
+
+        spawn(move || {
+            drive_train.start();
+        });
+
+        // test disable
+        command_sender.send(DriveTrainCommand::Disable).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // try and send something when disabled
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // test enable
+        command_sender.send(DriveTrainCommand::Enable).unwrap();
+
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), right_result);
+    }
+
+    #[test]
+    fn test_kill() {
+        let (left_test_sender, left_test_receiver) = channel();
+        let (right_test_sender, right_test_receiver) = channel();
+        let (log_sender, log_receiver) = channel();
+        let (command_sender, command_receiver) = channel();
+
+        let left_motor = TestMotor::new(left_test_sender);
+        let right_motor = TestMotor::new(right_test_sender);
+
+        let mut drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_motor), Box::new(right_motor));
+
+        spawn(move || {
+            drive_train.start();
+        });
+
+        // test disable
+        command_sender.send(DriveTrainCommand::Kill).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // try and send something when disabled
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // test enable
+        command_sender.send(DriveTrainCommand::Revive).unwrap();
+
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), right_result);
+    }
+
+    #[test]
+    fn test_interactions() {
+        let (left_test_sender, left_test_receiver) = channel();
+        let (right_test_sender, right_test_receiver) = channel();
+        let (log_sender, log_receiver) = channel();
+        let (command_sender, command_receiver) = channel();
+
+        let left_motor = TestMotor::new(left_test_sender);
+        let right_motor = TestMotor::new(right_test_sender);
+
+        let mut drive_train = DriveTrain::new(command_receiver, log_sender, Box::new(left_motor), Box::new(right_motor));
+
+        spawn(move || {
+            drive_train.start();
+        });
+
+        // test disable
+        command_sender.send(DriveTrainCommand::Kill).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // test disable
+        command_sender.send(DriveTrainCommand::Disable).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // try and send something when disabled
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // test enable
+        command_sender.send(DriveTrainCommand::Revive).unwrap();
+
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::Stop, right_result);
+
+        // test enable
+        command_sender.send(DriveTrainCommand::Enable).unwrap();
+
+        command_sender.send(DriveTrainCommand::Drive(1.0, 1.0)).unwrap();
+
+        let left_result = left_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), left_result);
+
+        let right_result = right_test_receiver.recv_timeout(Duration::from_millis(TIMEOUT)).unwrap();
+        assert_eq!(TestAction::SetSpeed(1.0), right_result);
     }
 }

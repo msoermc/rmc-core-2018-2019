@@ -1,21 +1,33 @@
 use super::*;
+use std::sync::mpsc::Sender;
 
 pub struct TestMotor {
-    pub inverted: bool,
-    pub speed: f32
+    inverted: bool,
+    speed: f32,
+    test_channel: Sender<TestAction>
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum TestAction {
+    SetSpeed(f32),
+    Stop,
+    Invert
 }
 
 impl MotorController for TestMotor {
     fn set_speed(&mut self, new_speed: f32) {
         self.speed = new_speed;
+        self.test_channel.send(TestAction::SetSpeed(new_speed)).unwrap();
     }
 
     fn stop(&mut self) {
-        self.set_speed(0.0);
+        self.speed = 0.0;
+        self.test_channel.send(TestAction::Stop).unwrap();
     }
 
     fn invert(&mut self) {
         self.inverted = !self.inverted;
+        self.test_channel.send(TestAction::Invert).unwrap();
     }
 
     fn is_inverted(&self) -> bool {
@@ -24,14 +36,11 @@ impl MotorController for TestMotor {
 }
 
 impl TestMotor {
-    pub fn new() -> TestMotor {
+    pub fn new(test_channel: Sender<TestAction>) -> TestMotor {
         TestMotor {
             inverted: false,
-            speed: 0.0
+            speed: 0.0,
+            test_channel
         }
-    }
-
-    pub fn get_speed(&self) -> f32 {
-        self.speed
     }
 }
