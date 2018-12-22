@@ -89,7 +89,11 @@ impl DriverStationComms {
     fn send_message(&mut self, message: &SendableMessage) {
         let sending_string = message.encode();
 
-        self.communicator.send_line(sending_string).expect("Error in sending a line!");
+        let sending_logs = self.communicator.send_line(sending_string);
+
+        for log in sending_logs {
+            self.logging_channel.send(log).expect("Could not send log!");
+        }
     }
 
     fn handle_sending_channel_disconnect(&mut self) {

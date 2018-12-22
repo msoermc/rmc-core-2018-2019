@@ -34,7 +34,7 @@ fn main() {
     let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side);
 
     let logger_thread = spawn(move || logger.start());
-    let _= spawn(move || comms.start());
+    let _ = spawn(move || comms.start());
     let _= spawn(move || drive_train.start());
 
     logger_thread.join().expect("Logging thread crashed!");
