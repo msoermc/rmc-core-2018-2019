@@ -62,15 +62,17 @@ impl Communicator {
 
     fn send(&mut self, message: &str) -> Vec<LogData> {
         let mut errors = Vec::new();
-        // TODO add error handling
-        for client in &mut self.clients {
-            if let Err(_) = write!(client, "{}", message) {
+        for client_index in 0..self.clients.len() {
+            if let Err(_) = write!(self.clients.get(client_index).unwrap(), "{}", message) {
                 let log = LogData::warning("Failed to write to client!");
                 errors.push(log);
+                self.clients.remove(client_index);
+                continue;
             };
-            if let Err(_) = client.flush() {
+            if let Err(_) = self.clients.get(client_index).unwrap().flush() {
                 let log = LogData::warning("Failed to flush data to client!");
                 errors.push(log);
+                self.clients.remove(client_index);
             };
         }
 
