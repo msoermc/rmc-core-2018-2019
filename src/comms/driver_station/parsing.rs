@@ -52,8 +52,6 @@ fn parse_drive_command(original_message: &str, args: &[&str]) -> Result<Receivab
         let log = get_wrong_arg_count_log(original_message, 2, args.len() as u64);
         Err(log)
     } else {
-        // It should not be possible here for us to have too few arguments since we already
-        // checked our that, so it should be safe to unwrap
         let left_speed_string = args[1];
         let right_speed_string = args[2];
 
