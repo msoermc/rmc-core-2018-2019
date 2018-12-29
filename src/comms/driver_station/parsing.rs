@@ -18,6 +18,8 @@ pub enum ReceivableMessage {
 
 
 pub fn parse_message(message: &str) -> Result<ReceivableMessage, LogData> {
+    // Trim newline from end
+    let message = message.trim_end();
     let elements: Vec<&str> = message.split_whitespace().collect();
     let command = match elements.first() {
         Some(com) => *com,
@@ -228,13 +230,18 @@ mod tests {
     fn test_nonexistent_command() {
         let actual_1 = parse_message("annihilate").unwrap_err();
         let actual_2 = parse_message("annihilate Noah").unwrap_err();
+        let actual_3 = parse_message("annihilate Noah\n").unwrap_err();
         let expected_1 = LogData::warning("Received nonexistent command, message is 'annihilate'");
         let expected_2 = LogData::warning("Received nonexistent command, message is 'annihilate Noah'");
+        let expected_3 = LogData::warning("Received nonexistent command, message is 'annihilate Noah'");
 
         assert_eq!(actual_1.get_severity(), expected_1.get_severity());
         assert_eq!(actual_1.get_description(), expected_1.get_description());
 
         assert_eq!(actual_2.get_severity(), expected_2.get_severity());
         assert_eq!(actual_2.get_description(), expected_2.get_description());
+
+        assert_eq!(actual_3.get_severity(), expected_3.get_severity());
+        assert_eq!(actual_3.get_description(), expected_3.get_description());
     }
 }
