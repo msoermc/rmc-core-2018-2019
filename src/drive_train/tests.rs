@@ -7,6 +7,7 @@ use crate::devices::motor_controllers::test_motor::TestMotor;
 
 use super::*;
 use std::thread::sleep;
+use std::sync::mpsc::Sender;
 
 const TIMEOUT: u64 = 100;
 

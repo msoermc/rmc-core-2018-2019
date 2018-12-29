@@ -2,7 +2,6 @@ use std::io::BufWriter;
 use std::fs::File;
 use std::sync::mpsc::Receiver;
 use crate::logging::log_data::LogData;
-use crate::comms::SendableMessage;
 use std::sync::mpsc::Sender;
 use crate::framework::Runnable;
 use std::sync::mpsc::TryRecvError;

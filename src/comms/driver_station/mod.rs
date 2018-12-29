@@ -116,32 +116,32 @@ impl DriverStationComms {
     }
 
     fn handle_kill_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Kill);
+        self.drive_train_channel.send(DriveTrainCommand::Kill).unwrap();
     }
 
     fn handle_revive_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Revive);
+        self.drive_train_channel.send(DriveTrainCommand::Revive).unwrap();
     }
 
     fn handle_enable_command(&mut self, subsystem: ProtocolSubsystem) {
         match subsystem {
             ProtocolSubsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Enable),
+                .send(DriveTrainCommand::Enable).unwrap(),
         };
     }
 
     fn handle_disable_command(&mut self, subsystem: ProtocolSubsystem) {
         match subsystem {
             ProtocolSubsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Disable),
+                .send(DriveTrainCommand::Disable).unwrap(),
         };
     }
 
     fn handle_drive_command(&mut self, left_speed: f32, right_speed: f32) {
-        self.drive_train_channel.send(DriveTrainCommand::Drive(left_speed, right_speed));
+        self.drive_train_channel.send(DriveTrainCommand::Drive(left_speed, right_speed)).unwrap();
     }
 
     fn handle_brake_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Stop);
+        self.drive_train_channel.send(DriveTrainCommand::Stop).unwrap();
     }
 }
