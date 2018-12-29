@@ -1,106 +1,26 @@
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::ErrorKind;
-use std::io::Write;
-use std::net::IpAddr;
-use std::net::SocketAddr;
-use std::net::TcpListener;
-use std::net::TcpStream;
-
 use crate::logging::log_data::LogData;
+use std::collections::HashMap;
 
 pub mod driver_station;
 pub mod internal_comms;
+mod io;
+mod communicator;
 
 pub trait SendableMessage: Send {
     fn encode(&self) -> String;
 }
 
-/// An object used to take care of the TCP IO and abstract other objects from those details.
-struct Communicator {
-    listener: TcpListener,
-    clients: Vec<TcpStream>,
+pub trait MessageParser<T>: Send {
+    fn parse(&self, message: &str) -> Result<T, LogData>;
 }
 
+pub trait CommandParser<T>: Send {
+    fn get_command(&self) -> &str;
+    fn parse(&self, args: &[&str]) -> Result<T, LogData>;
+}
 
-impl Communicator {
-    fn from(address: &str, port: u16) -> Communicator {
-        let parsed_address: IpAddr = match address.parse() {
-            Ok(addr) => addr,
-            Err(_) => panic!("Invalid address provided!"),
-        };
-
-        let address = SocketAddr::new(parsed_address, port);
-        let listener = TcpListener::bind(&address).unwrap();
-
-        listener.set_nonblocking(true).expect("Could not set listener to be nonblocking!");
-
-        Communicator {
-            listener,
-            clients: Vec::new(),
-        }
-    }
-
-    fn check_connections(&mut self) -> Result<(), LogData> {
-        let connection_result = self.listener.accept();
-        match connection_result {
-            Ok(potential_connection) => {
-                let (socket, _) = potential_connection;
-                socket.set_nonblocking(true).expect("Could not set socket to be nonblocking!");
-                self.clients.push(socket);
-                Ok(())
-            }
-            Err(error) => {
-                if error.kind() != ErrorKind::WouldBlock {
-                    Err(LogData::warning("Client failed to connect to driver station comms!"))
-                } else {
-                    Ok(())
-                }
-            }
-        }
-    }
-
-    fn send(&mut self, message: &str) -> Vec<LogData> {
-        let mut errors = Vec::new();
-        for client_index in 0..self.clients.len() {
-            if write!(self.clients[client_index], "{}", message).is_err() {
-                let log = LogData::warning("Failed to write to client!");
-                errors.push(log);
-                self.clients.remove(client_index);
-                continue;
-            };
-            if self.clients[client_index].flush().is_err() {
-                let log = LogData::warning("Failed to flush data to client!");
-                errors.push(log);
-                self.clients.remove(client_index);
-            };
-        }
-
-        errors
-    }
-
-    fn send_line(&mut self, message: String) -> Vec<LogData> {
-        self.send(&(message + "\n"))
-    }
-
-    fn receive_next_lines(&mut self) -> Vec<Result<String, LogData>> {
-        let mut lines = Vec::new();
-
-        for client in &self.clients {
-            let mut reader = BufReader::new(client);
-            let mut buffer = String::new();
-
-            if let Err(error) = reader.read_line(&mut buffer) {
-                if error.kind() != ErrorKind::WouldBlock {
-                    lines.push(Err(LogData::error("Failed to read from stream!")));
-                }
-            } else {
-                lines.push(Ok(buffer));
-            }
-        }
-
-        lines
-    }
+pub trait CommandHandler<A> {
+    fn handle(&mut self, args: A);
 }
 
 pub fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> LogData {
@@ -109,4 +29,46 @@ pub fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> Log
         message, expected, actual);
 
     LogData::warning(description.as_str())
+}
+
+pub struct CommandMessageParser<T> {
+    command_parsers: HashMap<String, Box<CommandParser<T>>>,
+}
+
+impl<T> MessageParser<T> for CommandMessageParser<T> {
+    fn parse(&self, message: &str) -> Result<T, LogData> {
+        let message = message.trim_end();   // Trim newline from end
+        let elements: Vec<&str> = message.split_whitespace().collect();
+        let command = match elements.first() {
+            Some(com) => *com,
+            None => {
+                return Err(LogData::warning("Empty message in DS Comms!"));
+            }
+        };
+
+        match self.command_parsers.get(command) {
+            None => {
+                let description = format!("Received nonexistent command, message is '{}'", message);
+                Err(LogData::warning(description.as_str()))
+            }
+            Some(parser) => parser.parse(&elements),
+        }
+    }
+}
+
+impl<T> CommandMessageParser<T> {
+    fn new() -> Box<Self> {
+        Box::new(CommandMessageParser {
+            command_parsers: HashMap::new()
+        })
+    }
+
+    fn add_command(&mut self, parser: Box<CommandParser<T>>) {
+        let command = parser.get_command();
+        if self.command_parsers.contains_key(command) {
+            panic!("Attempted to add duplicate parser!");
+        } else {
+            self.command_parsers.insert(command.to_string(), parser);
+        }
+    }
 }
