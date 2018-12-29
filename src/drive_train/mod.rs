@@ -4,7 +4,7 @@ use std::sync::mpsc::TryRecvError;
 
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
-use crate::logging::log_data::LogData;
+use crate::logging::log_sender::LogSender;
 
 #[cfg(test)]
 mod tests;
@@ -48,7 +48,7 @@ pub enum DriveTrainCommand {
 pub struct DriveTrain {
     is_enabled: bool,
     is_alive: bool,
-    log_channel: Sender<LogData>,
+    log_sender: LogSender,
     command_receiver: Receiver<DriveTrainCommand>,
     left: Box<MotorController>,
     right: Box<MotorController>,
@@ -83,11 +83,11 @@ impl Runnable for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_channel: Sender<LogData>, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
+    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_sender: LogSender, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
         DriveTrain {
             is_enabled: true,
             is_alive: true,
-            log_channel,
+            log_sender,
             command_receiver,
             left,
             right,
@@ -108,8 +108,7 @@ impl DriveTrain {
 
     fn handle_command_channel_disconnect(&mut self) {
         let description = "DriveTrain command channel disconnected!";
-        let log = LogData::fatal(description);
-        self.log_channel.send(log);
+        self.log_sender.send_fatal(description);
     }
 
     /// Causes the DriveTrain to drive at the supplied speeds.

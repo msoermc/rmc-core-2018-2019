@@ -6,14 +6,15 @@ use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::drive_train::DriveTrain;
 use crate::framework::Runnable;
-use crate::logging::Logger;
+use crate::logging::log_manager::LogManager;
 
 pub fn run_demo_mode() {
     let (drive_sender, drive_receiver) = channel();
-    let (log_sender, log_receiver) = channel();
     let (comms_sender, comms_receiver) = channel();
 
-    let mut logger = Logger::new(comms_sender.clone(), log_receiver);
+    let mut logger = LogManager::new("./RMC_Logs", 16);
+    let log_sender = logger.get_sender();
+
     let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender.clone());
 
     let left_back = Box::new(PrintMotor::new("LB"));

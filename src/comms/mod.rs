@@ -63,13 +63,13 @@ impl Communicator {
     fn send(&mut self, message: &str) -> Vec<LogData> {
         let mut errors = Vec::new();
         for client_index in 0..self.clients.len() {
-            if let Err(_) = write!(self.clients.get(client_index).unwrap(), "{}", message) {
+            if write!(self.clients[client_index], "{}", message).is_err() {
                 let log = LogData::warning("Failed to write to client!");
                 errors.push(log);
                 self.clients.remove(client_index);
                 continue;
             };
-            if let Err(_) = self.clients.get(client_index).unwrap().flush() {
+            if self.clients[client_index].flush().is_err() {
                 let log = LogData::warning("Failed to flush data to client!");
                 errors.push(log);
                 self.clients.remove(client_index);
