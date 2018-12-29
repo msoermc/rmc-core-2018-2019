@@ -7,13 +7,19 @@ use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::drive_train::DriveTrain;
 use crate::framework::Runnable;
 use crate::logging::log_manager::LogManager;
+use crate::logging::log_sender::LogSender;
+use crate::comms::driver_station::sender::DSMessageSender;
 
 pub fn run_demo_mode() {
     let (drive_sender, drive_receiver) = channel();
     let (comms_sender, comms_receiver) = channel();
+    let (log_sender, log_receiver) = channel();
+    let log_sender = LogSender::new(log_sender);
+    let comms_sender = DSMessageSender::new(comms_sender);
 
-    let mut logger = LogManager::new("./RMC_Logs", 16);
-    let log_sender = logger.get_sender();
+    let mut logger = LogManager::new("./RMC_Logs", 16, log_receiver);
+
+    logger.attach_accepter(Box::new(comms_sender.clone()));
 
     let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender.clone());
 

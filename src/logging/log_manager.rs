@@ -2,7 +2,6 @@ use std::io::BufWriter;
 use std::fs::File;
 use std::sync::mpsc::Receiver;
 use crate::logging::log_data::LogData;
-use std::sync::mpsc::Sender;
 use crate::framework::Runnable;
 use std::sync::mpsc::TryRecvError;
 use std::io::Write;
@@ -12,15 +11,12 @@ use chrono::Utc;
 use std::path::Path;
 use std::io::Result;
 use crate::logging::LogAccepter;
-use crate::logging::log_sender::LogSender;
-use std::sync::mpsc::channel;
 
 pub struct LogManager {
     flush_period: u64,
     counter: u64,
     writer: BufWriter<File>,
     logging_queue: Receiver<LogData>,
-    log_sender: Sender<LogData>,
     downstream: Vec<Box<LogAccepter>>,
 }
 
@@ -52,8 +48,7 @@ impl Runnable for LogManager {
 }
 
 impl LogManager {
-    pub fn new(filepath: &str, flush_period: u64) -> LogManager {
-        let (log_sender, logging_queue) = channel();
+    pub fn new(filepath: &str, flush_period: u64, logging_queue: Receiver<LogData>) -> LogManager {
         let file = get_file_to_use(filepath).unwrap();
         let writer = BufWriter::new(file);
 
@@ -62,17 +57,12 @@ impl LogManager {
             counter: 0,
             writer,
             logging_queue,
-            log_sender,
             downstream: Vec::new(),
         }
     }
 
     pub fn attach_accepter(&mut self, accepter: Box<LogAccepter>) {
         self.downstream.push(accepter);
-    }
-
-    pub fn get_sender(&mut self) -> LogSender {
-        LogSender::new(self.log_sender.clone())
     }
 }
 

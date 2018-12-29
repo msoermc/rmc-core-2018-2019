@@ -12,6 +12,7 @@ use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
 
 mod parsing;
+pub mod sender;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
