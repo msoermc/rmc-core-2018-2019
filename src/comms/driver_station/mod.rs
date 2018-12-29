@@ -124,16 +124,16 @@ impl DriverStationComms {
         self.drive_train_channel.send(DriveTrainCommand::Revive).unwrap();
     }
 
-    fn handle_enable_command(&mut self, subsystem: ProtocolSubsystem) {
+    fn handle_enable_command(&mut self, subsystem: Subsystem) {
         match subsystem {
-            ProtocolSubsystem::DriveTrain => self.drive_train_channel
+            Subsystem::DriveTrain => self.drive_train_channel
                 .send(DriveTrainCommand::Enable).unwrap(),
         };
     }
 
-    fn handle_disable_command(&mut self, subsystem: ProtocolSubsystem) {
+    fn handle_disable_command(&mut self, subsystem: Subsystem) {
         match subsystem {
-            ProtocolSubsystem::DriveTrain => self.drive_train_channel
+            Subsystem::DriveTrain => self.drive_train_channel
                 .send(DriveTrainCommand::Disable).unwrap(),
         };
     }
