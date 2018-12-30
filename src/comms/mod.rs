@@ -9,17 +9,18 @@ use std::net::TcpStream;
 
 use crate::logging::log_data::LogData;
 
+pub mod driver_station;
+mod io;
+
+
 pub trait SendableMessage: Send {
     fn encode(&self) -> String;
 }
 
+trait CommandReader<T: Command> {
+    fn read_command(&mut self, ) -> T;
+}
 
-mod io;
+trait Command {
 
-pub fn get_wrong_arg_count_log(message: &str, expected: u64, actual: u64) -> LogData {
-    let description = format!(
-        "Wrong number of elements in message '{}'. Expected {} args, instead got {}!",
-        message, expected, actual);
-
-    LogData::warning(description.as_str())
 }
