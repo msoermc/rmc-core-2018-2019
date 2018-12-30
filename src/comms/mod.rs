@@ -21,6 +21,6 @@ trait CommandReader<T: Command> {
     fn read_command(&mut self, ) -> T;
 }
 
-trait Command {
-
+trait Command<Controller> {
+    fn handle(&self, &mut controller: Controller);
 }
