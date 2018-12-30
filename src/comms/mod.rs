@@ -60,17 +60,26 @@ impl Communicator {
         }
     }
 
-    fn send(&mut self, message: &str) -> Result<(), Vec<LogData>> {
-        // TODO add error handling
-        for client in &mut self.clients {
-            write!(client, "{}", message).expect("Could not write line");
-            client.flush().expect("Failed to flush");
+    fn send(&mut self, message: &str) -> Vec<LogData> {
+        let mut errors = Vec::new();
+        for client_index in 0..self.clients.len() {
+            if write!(self.clients[client_index], "{}", message).is_err() {
+                let log = LogData::warning("Failed to write to client!");
+                errors.push(log);
+                self.clients.remove(client_index);
+                continue;
+            };
+            if self.clients[client_index].flush().is_err() {
+                let log = LogData::warning("Failed to flush data to client!");
+                errors.push(log);
+                self.clients.remove(client_index);
+            };
         }
 
-        Ok(())
+        errors
     }
 
-    fn send_line(&mut self, message: String) -> Result<(), Vec<LogData>> {
+    fn send_line(&mut self, message: String) -> Vec<LogData> {
         self.send(&(message + "\n"))
     }
 

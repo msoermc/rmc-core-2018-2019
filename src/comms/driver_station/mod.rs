@@ -8,8 +8,11 @@ use crate::comms::driver_station::parsing::*;
 use crate::comms::SendableMessage;
 use crate::drive_train::DriveTrainCommand;
 use crate::logging::log_data::LogData;
+use crate::logging::log_sender::LogSender;
+use crate::logging::LogAccepter;
 
 mod parsing;
+pub mod sender;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
@@ -17,7 +20,7 @@ const PORT: u16 = 2401;
 
 pub struct DriverStationComms {
     message_queue: Receiver<Box<SendableMessage>>,
-    logging_channel: Sender<LogData>,
+    log_sender: LogSender,
     communicator: Communicator,
     drive_train_channel: Sender<DriveTrainCommand>,
 }
@@ -25,13 +28,13 @@ pub struct DriverStationComms {
 impl DriverStationComms {
     /// Instantiates the comms.
     /// This constructor will bind the listener.
-    pub fn new(logging_channel: Sender<LogData>, message_queue: Receiver<Box<SendableMessage>>,
+    pub fn new(logging_channel: LogSender, message_queue: Receiver<Box<SendableMessage>>,
                drive_train_channel: Sender<DriveTrainCommand>) -> DriverStationComms {
         let communicator = Communicator::from(ADDRESS, PORT);
 
         DriverStationComms {
             message_queue,
-            logging_channel,
+            log_sender: logging_channel,
             communicator,
             drive_train_channel,
         }
@@ -54,7 +57,7 @@ impl DriverStationComms {
 
     fn check_connections(&mut self) {
         if let Err(error) = self.communicator.check_connections() {
-            self.logging_channel.send(error).unwrap();
+            self.log_sender.accept_log(error);
         }
     }
 
@@ -73,7 +76,7 @@ impl DriverStationComms {
         for result in self.communicator.receive_next_lines() {
             match result {
                 Ok(message) => self.handle_message(message.as_str()),
-                Err(error) => self.logging_channel.send(error).unwrap()
+                Err(error) => self.log_sender.accept_log(error)
             }
         }
     }
@@ -82,21 +85,24 @@ impl DriverStationComms {
         let parsed_result = parse_message(message);
         match parsed_result {
             Ok(parsed_message) => self.handle_valid_command(parsed_message),
-            Err(log) => self.logging_channel.send(log).unwrap(),
+            Err(log) => self.log_sender.accept_log(log)
         }
     }
 
     fn send_message(&mut self, message: &SendableMessage) {
         let sending_string = message.encode();
 
-        self.communicator.send_line(sending_string).expect("Error in sending a line!");
+        let sending_logs = self.communicator.send_line(sending_string);
+
+        for log in sending_logs {
+            self.log_sender.accept_log(log)
+        }
     }
 
     fn handle_sending_channel_disconnect(&mut self) {
         let log = LogData::fatal("Sending channel disconnected in external comms!");
-        self.logging_channel.send(log)
-            .expect("Sending channel and logging channel disconnected in Driver Station Comms!");
-        panic!("{}", "Sending channel disconnected in external comms!");
+        self.log_sender.accept_log(log);
+        panic!("Sending channel disconnected in external comms!");
     }
 
     fn handle_valid_command(&mut self, message: ReceivableMessage) {
@@ -118,20 +124,18 @@ impl DriverStationComms {
         self.drive_train_channel.send(DriveTrainCommand::Revive).unwrap();
     }
 
-    fn handle_enable_command(&mut self, subsystem: ProtocolSubsystem) {
+    fn handle_enable_command(&mut self, subsystem: Subsystem) {
         match subsystem {
-            ProtocolSubsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Enable)
-                .unwrap(),
-        }
+            Subsystem::DriveTrain => self.drive_train_channel
+                .send(DriveTrainCommand::Enable).unwrap(),
+        };
     }
 
-    fn handle_disable_command(&mut self, subsystem: ProtocolSubsystem) {
+    fn handle_disable_command(&mut self, subsystem: Subsystem) {
         match subsystem {
-            ProtocolSubsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Disable)
-                .unwrap(),
-        }
+            Subsystem::DriveTrain => self.drive_train_channel
+                .send(DriveTrainCommand::Disable).unwrap(),
+        };
     }
 
     fn handle_drive_command(&mut self, left_speed: f32, right_speed: f32) {
