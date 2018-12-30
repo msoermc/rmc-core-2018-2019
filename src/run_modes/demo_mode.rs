@@ -1,6 +1,7 @@
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
+use crate::comms::driver_station::DriverStationComms;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::drive_train::DriveTrain;
@@ -20,7 +21,7 @@ pub fn run_demo_mode() {
 
     logger.attach_accepter(Box::new(comms_sender.clone()));
 
-    //let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender.clone());
+    let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender.clone());
 
     let left_back = Box::new(PrintMotor::new("LB"));
     let left_front = Box::new(PrintMotor::new("LF"));
@@ -33,7 +34,7 @@ pub fn run_demo_mode() {
     let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side);
 
     let logger_thread = spawn(move || logger.start());
-    //let _ = spawn(move || comms.start());
+    let _ = spawn(move || comms.start());
     let _ = spawn(move || drive_train.start());
 
     logger_thread.join().expect("Logging thread crashed!");
