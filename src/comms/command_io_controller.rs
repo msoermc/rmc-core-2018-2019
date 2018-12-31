@@ -42,11 +42,10 @@ impl<R, I> CommandIoController<R, I> where I: IoServerManager, R: RobotInterface
     }
 
     fn send_messages(&mut self) {
-        let next_message = self.robot_interface.get_next_requested_send();
-
-        let encoding = next_message.encode();
-
-        self.io.send_line(encoding);
+        if let Some(next_message) = self.robot_interface.get_next_requested_send() {
+            let encoding = next_message.encode();
+            self.io.send_line(encoding);
+        }
     }
 }
 
@@ -67,5 +66,5 @@ impl<R, I> Runnable for CommandIoController<R, I> where I: IoServerManager, R: R
 }
 
 pub trait RobotInterface: LogAccepter {
-    fn get_next_requested_send(&self) -> Box<SendableMessage>;
+    fn get_next_requested_send(&self) -> Option<Box<SendableMessage>>;
 }
