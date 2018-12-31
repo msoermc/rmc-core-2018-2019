@@ -11,6 +11,10 @@ use std::sync::mpsc::TryRecvError;
 mod parsers;
 mod commands;
 
+enum SubsystemIdentifier {
+    DriveTrainIdentifier,
+}
+
 struct DriverStationInterface {
     drive_channel: Sender<DriveTrainCommand>,
     log_sender: LogSender,
