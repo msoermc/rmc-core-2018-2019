@@ -9,7 +9,6 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 
 pub mod factories;
-mod readers;
 mod commands;
 
 pub enum SubsystemIdentifier {

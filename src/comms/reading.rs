@@ -39,6 +39,14 @@ impl<I> Parser<I> where I: RobotInterface {
     }
 }
 
+impl<I> Parser<I> where I: RobotInterface {
+    pub fn new() -> Self {
+        Self {
+            readers: HashMap::new()
+        }
+    }
+}
+
 pub fn rebuild_message(args: &[&str]) -> String {
     args.iter().fold("".to_string(), |s0, s1| s0 + " " + s1)
 }
