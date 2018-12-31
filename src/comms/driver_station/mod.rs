@@ -11,7 +11,7 @@ use std::sync::mpsc::TryRecvError;
 mod parsers;
 mod commands;
 
-enum SubsystemIdentifier {
+pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
 }
 
