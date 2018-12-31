@@ -1,48 +1,21 @@
 use crate::logging::log_data::LogData;
 use std::collections::HashMap;
+use crate::comms::command_io_controller::RobotInterface;
 
-pub struct Command<RobotInterface> {
-    handler: fn(&RobotInterface),
+pub trait Command<I> where I: RobotInterface {
+    fn accept(&self, interface: &I);
 }
 
-impl<RobotInterface> Command<RobotInterface> {
-    pub fn accept(&self, interface: &RobotInterface) {
-        let handler_fn = self.handler;
-
-        handler_fn(interface)
-    }
-
-    pub fn new(handler: fn(&RobotInterface)) -> Self {
-        Command {
-            handler
-        }
-    }
+pub trait CommandReader<I> where I: RobotInterface {
+    fn read(&self, split_command: &[&str]) -> Result<Box<Command<I>>, LogData>;
 }
 
-pub struct CommandReader<RobotInterface> {
-    reader: fn(&[&str]) -> Result<Command<RobotInterface>, LogData>,
+pub struct Parser<I> where I: RobotInterface {
+    readers: HashMap<String, Box<CommandReader<I>>>
 }
 
-impl<RobotInterface> CommandReader<RobotInterface> {
-    pub fn read(&self, split_command: &[&str]) -> Result<Command<RobotInterface>, LogData> {
-        let reader_fn = self.reader;
-
-        reader_fn(split_command)
-    }
-
-    pub fn new(reader: fn(&[&str]) -> Result<Command<RobotInterface>, LogData>) -> Self {
-        CommandReader {
-            reader
-        }
-    }
-}
-
-pub struct Parser<RobotInterface> {
-    readers: HashMap<String, CommandReader<RobotInterface>>,
-}
-
-impl<RobotInterface> Parser<RobotInterface> {
-    pub fn parse(&self, message: &str) -> Result<Command<RobotInterface>, LogData> {
+impl<I> Parser<I> where I: RobotInterface {
+    pub fn parse(&self, message: &str) -> Result<Box<Command<I>>, LogData> {
         let split_message: Vec<&str> = message.split_whitespace().map(str::trim).collect();
 
         let parsed_command_id = split_message.first();
@@ -64,7 +37,7 @@ impl<RobotInterface> Parser<RobotInterface> {
         }
     }
 
-    pub fn add_reader(&mut self, id: &str, reader: CommandReader<RobotInterface>) {
+    pub fn add_reader(&mut self, id: &str, reader: Box<CommandReader<I>>) {
         if self.readers.insert(id.to_string(), reader).is_some() {
             panic!("Attempted to add duplicate reader!");
         }
