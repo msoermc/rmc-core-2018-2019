@@ -10,7 +10,7 @@ use std::io::Write;
 use std::io::BufRead;
 
 /// An object used to take care of the TCP IO and abstract other objects from those details.
-struct TcpServerManager {
+pub struct TcpServerManager {
     listener: TcpListener,
     clients: Vec<TcpStream>,
 }

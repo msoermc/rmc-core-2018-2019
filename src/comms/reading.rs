@@ -10,6 +10,7 @@ pub trait CommandReader<I> where I: RobotInterface {
     fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData>;
 }
 
+#[derive(Default)]
 pub struct Parser<I> where I: RobotInterface {
     readers: HashMap<String, Box<CommandReader<I>>>
 }
@@ -28,12 +29,6 @@ impl<I> Parser<I> where I: RobotInterface {
                 }
             }
             None => Err(LogData::error("Received empty command!"))
-        }
-    }
-
-    pub fn new() -> Self {
-        Parser {
-            readers: HashMap::new()
         }
     }
 

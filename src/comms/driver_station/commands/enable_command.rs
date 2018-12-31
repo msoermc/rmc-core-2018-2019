@@ -9,12 +9,10 @@ pub struct EnableCommand {
     subsystem: SubsystemIdentifier,
 }
 
-pub struct EnableCommandParser {
+pub struct EnableCommandParser {}
 
-}
-
-impl Command<DriverStationInterface> for EnableCommand {
-    fn accept(&self, interface: &DriverStationInterface) {
+impl<I> Command<I> for EnableCommand where I: DriverStationInterface {
+    fn accept(&self, interface: &I) {
         match self.subsystem {
             SubsystemIdentifier::DriveTrainIdentifier =>
                 interface.send_drive_train_command(DriveTrainCommand::Enable),
@@ -36,8 +34,8 @@ impl EnableCommandParser {
     }
 }
 
-impl CommandReader<DriverStationInterface> for EnableCommandParser {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<DriverStationInterface>>, LogData> {
+impl<I> CommandReader<I> for EnableCommandParser where I: DriverStationInterface {
+    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         unimplemented!()
     }
 }

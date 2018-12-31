@@ -5,10 +5,11 @@ use crate::comms::reading::CommandReader;
 use crate::logging::log_data::LogData;
 
 pub struct KillCommand {}
+
 pub struct KillCommandParser {}
 
-impl Command<DriverStationInterface> for KillCommand {
-    fn accept(&self, interface: &DriverStationInterface) {
+impl<I> Command<I> for KillCommand where I: DriverStationInterface {
+    fn accept(&self, interface: &I) {
         interface.send_drive_train_command(DriveTrainCommand::Kill);
     }
 }
@@ -26,8 +27,8 @@ impl KillCommandParser {
     }
 }
 
-impl CommandReader<DriverStationInterface> for KillCommandParser {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<DriverStationInterface>>, LogData> {
+impl<I> CommandReader<I> for KillCommandParser where I: DriverStationInterface {
+    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         unimplemented!()
     }
 }

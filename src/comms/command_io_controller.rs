@@ -61,7 +61,7 @@ impl<R, I> Runnable for CommandIoController<R, I> where I: IoServerManager, R: R
 
         self.send_messages();
 
-        return true;
+        true
     }
 }
 

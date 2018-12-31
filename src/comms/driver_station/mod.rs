@@ -8,6 +8,7 @@ use crate::logging::log_sender::LogSender;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 
+pub mod factories;
 mod readers;
 mod commands;
 
@@ -15,13 +16,13 @@ pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
 }
 
-struct DriverStationInterface {
+struct ConcreteDSInterface {
     drive_channel: Sender<DriveTrainCommand>,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
 }
 
-impl RobotInterface for DriverStationInterface {
+impl RobotInterface for ConcreteDSInterface {
     fn get_next_requested_send(&self) -> Option<Box<SendableMessage>> {
         match self.message_sending_queue.try_recv() {
             Ok(message) => Some(message),
@@ -31,14 +32,18 @@ impl RobotInterface for DriverStationInterface {
     }
 }
 
-impl LogAccepter for DriverStationInterface {
+impl LogAccepter for ConcreteDSInterface {
     fn accept_log(&mut self, log: LogData) {
         self.log_sender.accept_log(log)
     }
 }
 
-impl DriverStationInterface {
-    pub fn send_drive_train_command(&self, command: DriveTrainCommand) {
+impl DriverStationInterface for ConcreteDSInterface {
+    fn send_drive_train_command(&self, command: DriveTrainCommand) {
         self.drive_channel.send(command).unwrap();
     }
+}
+
+pub trait DriverStationInterface: RobotInterface {
+    fn send_drive_train_command(&self, command: DriveTrainCommand);
 }

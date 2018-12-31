@@ -8,8 +8,8 @@ pub struct BrakeCommand {}
 
 pub struct BrakeCommandParser {}
 
-impl Command<DriverStationInterface> for BrakeCommand {
-    fn accept(&self, interface: &DriverStationInterface) {
+impl<I> Command<I> for BrakeCommand where I: DriverStationInterface {
+    fn accept(&self, interface: &I) {
         let command = DriveTrainCommand::Stop;
         interface.send_drive_train_command(command);
     }
@@ -27,8 +27,8 @@ impl BrakeCommandParser {
     }
 }
 
-impl CommandReader<DriverStationInterface> for BrakeCommandParser {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<DriverStationInterface>>, LogData> {
+impl<I> CommandReader<I> for BrakeCommandParser where I: DriverStationInterface {
+    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         unimplemented!()
     }
 }

@@ -11,8 +11,8 @@ pub struct DisableCommand {
 
 pub struct DisableCommandParser {}
 
-impl Command<DriverStationInterface> for DisableCommand {
-    fn accept(&self, interface: &DriverStationInterface) {
+impl<I> Command<I> for DisableCommand where I: DriverStationInterface {
+    fn accept(&self, interface: &I) {
         match self.subsystem {
             SubsystemIdentifier::DriveTrainIdentifier =>
                 interface.send_drive_train_command(DriveTrainCommand::Disable),
@@ -34,8 +34,8 @@ impl DisableCommandParser {
     }
 }
 
-impl CommandReader<DriverStationInterface> for DisableCommandParser {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<DriverStationInterface>>, LogData> {
+impl<I> CommandReader<I> for DisableCommandParser where I: DriverStationInterface {
+    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         unimplemented!()
     }
 }
