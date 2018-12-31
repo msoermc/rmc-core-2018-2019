@@ -8,7 +8,7 @@ use crate::logging::log_sender::LogSender;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 
-mod parsers;
+mod readers;
 mod commands;
 
 pub enum SubsystemIdentifier {

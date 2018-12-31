@@ -7,7 +7,7 @@ pub trait Command<I> where I: RobotInterface {
 }
 
 pub trait CommandReader<I> where I: RobotInterface {
-    fn read(&self, split_command: &[&str]) -> Result<Box<Command<I>>, LogData>;
+    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData>;
 }
 
 pub struct Parser<I> where I: RobotInterface {
@@ -42,4 +42,8 @@ impl<I> Parser<I> where I: RobotInterface {
             panic!("Attempted to add duplicate reader!");
         }
     }
+}
+
+pub fn rebuild_message(args: &[&str]) -> String {
+    args.iter().fold("".to_string(), |s0, s1| s0 + " " + s1)
 }
