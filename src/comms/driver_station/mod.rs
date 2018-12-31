@@ -7,12 +7,24 @@ use std::sync::mpsc::Sender;
 use crate::logging::log_sender::LogSender;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
+use std::str::FromStr;
 
 pub mod factories;
 mod commands;
 
 pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
+}
+
+impl FromStr for SubsystemIdentifier {
+    type Err = LogData;
+
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        match s {
+            "drive_train" => Ok(SubsystemIdentifier::DriveTrainIdentifier),
+            _ => Err(LogData::error("Unparseable SubsystemIdentifier!"))
+        }
+    }
 }
 
 struct ConcreteDSInterface {

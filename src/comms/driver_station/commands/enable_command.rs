@@ -4,6 +4,7 @@ use crate::comms::reading::Command;
 use crate::drive_train::DriveTrainCommand;
 use crate::comms::reading::CommandReader;
 use crate::logging::log_data::LogData;
+use crate::comms::get_wrong_arg_count_log;
 
 pub struct EnableCommand {
     subsystem: SubsystemIdentifier,
@@ -36,6 +37,11 @@ impl EnableCommandParser {
 
 impl<I> CommandReader<I> for EnableCommandParser where I: DriverStationInterface {
     fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
-        unimplemented!()
+        if args.len() > 2 {
+            Err(get_wrong_arg_count_log(args, 2, args.len() as u64))
+        } else {
+            let subsystem = args[1].parse()?;
+            Ok(Box::new(EnableCommand::new(subsystem)))
+        }
     }
 }
