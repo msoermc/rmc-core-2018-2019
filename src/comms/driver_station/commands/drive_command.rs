@@ -4,6 +4,7 @@ use crate::drive_train::DriveTrainCommand;
 use crate::comms::reading::CommandReader;
 use crate::logging::log_data::LogData;
 use crate::comms::reading::rebuild_message;
+use crate::comms::get_wrong_arg_count_log;
 
 pub struct DriveCommand {
     left_speed: f32,
@@ -30,24 +31,28 @@ pub struct DriveCommandParser {}
 
 impl<I> CommandReader<I> for DriveCommandParser where I: DriverStationInterface {
     fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
-        let left_result = args[1].parse();
-        let right_result = args[1].parse();
+        if args.len() != 3 {
+            let left_result = args[1].parse();
+            let right_result = args[1].parse();
 
-        match (left_result, right_result) {
-            (Ok(left_speed), Ok(right_speed)) =>
-                Ok(Box::new(DriveCommand::new(left_speed, right_speed))),
-            (Err(_), Ok(_)) => {
-                let description = format!("Error: received invalid left argument in command '{}'", rebuild_message(args));
-                Err(LogData::error(&description))
+            match (left_result, right_result) {
+                (Ok(left_speed), Ok(right_speed)) =>
+                    Ok(Box::new(DriveCommand::new(left_speed, right_speed))),
+                (Err(_), Ok(_)) => {
+                    let description = format!("Error: received invalid left argument in command '{}'", rebuild_message(args));
+                    Err(LogData::error(&description))
+                }
+                (Ok(_), Err(_)) => {
+                    let description = format!("Error: received invalid right argument in command '{}'", rebuild_message(args));
+                    Err(LogData::error(&description))
+                }
+                (Err(_), Err(_)) => {
+                    let description = format!("Error: received invalid arguments in command '{}'", rebuild_message(args));
+                    Err(LogData::error(&description))
+                }
             }
-            (Ok(_), Err(_)) => {
-                let description = format!("Error: received invalid right argument in command '{}'", rebuild_message(args));
-                Err(LogData::error(&description))
-            }
-            (Err(_), Err(_)) => {
-                let description = format!("Error: received invalid arguments in command '{}'", rebuild_message(args));
-                Err(LogData::error(&description))
-            }
+        } else {
+            Err(get_wrong_arg_count_log(args, 3, args.len() as u64))
         }
     }
 }
