@@ -2,7 +2,7 @@ use crate::logging::log_data::LogData;
 
 pub mod tcp;
 
-trait IoServerManager {
+pub trait IoServerManager {
     fn create(address: &str, port: u16) -> Self;
 
     fn check_connections(&mut self) -> Result<(), LogData>;
