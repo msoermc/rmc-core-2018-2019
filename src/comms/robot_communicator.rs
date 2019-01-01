@@ -1,6 +1,6 @@
 use crate::comms::io::IoServerManager;
 use crate::logging::LogAccepter;
-use crate::comms::reading::MessageParser;
+use crate::comms::parsing::MessageParser;
 use crate::framework::Runnable;
 use crate::comms::SendableMessage;
 

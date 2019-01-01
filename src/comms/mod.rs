@@ -1,11 +1,11 @@
 use crate::logging::log_data::LogData;
-use crate::comms::reading::rebuild_message;
+use crate::comms::parsing::rebuild_message;
 
 pub mod robot_communicator;
 
 pub mod driver_station;
 mod io;
-mod reading;
+mod parsing;
 
 pub trait SendableMessage: Send {
     fn encode(&self) -> String;
