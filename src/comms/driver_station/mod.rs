@@ -17,6 +17,14 @@ pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
 }
 
+impl ToString for SubsystemIdentifier {
+    fn to_string(&self) -> String {
+        match self {
+            SubsystemIdentifier::DriveTrainIdentifier => "drive_train"
+        }.to_string()
+    }
+}
+
 impl FromStr for SubsystemIdentifier {
     type Err = LogData;
 

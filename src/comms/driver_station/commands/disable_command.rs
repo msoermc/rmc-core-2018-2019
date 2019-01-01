@@ -12,6 +12,12 @@ pub struct DisableCommand {
 
 pub struct DisableCommandParser {}
 
+impl ToString for DisableCommand {
+    fn to_string(&self) -> String {
+        format!("disable {}", self.subsystem.to_string())
+    }
+}
+
 impl<I> Command<I> for DisableCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         match self.subsystem {

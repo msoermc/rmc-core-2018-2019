@@ -9,6 +9,12 @@ pub struct BrakeCommand {}
 
 pub struct BrakeCommandParser {}
 
+impl ToString for BrakeCommand {
+    fn to_string(&self) -> String {
+        format!("brake")
+    }
+}
+
 impl<I> Command<I> for BrakeCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         let command = DriveTrainCommand::Stop;

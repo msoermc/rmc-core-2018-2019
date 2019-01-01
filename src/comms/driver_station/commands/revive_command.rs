@@ -9,6 +9,12 @@ pub struct ReviveCommand {}
 
 pub struct ReviveCommandParser {}
 
+impl ToString for ReviveCommand {
+    fn to_string(&self) -> String {
+        format!("revive")
+    }
+}
+
 impl<I> Command<I> for ReviveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         interface.send_drive_train_command(DriveTrainCommand::Revive);

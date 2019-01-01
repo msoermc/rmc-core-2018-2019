@@ -9,6 +9,12 @@ pub struct KillCommand {}
 
 pub struct KillCommandParser {}
 
+impl ToString for KillCommand {
+    fn to_string(&self) -> String {
+        format!("kill")
+    }
+}
+
 impl<I> Command<I> for KillCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         interface.send_drive_train_command(DriveTrainCommand::Kill);

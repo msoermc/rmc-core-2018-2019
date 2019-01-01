@@ -11,6 +11,12 @@ pub struct DriveCommand {
     right_speed: f32,
 }
 
+impl ToString for DriveCommand {
+    fn to_string(&self) -> String {
+        format!("drive {} {}", self.left_speed, self.right_speed)
+    }
+}
+
 impl<I> Command<I> for DriveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         let command = DriveTrainCommand::Drive(self.left_speed, self.right_speed);
