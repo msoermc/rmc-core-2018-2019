@@ -27,7 +27,7 @@ impl FromStr for SubsystemIdentifier {
     }
 }
 
-struct ConcreteDriverStationController {
+pub struct ConcreteDriverStationController {
     drive_channel: Sender<DriveTrainCommand>,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
@@ -52,6 +52,18 @@ impl LogAccepter for ConcreteDriverStationController {
 impl DriverStationController for ConcreteDriverStationController {
     fn send_drive_train_command(&self, command: DriveTrainCommand) {
         self.drive_channel.send(command).unwrap();
+    }
+}
+
+impl ConcreteDriverStationController {
+    pub fn new(drive_channel: Sender<DriveTrainCommand>, log_sender: LogSender,
+               message_sending_queue: Receiver<Box<SendableMessage>>) -> Self
+    {
+        ConcreteDriverStationController {
+            drive_channel,
+            log_sender,
+            message_sending_queue,
+        }
     }
 }
 

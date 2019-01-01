@@ -6,7 +6,7 @@ pub trait Command<I> where I: CommsController {
     fn execute(&self, interface: &I);
 }
 
-pub trait CommandParser<I> where I: CommsController {
+pub trait CommandParser<I>: Send where I: CommsController {
     fn parse(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData>;
 }
 
@@ -48,5 +48,5 @@ impl<I> MessageParser<I> where I: CommsController {
 }
 
 pub fn rebuild_message(args: &[&str]) -> String {
-    args.iter().fold("".to_string(), |s0, s1| s0 + " " + s1)
+    args.iter().fold("".to_string(), |s0, s1| s0 + " " + s1).trim_start().to_string()
 }

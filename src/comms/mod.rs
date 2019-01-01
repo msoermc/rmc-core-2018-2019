@@ -4,7 +4,7 @@ use crate::comms::parsing::rebuild_message;
 pub mod robot_communicator;
 
 pub mod driver_station;
-mod io;
+pub mod io;
 mod parsing;
 
 pub trait SendableMessage: Send {
