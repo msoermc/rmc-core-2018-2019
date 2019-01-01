@@ -31,9 +31,9 @@ pub struct DriveCommandParser {}
 
 impl<I> CommandParser<I> for DriveCommandParser where I: DriverStationController {
     fn parse(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
-        if args.len() != 3 {
+        if args.len() == 3 {
             let left_result = args[1].parse();
-            let right_result = args[1].parse();
+            let right_result = args[2].parse();
 
             match (left_result, right_result) {
                 (Ok(left_speed), Ok(right_speed)) =>
@@ -60,5 +60,23 @@ impl<I> CommandParser<I> for DriveCommandParser where I: DriverStationController
 impl DriveCommandParser {
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::comms::driver_station::ConcreteDriverStationController;
+
+    use super::*;
+
+    #[test]
+    fn test_valid() {
+        let input_1 = ["drive", "1", ".5"];
+        let input_2 = ["drive", "-1", "-.5"];
+
+        let parser = DriveCommandParser::new();
+
+        let actual_1: Box<Command<ConcreteDriverStationController>> = parser.parse(&input_1).unwrap();
+        let actual_2: Box<Command<ConcreteDriverStationController>> = parser.parse(&input_2).unwrap();
     }
 }
