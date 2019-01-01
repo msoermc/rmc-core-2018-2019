@@ -1,5 +1,5 @@
-use crate::comms::driver_station::DriverStationInterface;
-use crate::comms::reading::Parser;
+use crate::comms::driver_station::DriverStationController;
+use crate::comms::reading::MessageParser;
 use crate::comms::driver_station::commands::drive_command::DriveCommandParser;
 use crate::comms::driver_station::commands::brake_command::BrakeCommandParser;
 use crate::comms::driver_station::commands::kill_command::KillCommandParser;
@@ -14,8 +14,8 @@ pub mod revive_command;
 pub mod enable_command;
 pub mod disable_command;
 
-pub fn create_command_parser<I>() -> Parser<I> where I: DriverStationInterface {
-    let mut parser = Parser::new();
+pub fn create_command_parser<I>() -> MessageParser<I> where I: DriverStationController {
+    let mut parser = MessageParser::new();
 
     parser.add_reader("drive", Box::new(DriveCommandParser::new()));
     parser.add_reader("brake", Box::new(BrakeCommandParser::new()));

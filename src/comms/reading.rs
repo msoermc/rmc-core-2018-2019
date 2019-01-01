@@ -1,21 +1,21 @@
 use crate::logging::log_data::LogData;
 use std::collections::HashMap;
-use crate::comms::command_io_controller::RobotInterface;
+use crate::comms::robot_communicator::CommsController;
 
-pub trait Command<I> where I: RobotInterface {
-    fn accept(&self, interface: &I);
+pub trait Command<I> where I: CommsController {
+    fn execute(&self, interface: &I);
 }
 
-pub trait CommandReader<I> where I: RobotInterface {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData>;
+pub trait CommandParser<I> where I: CommsController {
+    fn parse(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData>;
 }
 
 #[derive(Default)]
-pub struct Parser<I> where I: RobotInterface {
-    readers: HashMap<String, Box<CommandReader<I>>>
+pub struct MessageParser<I> where I: CommsController {
+    readers: HashMap<String, Box<CommandParser<I>>>
 }
 
-impl<I> Parser<I> where I: RobotInterface {
+impl<I> MessageParser<I> where I: CommsController {
     pub fn parse(&self, message: &str) -> Result<Box<Command<I>>, LogData> {
         let split_message: Vec<&str> = message.split_whitespace().map(str::trim).collect();
 
@@ -24,7 +24,7 @@ impl<I> Parser<I> where I: RobotInterface {
         match parsed_command_id {
             Some(id) => {
                 match self.readers.get(*id) {
-                    Some(reader) => reader.read(&split_message),
+                    Some(reader) => reader.parse(&split_message),
                     None => Err(LogData::error("Received unknown command!"))
                 }
             }
@@ -32,14 +32,14 @@ impl<I> Parser<I> where I: RobotInterface {
         }
     }
 
-    pub fn add_reader(&mut self, id: &str, reader: Box<CommandReader<I>>) {
+    pub fn add_reader(&mut self, id: &str, reader: Box<CommandParser<I>>) {
         if self.readers.insert(id.to_string(), reader).is_some() {
             panic!("Attempted to add duplicate reader!");
         }
     }
 }
 
-impl<I> Parser<I> where I: RobotInterface {
+impl<I> MessageParser<I> where I: CommsController {
     pub fn new() -> Self {
         Self {
             readers: HashMap::new()

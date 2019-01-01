@@ -1,18 +1,18 @@
 use crate::comms::io::IoServerManager;
 use crate::logging::LogAccepter;
-use crate::comms::reading::Parser;
+use crate::comms::reading::MessageParser;
 use crate::framework::Runnable;
 use crate::comms::SendableMessage;
 
-pub struct CommandIoController<R, I> where I: IoServerManager, R: RobotInterface {
-    parser: Parser<R>,
+pub struct RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
+    parser: MessageParser<R>,
     robot_interface: R,
     io: I,
 }
 
-impl<R, I> CommandIoController<R, I> where I: IoServerManager, R: RobotInterface {
-    pub fn new(parser: Parser<R>, robot_interface: R, io: I) -> Self {
-        CommandIoController {
+impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
+    pub fn new(parser: MessageParser<R>, robot_interface: R, io: I) -> Self {
+        RobotCommunicator {
             parser,
             robot_interface,
             io,
@@ -32,7 +32,7 @@ impl<R, I> CommandIoController<R, I> where I: IoServerManager, R: RobotInterface
             match message_result {
                 Ok(message) => {
                     match self.parser.parse(&message) {
-                        Ok(command) => command.accept(&self.robot_interface),
+                        Ok(command) => command.execute(&self.robot_interface),
                         Err(log) => self.robot_interface.accept_log(log),
                     }
                 }
@@ -49,7 +49,7 @@ impl<R, I> CommandIoController<R, I> where I: IoServerManager, R: RobotInterface
     }
 }
 
-impl<R, I> Runnable for CommandIoController<R, I> where I: IoServerManager, R: RobotInterface {
+impl<R, I> Runnable for RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
     fn init(&mut self) {
         //do nothing
     }
@@ -65,6 +65,6 @@ impl<R, I> Runnable for CommandIoController<R, I> where I: IoServerManager, R: R
     }
 }
 
-pub trait RobotInterface: LogAccepter {
+pub trait CommsController: LogAccepter {
     fn get_next_requested_send(&self) -> Option<Box<SendableMessage>>;
 }

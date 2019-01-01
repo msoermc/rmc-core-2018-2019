@@ -1,7 +1,7 @@
 use crate::logging::log_data::LogData;
 use crate::comms::reading::rebuild_message;
 
-pub mod command_io_controller;
+pub mod robot_communicator;
 
 pub mod driver_station;
 mod io;

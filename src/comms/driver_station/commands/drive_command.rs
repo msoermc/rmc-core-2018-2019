@@ -1,7 +1,7 @@
 use crate::comms::reading::Command;
-use crate::comms::driver_station::DriverStationInterface;
+use crate::comms::driver_station::DriverStationController;
 use crate::drive_train::DriveTrainCommand;
-use crate::comms::reading::CommandReader;
+use crate::comms::reading::CommandParser;
 use crate::logging::log_data::LogData;
 use crate::comms::reading::rebuild_message;
 use crate::comms::get_wrong_arg_count_log;
@@ -11,8 +11,8 @@ pub struct DriveCommand {
     right_speed: f32,
 }
 
-impl<I> Command<I> for DriveCommand where I: DriverStationInterface {
-    fn accept(&self, interface: &I) {
+impl<I> Command<I> for DriveCommand where I: DriverStationController {
+    fn execute(&self, interface: &I) {
         let command = DriveTrainCommand::Drive(self.left_speed, self.right_speed);
         interface.send_drive_train_command(command);
     }
@@ -29,8 +29,8 @@ impl DriveCommand {
 
 pub struct DriveCommandParser {}
 
-impl<I> CommandReader<I> for DriveCommandParser where I: DriverStationInterface {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
+impl<I> CommandParser<I> for DriveCommandParser where I: DriverStationController {
+    fn parse(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         if args.len() != 3 {
             let left_result = args[1].parse();
             let right_result = args[1].parse();

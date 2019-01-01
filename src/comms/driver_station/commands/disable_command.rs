@@ -1,8 +1,8 @@
-use crate::comms::driver_station::DriverStationInterface;
+use crate::comms::driver_station::DriverStationController;
 use crate::comms::driver_station::SubsystemIdentifier;
 use crate::comms::reading::Command;
 use crate::drive_train::DriveTrainCommand;
-use crate::comms::reading::CommandReader;
+use crate::comms::reading::CommandParser;
 use crate::logging::log_data::LogData;
 use crate::comms::get_wrong_arg_count_log;
 
@@ -12,8 +12,8 @@ pub struct DisableCommand {
 
 pub struct DisableCommandParser {}
 
-impl<I> Command<I> for DisableCommand where I: DriverStationInterface {
-    fn accept(&self, interface: &I) {
+impl<I> Command<I> for DisableCommand where I: DriverStationController {
+    fn execute(&self, interface: &I) {
         match self.subsystem {
             SubsystemIdentifier::DriveTrainIdentifier =>
                 interface.send_drive_train_command(DriveTrainCommand::Disable),
@@ -35,8 +35,8 @@ impl DisableCommandParser {
     }
 }
 
-impl<I> CommandReader<I> for DisableCommandParser where I: DriverStationInterface {
-    fn read(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
+impl<I> CommandParser<I> for DisableCommandParser where I: DriverStationController {
+    fn parse(&self, args: &[&str]) -> Result<Box<Command<I>>, LogData> {
         if args.len() > 2 {
             Err(get_wrong_arg_count_log(args, 2, args.len() as u64))
         } else {

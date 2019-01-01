@@ -1,4 +1,4 @@
-use crate::comms::command_io_controller::RobotInterface;
+use crate::comms::robot_communicator::CommsController;
 use crate::comms::SendableMessage;
 use crate::logging::LogAccepter;
 use crate::logging::log_data::LogData;
@@ -27,13 +27,13 @@ impl FromStr for SubsystemIdentifier {
     }
 }
 
-struct ConcreteDSInterface {
+struct ConcreteDriverStationController {
     drive_channel: Sender<DriveTrainCommand>,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
 }
 
-impl RobotInterface for ConcreteDSInterface {
+impl CommsController for ConcreteDriverStationController {
     fn get_next_requested_send(&self) -> Option<Box<SendableMessage>> {
         match self.message_sending_queue.try_recv() {
             Ok(message) => Some(message),
@@ -43,18 +43,18 @@ impl RobotInterface for ConcreteDSInterface {
     }
 }
 
-impl LogAccepter for ConcreteDSInterface {
+impl LogAccepter for ConcreteDriverStationController {
     fn accept_log(&mut self, log: LogData) {
         self.log_sender.accept_log(log)
     }
 }
 
-impl DriverStationInterface for ConcreteDSInterface {
+impl DriverStationController for ConcreteDriverStationController {
     fn send_drive_train_command(&self, command: DriveTrainCommand) {
         self.drive_channel.send(command).unwrap();
     }
 }
 
-pub trait DriverStationInterface: RobotInterface {
+pub trait DriverStationController: CommsController {
     fn send_drive_train_command(&self, command: DriveTrainCommand);
 }
