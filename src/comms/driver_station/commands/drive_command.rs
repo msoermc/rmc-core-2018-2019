@@ -84,5 +84,11 @@ mod tests {
 
         let actual_1: Box<Command<ConcreteDriverStationController>> = parser.parse(&input_1).unwrap();
         let actual_2: Box<Command<ConcreteDriverStationController>> = parser.parse(&input_2).unwrap();
+
+        let expected_1 = DriveCommand::new(1.0, 0.5);
+        let expected_2 = DriveCommand::new(-1.0, -0.5);
+
+        assert_eq!(actual_1.to_string(), expected_1.to_string());
+        assert_eq!(actual_2.to_string(), expected_2.to_string());
     }
 }
