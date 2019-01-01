@@ -1,8 +1,8 @@
 use crate::comms::io::IoServerManager;
-use crate::logging::LogAccepter;
 use crate::comms::parsing::MessageParser;
-use crate::framework::Runnable;
 use crate::comms::SendableMessage;
+use crate::framework::Runnable;
+use crate::logging::LogAccepter;
 
 pub struct RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
     parser: MessageParser<R>,

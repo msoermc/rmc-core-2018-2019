@@ -1,13 +1,14 @@
-use crate::comms::io::IoServerManager;
-use std::net::TcpStream;
-use std::net::TcpListener;
-use std::net::SocketAddr;
-use std::net::IpAddr;
-use crate::logging::log_data::LogData;
-use std::io::ErrorKind;
-use std::io::BufReader;
-use std::io::Write;
 use std::io::BufRead;
+use std::io::BufReader;
+use std::io::ErrorKind;
+use std::io::Write;
+use std::net::IpAddr;
+use std::net::SocketAddr;
+use std::net::TcpListener;
+use std::net::TcpStream;
+
+use crate::comms::io::IoServerManager;
+use crate::logging::log_data::LogData;
 
 /// An object used to take care of the TCP IO and abstract other objects from those details.
 pub struct TcpServerManager {

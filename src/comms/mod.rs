@@ -1,5 +1,5 @@
-use crate::logging::log_data::LogData;
 use crate::comms::parsing::rebuild_message;
+use crate::logging::log_data::LogData;
 
 pub mod robot_communicator;
 
