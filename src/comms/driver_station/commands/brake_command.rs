@@ -43,3 +43,21 @@ impl<I> CommandParser<I> for BrakeCommandParser where I: DriverStationController
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::comms::driver_station::ConcreteDriverStationController;
+
+    #[test]
+    fn test_valid() {
+        let input = ["brake"];
+        let expected = "brake";
+
+        let parser = BrakeCommandParser::new();
+
+        let actual: Box<Command<ConcreteDriverStationController>> = parser.parse(&input).unwrap();
+
+        assert_eq!(expected, &actual.to_string());
+    }
+}
