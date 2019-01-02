@@ -1,5 +1,8 @@
 use crate::comms::parsing::rebuild_message;
 use crate::logging::log_data::LogData;
+use std::sync::mpsc::Sender;
+use crate::framework::interfaces::CommunicationsInterface;
+use crate::framework::interfaces::RobotInterface;
 
 pub mod robot_communicator;
 
@@ -17,4 +20,22 @@ fn get_wrong_arg_count_log(message: &[&str], expected: u64, actual: u64) -> LogD
                               message, expected, actual);
 
     LogData::error(&description)
+}
+
+#[derive(Clone, Debug)]
+pub struct ConcreteCommsInterface {
+    channel: Sender<Box<SendableMessage>>,
+}
+
+impl CommunicationsInterface for ConcreteCommsInterface {
+    fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
+        match self.channel.send(message) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(LogData::fatal("Comms sending channel hung up!")),
+        }
+    }
+}
+
+impl RobotInterface for ConcreteCommsInterface {
+
 }
