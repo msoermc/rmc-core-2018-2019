@@ -22,7 +22,7 @@ impl<I> Command<I> for EnableCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         match self.subsystem {
             SubsystemIdentifier::DriveTrainIdentifier =>
-                interface.send_drive_train_command(DriveTrainCommand::Enable),
+                interface.get_drive_interface().enable().unwrap(),
         }
     }
 }

@@ -19,8 +19,7 @@ impl ToString for DriveCommand {
 
 impl<I> Command<I> for DriveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
-        let command = DriveTrainCommand::Drive(self.left_speed, self.right_speed);
-        interface.send_drive_train_command(command);
+        interface.get_drive_interface().drive(self.left_speed, self.right_speed).unwrap();
     }
 }
 

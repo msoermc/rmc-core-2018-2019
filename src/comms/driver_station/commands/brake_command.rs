@@ -18,7 +18,7 @@ impl ToString for BrakeCommand {
 impl<I> Command<I> for BrakeCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         let command = DriveTrainCommand::Stop;
-        interface.send_drive_train_command(command);
+        interface.get_drive_interface().brake().unwrap();
     }
 }
 

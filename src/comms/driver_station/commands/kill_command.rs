@@ -17,7 +17,7 @@ impl ToString for KillCommand {
 
 impl<I> Command<I> for KillCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
-        interface.send_drive_train_command(DriveTrainCommand::Kill);
+        interface.kill();
     }
 }
 

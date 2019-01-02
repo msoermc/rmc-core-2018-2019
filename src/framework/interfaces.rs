@@ -1,7 +1,7 @@
 use crate::logging::log_data::LogData;
 use crate::comms::SendableMessage;
 
-pub trait RobotInterface: Clone {
+pub trait RobotInterface: Send {
 
 }
 

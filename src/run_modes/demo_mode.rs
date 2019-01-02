@@ -10,21 +10,26 @@ use crate::drive_train::DriveTrain;
 use crate::logging::log_manager::LogManager;
 use std::thread::spawn;
 use crate::framework::Runnable;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use crate::drive_train::interface::ConcreteTankDriveInterface;
 
 const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
 
 pub fn run_demo_mode() {
+    let life = Arc::new(AtomicBool::new(true));
     let (log_sender, log_receiver) = channel();
     let (ds_sender, ds_receiver) = channel();
     let (drive_sender, drive_receiver) = channel();
 
     let log_sender = LogSender::new(log_sender);
+    let drive_sender = ConcreteTankDriveInterface::new(drive_sender);
 
     let mut logger = LogManager::new("./RMC_Logs", 16, log_receiver);
 
     let ds_io_manager = TcpServerManager::create(ADDRESS, PORT);
-    let ds_controller = ConcreteDriverStationController::new(drive_sender.clone(), log_sender.clone(), ds_receiver);
+    let ds_controller = ConcreteDriverStationController::new(Box::new(drive_sender.clone()), log_sender.clone(), ds_receiver, life);
 
     let mut ds_comms = create_driver_station_comms(ds_controller, ds_io_manager);
 
