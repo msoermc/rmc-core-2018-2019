@@ -14,7 +14,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use crate::drive_train::interface::ConcreteTankDriveInterface;
 
-const ADDRESS: &str = "192.168.12.1";
+const ADDRESS: &str = "127.0.0.1";
 const PORT: u16 = 2401;
 
 pub fn run_demo_mode() {
