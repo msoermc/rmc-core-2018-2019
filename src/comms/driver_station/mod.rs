@@ -1,148 +1,97 @@
+use std::str::FromStr;
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
-use std::thread::spawn;
+use std::sync::atomic::Ordering;
 
-use crate::comms::Communicator;
-use crate::comms::driver_station::parsing::*;
+use crate::comms::robot_communicator::CommsController;
 use crate::comms::SendableMessage;
 use crate::drive_train::DriveTrainCommand;
+use crate::framework::interfaces::TankDriveInterface;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
 
-mod parsing;
-pub mod sender;
+pub mod factories;
+mod commands;
 
-const ADDRESS: &str = "127.0.0.1";
-const PORT: u16 = 2401;
-
-
-pub struct DriverStationComms {
-    message_queue: Receiver<Box<SendableMessage>>,
-    log_sender: LogSender,
-    communicator: Communicator,
-    drive_train_channel: Sender<DriveTrainCommand>,
+pub enum SubsystemIdentifier {
+    DriveTrainIdentifier,
 }
 
-impl DriverStationComms {
-    /// Instantiates the comms.
-    /// This constructor will bind the listener.
-    pub fn new(logging_channel: LogSender, message_queue: Receiver<Box<SendableMessage>>,
-               drive_train_channel: Sender<DriveTrainCommand>) -> DriverStationComms {
-        let communicator = Communicator::from(ADDRESS, PORT);
+impl ToString for SubsystemIdentifier {
+    fn to_string(&self) -> String {
+        match self {
+            SubsystemIdentifier::DriveTrainIdentifier => "drive_train"
+        }.to_string()
+    }
+}
 
-        DriverStationComms {
-            message_queue,
-            log_sender: logging_channel,
-            communicator,
-            drive_train_channel,
+impl FromStr for SubsystemIdentifier {
+    type Err = LogData;
+
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        match s {
+            "drive_train" => Ok(SubsystemIdentifier::DriveTrainIdentifier),
+            _ => Err(LogData::error("Unparseable SubsystemIdentifier!"))
         }
     }
+}
 
-    /// Starts the comms in a <b>new</b> thread.
-    pub fn start(mut self) {
-        spawn(move || {
-            loop {
-                self.run();
-            }
-        });
-    }
+pub struct ConcreteDriverStationController {
+    drive_interface: Box<TankDriveInterface>,
+    log_sender: LogSender,
+    message_sending_queue: Receiver<Box<SendableMessage>>,
+    life_lock: Arc<AtomicBool>,
+}
 
-    fn run(&mut self) {
-        self.check_connections();
-        self.receive_messages();
-        self.send_messages();
-    }
-
-    fn check_connections(&mut self) {
-        if let Err(error) = self.communicator.check_connections() {
-            self.log_sender.accept_log(error);
+impl CommsController for ConcreteDriverStationController {
+    fn get_next_requested_send(&self) -> Option<Box<SendableMessage>> {
+        match self.message_sending_queue.try_recv() {
+            Ok(message) => Some(message),
+            Err(TryRecvError::Disconnected) => panic!("Comms sending queue was disconnected!"),
+            Err(TryRecvError::Empty) => None  // Do nothing
         }
     }
+}
 
-    fn send_messages(&mut self) {
-        match self.message_queue.try_recv() {
-            Ok(message) => self.send_message(message.as_ref()),
-            Err(try_error) => {
-                if let TryRecvError::Disconnected = try_error {
-                    self.handle_sending_channel_disconnect();
-                }
-            }
+impl LogAccepter for ConcreteDriverStationController {
+    fn accept_log(&mut self, log: LogData) {
+        self.log_sender.accept_log(log)
+    }
+}
+
+impl DriverStationController for ConcreteDriverStationController {
+    fn get_drive_interface(&self) -> &Box<TankDriveInterface> {
+        &self.drive_interface
+    }
+
+    fn kill(&self) {
+        self.life_lock.store(false, Ordering::SeqCst)
+    }
+
+    fn revive(&self) {
+        self.life_lock.store(true, Ordering::SeqCst)
+    }
+}
+
+impl ConcreteDriverStationController {
+    pub fn new(drive_interface: Box<TankDriveInterface>, log_sender: LogSender,
+               message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<AtomicBool>) -> Self
+    {
+        ConcreteDriverStationController {
+            drive_interface,
+            log_sender,
+            message_sending_queue,
+            life_lock,
         }
     }
+}
 
-    fn receive_messages(&mut self) {
-        for result in self.communicator.receive_next_lines() {
-            match result {
-                Ok(message) => self.handle_message(message.as_str()),
-                Err(error) => self.log_sender.accept_log(error)
-            }
-        }
-    }
-
-    fn handle_message(&mut self, message: &str) {
-        let parsed_result = parse_message(message);
-        match parsed_result {
-            Ok(parsed_message) => self.handle_valid_command(parsed_message),
-            Err(log) => self.log_sender.accept_log(log)
-        }
-    }
-
-    fn send_message(&mut self, message: &SendableMessage) {
-        let sending_string = message.encode();
-
-        let sending_logs = self.communicator.send_line(sending_string);
-
-        for log in sending_logs {
-            self.log_sender.accept_log(log)
-        }
-    }
-
-    fn handle_sending_channel_disconnect(&mut self) {
-        let log = LogData::fatal("Sending channel disconnected in external comms!");
-        self.log_sender.accept_log(log);
-        panic!("Sending channel disconnected in external comms!");
-    }
-
-    fn handle_valid_command(&mut self, message: ReceivableMessage) {
-        match message {
-            ReceivableMessage::Kill => self.handle_kill_command(),
-            ReceivableMessage::Revive => self.handle_revive_command(),
-            ReceivableMessage::Enable(subsystem) => self.handle_enable_command(subsystem),
-            ReceivableMessage::Disable(subsystem) => self.handle_disable_command(subsystem),
-            ReceivableMessage::Drive(left_speed, right_speed) => self.handle_drive_command(left_speed, right_speed),
-            ReceivableMessage::Brake => self.handle_brake_command(),
-        }
-    }
-
-    fn handle_kill_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Kill).unwrap();
-    }
-
-    fn handle_revive_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Revive).unwrap();
-    }
-
-    fn handle_enable_command(&mut self, subsystem: Subsystem) {
-        match subsystem {
-            Subsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Enable).unwrap(),
-        };
-    }
-
-    fn handle_disable_command(&mut self, subsystem: Subsystem) {
-        match subsystem {
-            Subsystem::DriveTrain => self.drive_train_channel
-                .send(DriveTrainCommand::Disable).unwrap(),
-        };
-    }
-
-    fn handle_drive_command(&mut self, left_speed: f32, right_speed: f32) {
-        self.drive_train_channel.send(DriveTrainCommand::Drive(left_speed, right_speed)).unwrap();
-    }
-
-    fn handle_brake_command(&mut self) {
-        self.drive_train_channel.send(DriveTrainCommand::Stop).unwrap();
-    }
+pub trait DriverStationController: CommsController {
+    fn get_drive_interface(&self) -> &Box<dyn TankDriveInterface>;
+    fn kill(&self);
+    fn revive(&self);
 }

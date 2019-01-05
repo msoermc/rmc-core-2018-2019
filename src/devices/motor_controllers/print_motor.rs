@@ -28,7 +28,7 @@ impl PrintMotor {
     pub fn new(name: &str) -> PrintMotor {
         PrintMotor {
             name: name.to_string(),
-            inverted: false
+            inverted: false,
         }
     }
 }

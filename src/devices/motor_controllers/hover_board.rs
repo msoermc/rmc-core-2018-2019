@@ -1,6 +1,4 @@
-use super::{
-    MotorController,
-};
+use super::MotorController;
 
 pub struct HoverBoardMotor {}
 
@@ -13,7 +11,7 @@ impl MotorController for HoverBoardMotor {
         unimplemented!()
     }
 
-    fn invert(&mut self){
+    fn invert(&mut self) {
         unimplemented!()
     }
 

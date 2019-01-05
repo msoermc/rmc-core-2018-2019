@@ -4,14 +4,14 @@ use std::sync::mpsc::Sender;
 pub struct TestMotor {
     inverted: bool,
     speed: f32,
-    test_channel: Sender<TestAction>
+    test_channel: Sender<TestAction>,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum TestAction {
     SetSpeed(f32),
     Stop,
-    Invert
+    Invert,
 }
 
 impl MotorController for TestMotor {
@@ -40,7 +40,7 @@ impl TestMotor {
         TestMotor {
             inverted: false,
             speed: 0.0,
-            test_channel
+            test_channel,
         }
     }
 }

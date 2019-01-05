@@ -5,6 +5,8 @@ use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
 
+pub mod interface;
+
 #[cfg(test)]
 mod tests;
 

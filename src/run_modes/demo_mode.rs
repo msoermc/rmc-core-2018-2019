@@ -1,27 +1,37 @@
 use std::sync::mpsc::channel;
-use std::thread::spawn;
-
-use crate::comms::driver_station::DriverStationComms;
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::print_motor::PrintMotor;
-use crate::drive_train::DriveTrain;
-use crate::framework::Runnable;
-use crate::logging::log_manager::LogManager;
+use crate::comms::driver_station::factories::create_driver_station_comms;
+use crate::comms::io::tcp::TcpServerManager;
+use crate::comms::io::IoServerManager;
+use crate::comms::driver_station::ConcreteDriverStationController;
 use crate::logging::log_sender::LogSender;
-use crate::comms::driver_station::sender::DSMessageSender;
+use crate::devices::motor_controllers::print_motor::PrintMotor;
+use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::drive_train::DriveTrain;
+use crate::logging::log_manager::LogManager;
+use std::thread::spawn;
+use crate::framework::Runnable;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use crate::drive_train::interface::ConcreteTankDriveInterface;
+
+const ADDRESS: &str = "192.168.12.1";
+const PORT: u16 = 2401;
 
 pub fn run_demo_mode() {
-    let (drive_sender, drive_receiver) = channel();
-    let (comms_sender, comms_receiver) = channel();
+    let life = Arc::new(AtomicBool::new(true));
     let (log_sender, log_receiver) = channel();
+    let (ds_sender, ds_receiver) = channel();
+    let (drive_sender, drive_receiver) = channel();
+
     let log_sender = LogSender::new(log_sender);
-    let comms_sender = DSMessageSender::new(comms_sender);
+    let drive_sender = ConcreteTankDriveInterface::new(drive_sender);
 
     let mut logger = LogManager::new("./RMC_Logs", 16, log_receiver);
 
-    logger.attach_accepter(Box::new(comms_sender.clone()));
+    let ds_io_manager = TcpServerManager::create(ADDRESS, PORT);
+    let ds_controller = ConcreteDriverStationController::new(Box::new(drive_sender.clone()), log_sender.clone(), ds_receiver, life);
 
-    let comms = DriverStationComms::new(log_sender.clone(), comms_receiver, drive_sender.clone());
+    let mut ds_comms = create_driver_station_comms(ds_controller, ds_io_manager);
 
     let left_back = Box::new(PrintMotor::new("LB"));
     let left_front = Box::new(PrintMotor::new("LF"));
@@ -34,7 +44,7 @@ pub fn run_demo_mode() {
     let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side);
 
     let logger_thread = spawn(move || logger.start());
-    let _ = spawn(move || comms.start());
+    let _ = spawn(move || ds_comms.start());
     let _ = spawn(move || drive_train.start());
 
     logger_thread.join().expect("Logging thread crashed!");

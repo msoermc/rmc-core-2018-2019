@@ -1,3 +1,5 @@
+pub mod interfaces;
+
 /// The runnable trait represents a process which should initialize itself and run repeatedly.
 pub trait Runnable {
     /// Initializes the Runnable, returning a result object indicating whether the action was
