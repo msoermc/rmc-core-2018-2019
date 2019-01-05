@@ -88,7 +88,7 @@ impl LogData {
 
 impl SendableMessage for LogData {
     fn encode(&self) -> String {
-        let timestamp = self.timestamp.to_string();
+        let timestamp = self.timestamp.format("%Y-%m-%d_%H:%M:%S").to_string().trim().to_string();
         let severity = match self.severity {
             LogType::Debug => "debug",
             LogType::Info => "info",
@@ -97,7 +97,7 @@ impl SendableMessage for LogData {
             LogType::Fatal => "fatal",
         };
         let description = &self.description;
-        "log".to_string() + &severity.to_string() + &timestamp.to_string() + description
+        format!("log {} {} {}", severity.to_string(), timestamp.to_string(), description)
     }
 }
 
