@@ -4,9 +4,11 @@ TOOLCHAIN="armv7-unknown-linux-musleabihf"
 #TOOLCHAIN="arm-unknown-linux-musleabihf"
 #TOOLCHAIN="arm-unknown-linux-musleabi"
 
+USER="noah"
+
 # Cross compile the code
 cross build --release --target=${TOOLCHAIN}
 
 # Copy the code to the home folder of the msoermc user on the other device.
 # scp {src} {dest}
-sudo scp ./target/${TOOLCHAIN}/release/rmc-beaglebone-core-2018-2019 rmc@192.168.7.2:~
+sudo scp ./target/${TOOLCHAIN}/release/rmc-beaglebone-core-2018-2019 ${USER}@192.168.7.2:/home/${USER}/
