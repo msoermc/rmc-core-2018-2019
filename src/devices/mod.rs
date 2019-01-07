@@ -1,7 +1,5 @@
 use std::process::Command;
 
-use crate::logging::log_data::LogData;
-
 pub mod motor_controllers;
 pub mod sensors;
 
