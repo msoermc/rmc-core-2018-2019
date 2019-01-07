@@ -5,7 +5,7 @@ CROSS_COMPILER_TOOLCHAIN="armv7-unknown-linux-musleabihf" # armv7 with hardware 
 #CROSS_COMPILER_TOOLCHAIN="arm-unknown-linux-musleabihf" # arm with hardware floating-point
 #CROSS_COMPILER_TOOLCHAIN="arm-unknown-linux-musleabi" # arm with software floating-point
 
-REMOTE_USER="noah"
+REMOTE_USER="rmc"
 
 # Cross compile the code
 cross build --release --target=${CROSS_COMPILER_TOOLCHAIN}
