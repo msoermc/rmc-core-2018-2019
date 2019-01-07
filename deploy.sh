@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-TOOLCHAIN="armv7-unknown-linux-musleabihf"
-#TOOLCHAIN="arm-unknown-linux-musleabihf"
-#TOOLCHAIN="arm-unknown-linux-musleabi"
+# Set our toolchain
+TOOLCHAIN="armv7-unknown-linux-musleabihf" # armv7 with hardware floating-point
+#TOOLCHAIN="arm-unknown-linux-musleabihf" # arm with hardware floating-point
+#TOOLCHAIN="arm-unknown-linux-musleabi" # arm with software floating-point
 
 USER="noah"
 
