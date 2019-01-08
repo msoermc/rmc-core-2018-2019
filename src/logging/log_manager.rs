@@ -25,7 +25,7 @@ impl Runnable for LogManager {
         // Do nothing
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self) {
         match self.logging_queue.try_recv() {
             Ok(log) => {
                 for accepter in &mut self.downstream {
@@ -42,8 +42,6 @@ impl Runnable for LogManager {
         if self.counter % self.flush_period == 0 {
             self.writer.flush().expect("Could not flush logger!");
         }
-
-        true
     }
 }
 

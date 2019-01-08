@@ -59,14 +59,13 @@ impl Runnable for DriveTrain {
         // Do nothing
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self) {
         match self.command_receiver.try_recv() {
             Ok(command) => {
                 self.handle_new_command(command);
             }
             Err(TryRecvError::Disconnected) => {
                 self.handle_command_channel_disconnect();
-                return false
             }
             Err(TryRecvError::Empty) => ()
         }
@@ -74,8 +73,6 @@ impl Runnable for DriveTrain {
         if !*self.is_alive.read().unwrap() {
             self.kill();
         }
-
-        true
     }
 }
 

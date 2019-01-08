@@ -54,14 +54,10 @@ impl<R, I> Runnable for RobotCommunicator<R, I> where I: IoServerManager, R: Com
         //do nothing
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self) {
         self.check_connection_statuses();
-
         self.receive_messages();
-
         self.send_messages();
-
-        true
     }
 }
 

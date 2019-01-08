@@ -10,16 +10,14 @@ pub trait Runnable {
     /// framework.
     ///
     /// This function should return false when this Runnable is stopping.
-    fn run(&mut self) -> bool;
+    fn run(&mut self);
 
     /// Starts the Runnable in the current thread. The Runnable will take over the current thread
     /// when this method is invoked.
     fn start(&mut self) {
         self.init();
         loop {
-            if !self.run() {
-                break;
-            }
+            self.run();
         }
     }
 }
