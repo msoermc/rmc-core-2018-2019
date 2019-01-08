@@ -50,14 +50,19 @@ impl MotorController for HoverBoardMotor {
 
 impl HoverBoardMotor {
     pub fn new(pwm: Pwm, direction: Pin) -> Result<Self, LogData> {
-        pwm.set_duty_cycle_ns(0);
-        pwm.set_period_ns(PERIOD_NS);
-        pwm.enable(true);
-        Ok(HoverBoardMotor {
-            is_inverted: false,
-            pwm,
-            direction,
-        })
+        if pwm.set_duty_cycle_ns(0).is_err() {
+            Err(LogData::fatal("Failed to set initial duty cycle!"))
+        }else if pwm.set_period_ns(PERIOD_NS).is_err() {
+            Err(LogData::fatal("Failed to set initial period!"))
+        }else if pwm.enable(true).is_err() {
+            Err(LogData::fatal("Failed to set enable motor controller!"))
+        } else {
+            Ok(HoverBoardMotor {
+                is_inverted: false,
+                pwm,
+                direction,
+            })
+        }
     }
 }
 

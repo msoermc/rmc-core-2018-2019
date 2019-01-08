@@ -8,15 +8,53 @@ pub struct MotorGroup {
 
 impl MotorController for MotorGroup {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), LogData> {
-        unimplemented!()
+        let mut errors = Vec::new();
+
+        for motor in &mut self.motors {
+            if let Err(e) = motor.set_speed(new_speed) {
+                errors.push(e);
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            let desc = errors
+                .iter()
+                .map(|log| log.get_description())
+                .fold("MotorGroup: ".to_string(), |old, new| {
+                    old + ", " + new
+                });
+
+            Err(LogData::error(&desc))
+        }
     }
 
     fn stop(&mut self) -> Result<(), LogData> {
-        unimplemented!()
+        self.set_speed(0.0)
     }
 
     fn invert(&mut self) -> Result<(), LogData> {
-        unimplemented!()
+        let mut errors = Vec::new();
+
+        for motor in &mut self.motors {
+            if let Err(e) = motor.invert() {
+                errors.push(e);
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            let desc = errors
+                .iter()
+                .map(|log| log.get_description())
+                .fold("MotorGroup: ".to_string(), |old, new| {
+                    old + ", " + new
+                });
+
+            Err(LogData::error(&desc))
+        }
     }
 
     fn is_inverted(&self) -> Result<bool, LogData> {
