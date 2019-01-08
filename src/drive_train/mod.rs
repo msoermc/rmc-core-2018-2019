@@ -1,12 +1,12 @@
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
+use std::sync::RwLock;
 
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
-use std::sync::atomic::AtomicBool;
-use std::sync::Arc;
-use std::sync::RwLock;
 
 pub mod interface;
 
@@ -48,7 +48,7 @@ pub struct DriveTrain {
     command_receiver: Receiver<DriveTrainCommand>,
     left: Box<MotorController>,
     right: Box<MotorController>,
-    robot_life: Arc<RwLock<bool>>
+    is_alive: Arc<RwLock<bool>>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,14 +63,19 @@ impl Runnable for DriveTrain {
         match self.command_receiver.try_recv() {
             Ok(command) => {
                 self.handle_new_command(command);
-                true
             }
             Err(TryRecvError::Disconnected) => {
                 self.handle_command_channel_disconnect();
-                false
+                return false
             }
-            Err(TryRecvError::Empty) => true
+            Err(TryRecvError::Empty) => ()
         }
+
+        if !*self.is_alive.read().unwrap() {
+            self.kill();
+        }
+
+        true
     }
 }
 
@@ -87,7 +92,7 @@ impl DriveTrain {
             command_receiver,
             left,
             right,
-            robot_life
+            is_alive: robot_life,
         }
     }
 
@@ -110,7 +115,7 @@ impl DriveTrain {
     /// If the subsystem is disabled or the robot has been killed, this method will instead cause
     /// the robot to brake.
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
-        if *self.robot_life.read().unwrap() && self.is_enabled {
+        if *self.is_alive.read().unwrap() && self.is_enabled {
             self.left.set_speed(left_speed);
             self.right.set_speed(right_speed);
         } else {
