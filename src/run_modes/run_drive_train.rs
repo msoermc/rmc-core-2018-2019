@@ -16,6 +16,7 @@ use crate::logging::log_manager::LogManager;
 use crate::logging::log_sender::LogSender;
 use crate::devices::create_pwm;
 use crate::devices::create_pin;
+use crate::robot_map::*;
 
 const ADDRESS: &str = "0.0.0.0";
 const PORT: u16 = 2401;
@@ -36,15 +37,15 @@ pub fn run_drive_train() {
 
     let mut ds_comms = create_driver_station_comms(ds_controller, ds_io_manager);
 
-    let lb_pwm = create_pwm(1, 1).expect("Could not create Pwm!");
-    let lf_pwm = create_pwm(3, 1).expect("Could not create Pwm!");
-    let rb_pwm = create_pwm(6, 1).expect("Could not create Pwm!");
-    let rf_pwm = create_pwm(0, 1).expect("Could not create Pwm!");
+    let lb_pwm = create_pwm(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER).expect("Could not create Pwm!");
+    let lf_pwm = create_pwm(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER).expect("Could not create Pwm!");
+    let rb_pwm = create_pwm(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER).expect("Could not create Pwm!");
+    let rf_pwm = create_pwm(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER).expect("Could not create Pwm!");
 
-    let lb_direction = create_pin(49).expect("Could not create GPIO pin!");
-    let lf_direction = create_pin(117).expect("Could not create GPIO pin!");
-    let rb_direction = create_pin(115).expect("Could not create GPIO pin!");
-    let rf_direction = create_pin(60).expect("Could not create GPIO pin!");
+    let lb_direction = create_pin(REAR_LEFT_DIRECTION).expect("Could not create GPIO pin!");
+    let lf_direction = create_pin(FRONT_LEFT_DIRECTION).expect("Could not create GPIO pin!");
+    let rb_direction = create_pin(REAR_RIGHT_DIRECTION).expect("Could not create GPIO pin!");
+    let rf_direction = create_pin(FRONT_RIGHT_DIRECTION).expect("Could not create GPIO pin!");
 
     let left_back = Box::new(HoverBoardMotor::new(lb_pwm, lb_direction));
     let left_front = Box::new(HoverBoardMotor::new(lf_pwm, lf_direction));

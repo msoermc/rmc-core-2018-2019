@@ -6,6 +6,7 @@ pub mod run_modes;
 pub mod comms;
 pub mod drive_train;
 pub mod logging;
+pub mod robot_map;
 
 fn main() {
     run_demo_mode();
