@@ -12,8 +12,6 @@ pub struct HoverBoardMotor {
 }
 
 impl MotorController for HoverBoardMotor {
-    /// Set the duty cycle and direction based on a speed value ranging from -1 to 1,
-    /// where -1 is full speed reverse and 1 is full speed forward
     fn set_speed(&mut self, new_speed: f32) {
         self.pwm.with_exported(|| {
             self.pwm.enable(true).unwrap();
@@ -25,7 +23,6 @@ impl MotorController for HoverBoardMotor {
         }
     }
     
-    /// Set duty cycle to zero to stop the motor
     fn stop(&mut self) {
         self.pwm.with_exported(|| {
             self.pwm.enable(true).unwrap();
@@ -34,13 +31,11 @@ impl MotorController for HoverBoardMotor {
         }).unwrap();
     }
     
-    /// Invert wheel driving direction
     fn invert(&mut self) {
         self.is_inverted = !self.is_inverted;
         self.direction.set_active_low(self.is_inverted);
     }
     
-    /// Return true if reverse
     fn is_inverted(&self) -> bool {
         self.is_inverted
     }
