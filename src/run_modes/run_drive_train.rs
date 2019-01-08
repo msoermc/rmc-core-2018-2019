@@ -8,7 +8,7 @@ use crate::comms::driver_station::factories::create_driver_station_comms;
 use crate::comms::io::IoServerManager;
 use crate::comms::io::tcp::TcpServerManager;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::print_motor::PrintMotor;
+use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::drive_train::DriveTrain;
 use crate::drive_train::interface::ConcreteTankDriveInterface;
 use crate::framework::Runnable;
