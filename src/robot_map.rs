@@ -6,10 +6,10 @@ pub const FRONT_RIGHT_PWM_CHIP: u32 = 4; // P9.16
 pub const REAR_LEFT_PWM_CHIP: u32 = 4; // P8.19
 pub const REAR_RIGHT_PWM_CHIP: u32 = 6; // P8.13
 
-pub const FRONT_LEFT_PWM_NUMBER: u32 = 1;
-pub const FRONT_RIGHT_PWM_NUMBER: u32 = 1;
-pub const REAR_LEFT_PWM_NUMBER: u32 = 1;
-pub const REAR_RIGHT_PWM_NUMBER: u32 = 1;
+pub const FRONT_LEFT_PWM_NUMBER: u32 = 1; //?
+pub const FRONT_RIGHT_PWM_NUMBER: u32 = 1; //?
+pub const REAR_LEFT_PWM_NUMBER: u32 = 1; //?
+pub const REAR_RIGHT_PWM_NUMBER: u32 = 1; // GOOD
 
 pub const FRONT_LEFT_DIRECTION: u64 = 60; // P9.12
 pub const FRONT_RIGHT_DIRECTION: u64 = 66; // P8.7
