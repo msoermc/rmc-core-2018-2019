@@ -1,29 +1,21 @@
-use std::process::Command;
+use crate::logging::log_data::LogData;
+use sysfs_pwm::Pwm;
+use sysfs_gpio::Pin;
 
 pub mod motor_controllers;
 pub mod sensors;
 
 pub fn enable_pwm() {
-    // Enable PWM Drivers
-    Command::new("echo ").
-        arg("am33xx_pwm")
-        .arg(">")
-        .arg("/sys/devices/platform/bone_capemgr/slots")
-        .output()
-        .expect("Failed to enable am33xx_pwm driver!");
+    unimplemented!()
+}
 
-    Command::new("echo ").
-        arg("cape-universal")
-        .arg(">")
-        .arg("/sys/devices/platform/bone_capemgr/slots")
-        .output()
-        .expect("Failed to enable universal cape driver!");
+pub fn create_pwm(chip: u32, pin: u32) -> Result<Pwm, LogData> {
+    match Pwm::new(chip, pin) {
+        Ok(pwm) => Ok(pwm),
+        Err(_) => Err(LogData::fatal("Failed to create pwm!")),
+    }
+}
 
-    // Export chip
-    Command::new("echo ").
-        arg("1")
-        .arg(">")
-        .arg("/sys/class/pwm/pwmchip6/export")
-        .output()
-        .expect("Failed to export chip!");
+pub fn create_pin(pin: u64) -> Result<Pin, LogData> {
+    Ok(Pin::new(pin))
 }
