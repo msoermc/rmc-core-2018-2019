@@ -3,7 +3,6 @@ use crate::comms::get_wrong_arg_count_log;
 use crate::comms::parsing::Command;
 use crate::comms::parsing::CommandParser;
 use crate::comms::parsing::rebuild_message;
-use crate::drive_train::DriveTrainCommand;
 use crate::logging::log_data::LogData;
 
 pub struct DriveCommand {

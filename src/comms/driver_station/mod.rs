@@ -1,19 +1,15 @@
 use std::str::FromStr;
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
-use std::sync::atomic::Ordering;
 
 use crate::comms::robot_communicator::CommsController;
 use crate::comms::SendableMessage;
-use crate::drive_train::DriveTrainCommand;
-use crate::framework::interfaces::TankDriveInterface;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
 use std::sync::RwLock;
+use crate::framework::interfaces::TankDriveInterface;
 
 pub mod factories;
 mod commands;

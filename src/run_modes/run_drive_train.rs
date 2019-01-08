@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 

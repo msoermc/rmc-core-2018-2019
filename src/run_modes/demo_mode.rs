@@ -10,7 +10,6 @@ use crate::drive_train::DriveTrain;
 use crate::logging::log_manager::LogManager;
 use std::thread::spawn;
 use crate::framework::Runnable;
-use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use crate::drive_train::interface::ConcreteTankDriveInterface;
 use std::sync::RwLock;

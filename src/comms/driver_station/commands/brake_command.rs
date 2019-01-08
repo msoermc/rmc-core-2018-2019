@@ -11,7 +11,7 @@ pub struct BrakeCommandParser {}
 
 impl ToString for BrakeCommand {
     fn to_string(&self) -> String {
-        format!("brake")
+        "brake".to_string()
     }
 }
 

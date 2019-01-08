@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 use std::sync::RwLock;
@@ -7,6 +6,7 @@ use std::sync::RwLock;
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
+use crate::logging::LogAccepter;
 
 pub mod interface;
 
@@ -116,16 +116,26 @@ impl DriveTrain {
     /// the robot to brake.
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
         if *self.is_alive.read().unwrap() && self.is_enabled {
-            self.left.set_speed(left_speed);
-            self.right.set_speed(right_speed);
+            if let Err(e) = self.left.set_speed(left_speed) {
+                self.log_sender.accept_log(e);
+            }
+
+            if let Err(e) = self.right.set_speed(right_speed) {
+                self.log_sender.accept_log(e);
+            }
         } else {
             self.stop();
         }
     }
 
     fn stop(&mut self) {
-        self.left.stop();
-        self.right.stop();
+        if let Err(e) = self.left.stop() {
+            self.log_sender.accept_log(e);
+        }
+
+        if let Err(e) = self.right.stop() {
+            self.log_sender.accept_log(e);
+        }
     }
 
     fn enable(&mut self) {
