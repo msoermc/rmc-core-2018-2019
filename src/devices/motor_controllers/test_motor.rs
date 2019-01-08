@@ -15,23 +15,20 @@ pub enum TestAction {
 }
 
 impl MotorController for TestMotor {
-    fn set_speed(&mut self, new_speed: f32) {
-        self.speed = new_speed;
-        self.test_channel.send(TestAction::SetSpeed(new_speed)).unwrap();
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn stop(&mut self) {
-        self.speed = 0.0;
-        self.test_channel.send(TestAction::Stop).unwrap();
+    fn stop(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn invert(&mut self) {
-        self.inverted = !self.inverted;
-        self.test_channel.send(TestAction::Invert).unwrap();
+    fn invert(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn is_inverted(&self) -> bool {
-        self.inverted
+    fn is_inverted(&self) -> Result<bool, LogData> {
+        unimplemented!()
     }
 }
 

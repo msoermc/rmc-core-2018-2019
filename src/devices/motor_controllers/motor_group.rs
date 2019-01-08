@@ -1,4 +1,5 @@
 use crate::devices::motor_controllers::MotorController;
+use crate::logging::log_data::LogData;
 
 pub struct MotorGroup {
     is_inverted: bool,
@@ -6,28 +7,20 @@ pub struct MotorGroup {
 }
 
 impl MotorController for MotorGroup {
-    fn set_speed(&mut self, new_speed: f32) {
-        for motor in &mut self.motors {
-            motor.set_speed(new_speed);
-        }
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn stop(&mut self) {
-        for motor in &mut self.motors {
-            motor.stop();
-        }
+    fn stop(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn invert(&mut self) {
-        self.is_inverted = !self.is_inverted();
-
-        for motor in &mut self.motors {
-            motor.invert();
-        }
+    fn invert(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn is_inverted(&self) -> bool {
-        self.is_inverted
+    fn is_inverted(&self) -> Result<bool, LogData> {
+        unimplemented!()
     }
 }
 

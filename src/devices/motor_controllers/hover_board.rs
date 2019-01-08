@@ -12,42 +12,52 @@ pub struct HoverBoardMotor {
 }
 
 impl MotorController for HoverBoardMotor {
-    fn set_speed(&mut self, new_speed: f32) {
-        self.pwm.with_exported(|| {
-            self.pwm.enable(true).unwrap();
-            self.pwm.set_period_ns(PERIOD_NS).unwrap();
-            self.pwm.set_duty_cycle_ns((new_speed.abs() * PERIOD_NS as f32) as u32)
-        }).unwrap();
-        if (new_speed < 0.0 && !self.is_inverted) || new_speed > 0.0 && self.is_inverted {
-            self.invert()
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), LogData> {
+        if self.pwm.with_exported(|| {
+            let duty_cycle = new_speed * (PERIOD_NS as f32);
+            self.pwm.set_duty_cycle_ns(duty_cycle as u32)
+        }).is_err() {
+            Err(LogData::error("Problem changing the duty cycle in MC!"))
+        } else {
+            let is_negative = new_speed < 0.0;
+
+            let new_direction = is_negative ^ self.is_inverted;
+
+            if self.direction.with_exported(|| {
+                self.direction.set_active_low(new_direction)
+            }).is_err() {
+                Err(LogData::error("Problem changing the direction in MC!"))
+            } else {
+                Ok(())
+            }
         }
     }
-    
-    fn stop(&mut self) {
-        self.pwm.with_exported(|| {
-            self.pwm.enable(true).unwrap();
-            self.pwm.set_period_ns(PERIOD_NS).unwrap();
-            self.pwm.set_duty_cycle_ns(0)
-        }).unwrap();
+
+    fn stop(&mut self) -> Result<(), LogData> {
+        self.set_speed(0.0)
     }
-    
-    fn invert(&mut self) {
+
+    fn invert(&mut self) -> Result<(), LogData> {
         self.is_inverted = !self.is_inverted;
-        self.direction.set_active_low(self.is_inverted);
+
+        Ok(())
     }
-    
-    fn is_inverted(&self) -> bool {
-        self.is_inverted
+
+    fn is_inverted(&self) -> Result<bool, LogData> {
+        Ok(self.is_inverted)
     }
 }
 
 impl HoverBoardMotor {
-    pub fn new(pwm: Pwm, direction: Pin) -> Self {
-        HoverBoardMotor {
+    pub fn new(pwm: Pwm, direction: Pin) -> Result<Self, LogData> {
+        pwm.set_duty_cycle_ns(0);
+        pwm.set_period_ns(PERIOD_NS);
+        pwm.enable(true);
+        Ok(HoverBoardMotor {
             is_inverted: false,
             pwm,
             direction,
-        }
+        })
     }
 }
 

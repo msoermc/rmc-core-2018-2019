@@ -47,10 +47,10 @@ pub fn run_drive_train() {
     let rb_direction = create_pin(REAR_RIGHT_DIRECTION).expect("Could not create GPIO pin!");
     let rf_direction = create_pin(FRONT_RIGHT_DIRECTION).expect("Could not create GPIO pin!");
 
-    let left_back = Box::new(HoverBoardMotor::new(lb_pwm, lb_direction));
-    let left_front = Box::new(HoverBoardMotor::new(lf_pwm, lf_direction));
-    let right_back = Box::new(HoverBoardMotor::new(rb_pwm, rb_direction));
-    let right_front = Box::new(HoverBoardMotor::new(rf_pwm, rf_direction));
+    let left_back = Box::new(HoverBoardMotor::new(lb_pwm, lb_direction).unwrap());
+    let left_front = Box::new(HoverBoardMotor::new(lf_pwm, lf_direction).unwrap());
+    let right_back = Box::new(HoverBoardMotor::new(rb_pwm, rb_direction).unwrap());
+    let right_front = Box::new(HoverBoardMotor::new(rf_pwm, rf_direction).unwrap());
 
     let left_side = Box::new(MotorGroup::new(vec![left_back, left_front]));
     let right_side = Box::new(MotorGroup::new(vec![right_back, right_front]));

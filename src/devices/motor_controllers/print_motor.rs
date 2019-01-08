@@ -6,21 +6,20 @@ pub struct PrintMotor {
 }
 
 impl MotorController for PrintMotor {
-    fn set_speed(&mut self, new_speed: f32) {
-        println!("{}: Set speed to {}!", self.name, new_speed);
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn stop(&mut self) {
-        println!("{}: Stop!", self.name);
+    fn stop(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn invert(&mut self) {
-        self.inverted = !self.inverted;
-        println!("{}: Invert!", self.name);
+    fn invert(&mut self) -> Result<(), LogData> {
+        unimplemented!()
     }
 
-    fn is_inverted(&self) -> bool {
-        self.inverted
+    fn is_inverted(&self) -> Result<bool, LogData> {
+        unimplemented!()
     }
 }
 
