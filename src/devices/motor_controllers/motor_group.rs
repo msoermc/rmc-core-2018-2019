@@ -31,8 +31,26 @@ impl MotorController for MotorGroup {
     }
 
     fn stop(&mut self) -> Result<(), LogData> {
-        self.set_speed(0.0)
-    }
+        let mut errors = Vec::new();
+
+        for motor in &mut self.motors {
+            if let Err(e) = motor.stop() {
+                errors.push(e);
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            let desc = errors
+                .iter()
+                .map(|log| log.get_description())
+                .fold("MotorGroup: ".to_string(), |old, new| {
+                    old + ", " + new
+                });
+
+            Err(LogData::error(&desc))
+        }    }
 
     fn invert(&mut self) -> Result<(), LogData> {
         let mut errors = Vec::new();
