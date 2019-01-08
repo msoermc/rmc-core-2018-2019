@@ -17,12 +17,13 @@ use crate::logging::log_sender::LogSender;
 use crate::devices::create_pwm;
 use crate::devices::create_pin;
 use crate::robot_map::*;
+use std::sync::RwLock;
 
 const ADDRESS: &str = "0.0.0.0";
 const PORT: u16 = 2401;
 
 pub fn run_drive_train() {
-    let life = Arc::new(AtomicBool::new(true));
+    let life = Arc::new(RwLock::new(true));
     let (log_sender, log_receiver) = channel();
     let (ds_sender, ds_receiver) = channel();
     let (drive_sender, drive_receiver) = channel();
@@ -33,7 +34,7 @@ pub fn run_drive_train() {
     let mut logger = LogManager::new("./RMC_Logs", 16, log_receiver);
 
     let ds_io_manager = TcpServerManager::create(ADDRESS, PORT);
-    let ds_controller = ConcreteDriverStationController::new(Box::new(drive_sender.clone()), log_sender.clone(), ds_receiver, life);
+    let ds_controller = ConcreteDriverStationController::new(Box::new(drive_sender.clone()), log_sender.clone(), ds_receiver, life.clone());
 
     let mut ds_comms = create_driver_station_comms(ds_controller, ds_io_manager);
 
@@ -55,7 +56,7 @@ pub fn run_drive_train() {
     let left_side = Box::new(MotorGroup::new(vec![left_back, left_front]));
     let right_side = Box::new(MotorGroup::new(vec![right_back, right_front]));
 
-    let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side);
+    let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side, life.clone());
 
     let logger_thread = spawn(move || logger.start());
     let _ = spawn(move || ds_comms.start());

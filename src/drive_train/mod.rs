@@ -4,6 +4,9 @@ use std::sync::mpsc::TryRecvError;
 use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
+use std::sync::RwLock;
 
 pub mod interface;
 
@@ -32,13 +35,6 @@ pub enum DriveTrainCommand {
 
     /// Disables the DriveTrain, causing it to halt it's motion.
     Disable,
-
-    /// Informs the DriveTrain that the robot is now dead and that it should stop moving.
-    Kill,
-
-    /// Informs the subsystem that the robot is no longer dead and that the DriveTrain may resume
-    /// normal operation.
-    Revive,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,11 +44,11 @@ pub enum DriveTrainCommand {
 /// is normally run in it's own thread and communication with it is done via channels.
 pub struct DriveTrain {
     is_enabled: bool,
-    is_alive: bool,
     log_sender: LogSender,
     command_receiver: Receiver<DriveTrainCommand>,
     left: Box<MotorController>,
     right: Box<MotorController>,
+    robot_life: Arc<RwLock<bool>>
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,14 +80,14 @@ impl Runnable for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_sender: LogSender, left: Box<MotorController>, right: Box<MotorController>) -> DriveTrain {
+    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_sender: LogSender, left: Box<MotorController>, right: Box<MotorController>, robot_life: Arc<RwLock<bool>>) -> DriveTrain {
         DriveTrain {
             is_enabled: true,
-            is_alive: true,
             log_sender,
             command_receiver,
             left,
             right,
+            robot_life
         }
     }
 
@@ -101,8 +97,6 @@ impl DriveTrain {
             DriveTrainCommand::Drive(left, right) => self.drive(left, right),
             DriveTrainCommand::Enable => self.enable(),
             DriveTrainCommand::Disable => self.disable(),
-            DriveTrainCommand::Kill => self.kill(),
-            DriveTrainCommand::Revive => self.revive(),
             DriveTrainCommand::Stop => self.stop(),
         }
     }
@@ -116,7 +110,7 @@ impl DriveTrain {
     /// If the subsystem is disabled or the robot has been killed, this method will instead cause
     /// the robot to brake.
     fn drive(&mut self, left_speed: f32, right_speed: f32) {
-        if self.is_alive && self.is_enabled {
+        if *self.robot_life.read().unwrap() && self.is_enabled {
             self.left.set_speed(left_speed);
             self.right.set_speed(right_speed);
         } else {
@@ -139,11 +133,6 @@ impl DriveTrain {
     }
 
     fn kill(&mut self) {
-        self.is_alive = false;
         self.stop();
-    }
-
-    fn revive(&mut self) {
-        self.is_alive = true;
     }
 }

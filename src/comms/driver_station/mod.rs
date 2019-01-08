@@ -13,6 +13,7 @@ use crate::framework::interfaces::TankDriveInterface;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
+use std::sync::RwLock;
 
 pub mod factories;
 mod commands;
@@ -44,7 +45,7 @@ pub struct ConcreteDriverStationController {
     drive_interface: Box<TankDriveInterface>,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
-    life_lock: Arc<AtomicBool>,
+    life_lock: Arc<RwLock<bool>>,
 }
 
 impl CommsController for ConcreteDriverStationController {
@@ -69,17 +70,17 @@ impl DriverStationController for ConcreteDriverStationController {
     }
 
     fn kill(&self) {
-        self.life_lock.store(false, Ordering::SeqCst)
+        *self.life_lock.write().unwrap() = false;
     }
 
     fn revive(&self) {
-        self.life_lock.store(true, Ordering::SeqCst)
+        *self.life_lock.write().unwrap() = true;
     }
 }
 
 impl ConcreteDriverStationController {
     pub fn new(drive_interface: Box<TankDriveInterface>, log_sender: LogSender,
-               message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<AtomicBool>) -> Self
+               message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<RwLock<bool>>) -> Self
     {
         ConcreteDriverStationController {
             drive_interface,
