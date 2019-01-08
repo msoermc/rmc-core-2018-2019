@@ -55,3 +55,9 @@ impl HoverBoardMotor {
         }
     }
 }
+
+impl Drop for HoverBoardMotor {
+    fn drop(&mut self) {
+        self.stop();
+    }
+}
