@@ -18,19 +18,19 @@ impl MotorGroup {
         }
     }
 
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorGroupError> {
+    pub fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorGroupError> {
         unimplemented!()
     }
 
-    fn stop(&mut self) -> Result<(), MotorGroupError> {
+    pub fn stop(&mut self) -> Result<(), MotorGroupError> {
         unimplemented!()
     }
 
-    fn invert(&mut self) -> Result<(), MotorGroupError> {
+    pub fn invert(&mut self) -> Result<(), MotorGroupError> {
         unimplemented!()
     }
 
-    fn is_inverted(&self) -> Result<bool, MotorGroupError> {
+    pub fn is_inverted(&self) -> Result<bool, MotorGroupError> {
         unimplemented!()
     }
 }
