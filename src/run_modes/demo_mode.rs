@@ -41,11 +41,11 @@ pub fn run_demo_mode() {
     let left_side = Box::new(MotorGroup::new(vec![left_back, left_front]));
     let right_side = Box::new(MotorGroup::new(vec![right_back, right_front]));
 
-    let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side, life.clone());
+    //let mut drive_train = DriveTrain::new(drive_receiver, log_sender.clone(), left_side, right_side, life.clone());
 
     let logger_thread = spawn(move || logger.start());
     let _ = spawn(move || ds_comms.start());
-    let _ = spawn(move || drive_train.start());
+    //let _ = spawn(move || drive_train.start());
 
     logger_thread.join().expect("Logging thread crashed!");
 }

@@ -33,4 +33,8 @@ impl MotorGroup {
     pub fn is_inverted(&self) -> Result<bool, MotorGroupError> {
         unimplemented!()
     }
+
+    pub fn maintain_last(&mut self) -> Result<(), MotorGroupError> {
+        unimplemented!()
+    }
 }
