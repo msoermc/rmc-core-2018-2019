@@ -4,11 +4,7 @@ use std::sync::mpsc::TryRecvError;
 use std::sync::RwLock;
 
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::MotorController;
 use crate::devices::motor_controllers::MotorFailure;
-use crate::framework::Runnable;
-use crate::logging::log_sender::LogSender;
-use crate::logging::LogAccepter;
 
 pub mod interface;
 
@@ -33,8 +29,6 @@ pub enum DriveTrainCommand {
     Disable,
 }
 
-/// The DriveTrain struct contains the data required to run the DriveTrain. The DriveTrain
-/// is normally run in it's own thread and communication with it is done via channels.
 pub struct DriveTrain {
     is_enabled: bool,
     left: MotorGroup,
@@ -73,11 +67,37 @@ impl DriveTrain {
     }
 
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
-        unimplemented!()
+        let mut errors = Vec::new();
+        if let Err(e) = &mut self.left.set_speed(left_speed) {
+            errors.append(e);
+        }
+
+        if let Err(e) = &mut self.right.set_speed(right_speed) {
+            errors.append(e);
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
     pub fn stop(&mut self) -> Result<(), Vec<MotorFailure>> {
-        unimplemented!()
+        let mut errors = Vec::new();
+        if let Err(e) = &mut self.left.stop() {
+            errors.append(e);
+        }
+
+        if let Err(e) = &mut self.right.stop() {
+            errors.append(e);
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
     pub fn enable(&mut self) {
@@ -90,6 +110,18 @@ impl DriveTrain {
     }
 
     fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
-        unimplemented!()
+        let mut errors = Vec::new();
+        if let Err(e) = &mut self.left.maintain_last() {
+            errors.append(e);
+        }
+        if let Err(e) = &mut self.right.maintain_last() {
+            errors.append(e);
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 }
