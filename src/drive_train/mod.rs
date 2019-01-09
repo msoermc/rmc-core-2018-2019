@@ -55,9 +55,27 @@ impl DriveTrain {
         }
     }
 
-    pub fn run_cycle(&mut self) -> Vec<MotorFailure> {
-        // TODO implement run for drive train
-        unimplemented!()
+    pub fn run_cycle(&mut self) -> Result<(), Vec<MotorFailure>> {
+        let mut errors = Vec::new();
+
+        if self.is_enabled && *self.is_alive.read().expect("Drive train failed to read life") {
+            if let Err(e) = & mut self.maintain_last() {
+                errors.append(e);
+            }
+            if let Err(e) = & mut self.maintain_last() {
+                errors.append(e);
+            }
+        } else {
+            if let Err(e) = & mut self.stop() {
+                errors.append(e);
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
@@ -65,6 +83,10 @@ impl DriveTrain {
     }
 
     pub fn stop(&mut self) -> Result<(), Vec<MotorFailure>> {
+        unimplemented!()
+    }
+
+    pub fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
         unimplemented!()
     }
 
