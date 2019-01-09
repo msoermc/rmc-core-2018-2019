@@ -3,17 +3,14 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 use std::sync::RwLock;
 
+use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorController;
+use crate::devices::motor_controllers::MotorFailure;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::MotorFailure;
 
 pub mod interface;
-
-#[cfg(test)]
-mod tests;
 
 /// The DriveTrainCommand enum has values representing different commands that can be sent to the
 /// DriveTrain over the command channel.
@@ -59,14 +56,11 @@ impl DriveTrain {
         let mut errors = Vec::new();
 
         if self.is_enabled && *self.is_alive.read().expect("Drive train failed to read life") {
-            if let Err(e) = & mut self.maintain_last() {
-                errors.append(e);
-            }
-            if let Err(e) = & mut self.maintain_last() {
+            if let Err(e) = &mut self.maintain_last() {
                 errors.append(e);
             }
         } else {
-            if let Err(e) = & mut self.stop() {
+            if let Err(e) = &mut self.stop() {
                 errors.append(e);
             }
         }
@@ -86,10 +80,6 @@ impl DriveTrain {
         unimplemented!()
     }
 
-    pub fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
-        unimplemented!()
-    }
-
     pub fn enable(&mut self) {
         self.is_enabled = true;
     }
@@ -97,5 +87,9 @@ impl DriveTrain {
     pub fn disable(&mut self) -> Result<(), Vec<MotorFailure>> {
         self.is_enabled = false;
         self.stop()
+    }
+
+    fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
+        unimplemented!()
     }
 }
