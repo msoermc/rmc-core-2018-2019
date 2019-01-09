@@ -6,13 +6,12 @@ use crate::comms::driver_station::ConcreteDriverStationController;
 use crate::logging::log_sender::LogSender;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::drive_train::DriveTrain;
 use crate::logging::log_manager::LogManager;
 use std::thread::spawn;
 use crate::framework::Runnable;
 use std::sync::Arc;
-use crate::drive_train::interface::ConcreteTankDriveInterface;
 use std::sync::RwLock;
+use crate::operations::interface::ConcreteTankDriveInterface;
 
 const ADDRESS: &str = "0.0.0.0";
 const PORT: u16 = 2401;

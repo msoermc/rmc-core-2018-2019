@@ -1,33 +1,7 @@
-use std::sync::Arc;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::TryRecvError;
-use std::sync::RwLock;
-
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use std::sync::RwLock;
+use std::sync::Arc;
 use crate::devices::motor_controllers::MotorFailure;
-
-pub mod interface;
-
-/// The DriveTrainCommand enum has values representing different commands that can be sent to the
-/// DriveTrain over the command channel.
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum DriveTrainCommand {
-    /// Drives both sides of the robot at their respective speeds.
-    /// Speeds should be float values between -1 and 1.
-    ///
-    /// If the robot is currently in a dead state or the DriveTrain has been disabled, this command
-    /// will cause the robot to brake instead.
-    Drive(f32, f32),
-
-    /// Commands the DriveTrain to begin braking.
-    Stop,
-
-    /// Enables the DriveTrain, allowing it to move if commanded to as normal.
-    Enable,
-
-    /// Disables the DriveTrain, causing it to halt it's motion.
-    Disable,
-}
 
 pub struct DriveTrain {
     is_enabled: bool,

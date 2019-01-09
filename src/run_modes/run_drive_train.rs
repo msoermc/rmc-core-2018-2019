@@ -11,12 +11,12 @@ use crate::devices::create_pin;
 use crate::devices::create_pwm;
 use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::drive_train::DriveTrain;
-use crate::drive_train::interface::ConcreteTankDriveInterface;
 use crate::framework::Runnable;
 use crate::logging::log_manager::LogManager;
 use crate::logging::log_sender::LogSender;
 use crate::robot_map::*;
+use crate::operations::interface::ConcreteTankDriveInterface;
+use crate::operations::drive_train::DriveTrain;
 
 const ADDRESS: &str = "0.0.0.0";
 const PORT: u16 = 2401;
