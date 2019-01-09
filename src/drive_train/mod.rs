@@ -7,6 +7,7 @@ use crate::devices::motor_controllers::MotorController;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
+use crate::devices::motor_controllers::motor_group::MotorGroup;
 
 pub mod interface;
 
@@ -46,8 +47,8 @@ pub struct DriveTrain {
     is_enabled: bool,
     log_sender: LogSender,
     command_receiver: Receiver<DriveTrainCommand>,
-    left: Box<MotorController>,
-    right: Box<MotorController>,
+    left: MotorGroup,
+    right: MotorGroup,
     is_alive: Arc<RwLock<bool>>,
 }
 
@@ -82,7 +83,7 @@ impl Runnable for DriveTrain {
 impl DriveTrain {
     /// Creates a new drive_train object which leverages the supplied channels for reporting errors
     /// and logging.
-    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_sender: LogSender, left: Box<MotorController>, right: Box<MotorController>, robot_life: Arc<RwLock<bool>>) -> DriveTrain {
+    pub fn new(command_receiver: Receiver<DriveTrainCommand>, log_sender: LogSender, left: MotorGroup, right: MotorGroup, robot_life: Arc<RwLock<bool>>) -> DriveTrain {
         DriveTrain {
             is_enabled: true,
             log_sender,

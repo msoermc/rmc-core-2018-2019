@@ -15,3 +15,18 @@ pub const FRONT_LEFT_DIRECTION: u64 = 60; // P9.12
 pub const FRONT_RIGHT_DIRECTION: u64 = 66; // P8.7
 pub const REAR_LEFT_DIRECTION: u64 = 69; // P9.9
 pub const REAR_RIGHT_DIRECTION: u64 = 45; // P9.11
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Motor ID
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum MotorID {
+
+}
+
+impl ToString for MotorID {
+    fn to_string(&self) -> String {
+        // TODO Implement motor strings
+        unimplemented!()
+    }
+}
