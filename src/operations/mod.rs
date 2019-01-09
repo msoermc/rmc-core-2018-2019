@@ -1,5 +1,5 @@
 pub mod interface;
-pub mod drive_train;
+mod drive_train;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum RobotControllerCommand {

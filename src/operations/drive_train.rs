@@ -1,6 +1,7 @@
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use std::sync::RwLock;
 use std::sync::Arc;
+use std::sync::RwLock;
+
+use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorFailure;
 
 pub struct DriveTrain {
@@ -27,10 +28,8 @@ impl DriveTrain {
             if let Err(e) = &mut self.maintain_last() {
                 errors.append(e);
             }
-        } else {
-            if let Err(e) = &mut self.stop() {
-                errors.append(e);
-            }
+        } else if let Err(e) = &mut self.stop() {
+            errors.append(e);
         }
 
         if errors.is_empty() {

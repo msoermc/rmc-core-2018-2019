@@ -33,3 +33,6 @@ impl ToString for MotorID {
         unimplemented!()
     }
 }
+
+pub const ADDRESS: &str = "0.0.0.0";
+pub const PORT: u16 = 2401;
