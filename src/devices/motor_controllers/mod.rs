@@ -7,10 +7,17 @@ pub mod test_motor;
 pub mod motor_group;
 pub mod print_motor;
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MotorFailureKind {
     Unknown,
     Thermal,
     Disconnect,
+}
+
+impl ToString for MotorFailureKind {
+    fn to_string(&self) -> String {
+        unimplemented!()
+    }
 }
 
 pub trait MotorController: Send {
@@ -32,6 +39,7 @@ pub trait MotorController: Send {
     fn is_inverted(&self) -> Result<bool, MotorFailure>;
 }
 
+#[derive(Clone, Debug)]
 pub struct MotorFailure {
     motor: MotorID,
     kind: MotorFailureKind,
@@ -41,6 +49,18 @@ pub struct MotorFailure {
 impl MotorFailure {
     fn new(motor: MotorID, kind: MotorFailureKind, log: LogData) -> Self {
         MotorFailure { motor, kind, log }
+    }
+
+    fn get_motor(&self) -> MotorID {
+        self.motor
+    }
+
+    fn get_log(&self) -> LogData {
+        self.log.clone()
+    }
+
+    fn get_kind(&self) -> MotorFailureKind {
+        self.kind.clone()
     }
 }
 
