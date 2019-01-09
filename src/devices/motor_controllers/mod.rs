@@ -10,8 +10,6 @@ pub mod print_motor;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MotorFailureKind {
     Unknown,
-    Thermal,
-    Disconnect,
 }
 
 impl ToString for MotorFailureKind {

@@ -21,7 +21,10 @@ pub const REAR_RIGHT_DIRECTION: u64 = 45; // P9.11
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MotorID {
-
+    DriveTrainFrontLeft,
+    DriveTrainFrontRight,
+    DriveTrainRearLeft,
+    DriveTrainRearRight,
 }
 
 impl ToString for MotorID {
