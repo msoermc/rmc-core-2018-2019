@@ -4,7 +4,7 @@ pub mod framework;
 pub mod devices;
 pub mod run_modes;
 pub mod comms;
-pub mod operations;
+pub mod robot_control;
 pub mod logging;
 pub mod robot_map;
 

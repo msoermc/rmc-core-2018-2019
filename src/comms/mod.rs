@@ -1,8 +1,6 @@
 use crate::comms::parsing::rebuild_message;
 use crate::logging::log_data::LogData;
 use std::sync::mpsc::Sender;
-use crate::framework::interfaces::CommunicationsInterface;
-use crate::framework::interfaces::RobotInterface;
 
 pub mod robot_communicator;
 
@@ -23,11 +21,11 @@ fn get_wrong_arg_count_log(message: &[&str], expected: u64, actual: u64) -> LogD
 }
 
 #[derive(Clone, Debug)]
-pub struct ConcreteCommsInterface {
+pub struct CommsInterface {
     channel: Sender<Box<SendableMessage>>,
 }
 
-impl CommunicationsInterface for ConcreteCommsInterface {
+impl CommsView for CommsInterface {
     fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
         match self.channel.send(message) {
             Ok(_) => Ok(()),
@@ -36,6 +34,6 @@ impl CommunicationsInterface for ConcreteCommsInterface {
     }
 }
 
-impl RobotInterface for ConcreteCommsInterface {
-
+pub trait CommsView {
+    fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData>;
 }

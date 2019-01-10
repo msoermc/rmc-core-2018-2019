@@ -9,7 +9,7 @@ use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
 use std::sync::RwLock;
-use crate::framework::interfaces::TankDriveInterface;
+use crate::robot_control::RobotView;
 
 pub mod factories;
 mod commands;
@@ -38,7 +38,7 @@ impl FromStr for SubsystemIdentifier {
 }
 
 pub struct ConcreteDriverStationController {
-    drive_interface: Box<TankDriveInterface>,
+    view: Box<RobotView>,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
     life_lock: Arc<RwLock<bool>>,
@@ -61,8 +61,8 @@ impl LogAccepter for ConcreteDriverStationController {
 }
 
 impl DriverStationController for ConcreteDriverStationController {
-    fn get_drive_interface(&self) -> &Box<TankDriveInterface> {
-        &self.drive_interface
+    fn get_drive_interface(&self) -> &Box<RobotView> {
+        &self.view
     }
 
     fn kill(&self) {
@@ -75,11 +75,11 @@ impl DriverStationController for ConcreteDriverStationController {
 }
 
 impl ConcreteDriverStationController {
-    pub fn new(drive_interface: Box<TankDriveInterface>, log_sender: LogSender,
+    pub fn new(drive_interface: Box<RobotView>, log_sender: LogSender,
                message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<RwLock<bool>>) -> Self
     {
         ConcreteDriverStationController {
-            drive_interface,
+            view: drive_interface,
             log_sender,
             message_sending_queue,
             life_lock,
@@ -88,7 +88,7 @@ impl ConcreteDriverStationController {
 }
 
 pub trait DriverStationController: CommsController {
-    fn get_drive_interface(&self) -> &Box<dyn TankDriveInterface>;
+    fn get_drive_interface(&self) -> &Box<RobotView>;
     fn kill(&self);
     fn revive(&self);
 }
