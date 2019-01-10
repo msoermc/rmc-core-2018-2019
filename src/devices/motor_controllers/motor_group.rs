@@ -51,6 +51,3 @@ impl MotorGroup {
         }
     }
 }
-
-
-
