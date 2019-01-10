@@ -61,7 +61,7 @@ impl RobotView {
 
     fn change_life_status(&self, status: RobotLifeStatus) -> Result<(), LogData> {
         match self.robot_life_status.write() {
-            Ok(flag) => {
+            Ok(mut flag) => {
                 *flag = status;
                 Ok(())
             }
@@ -71,7 +71,7 @@ impl RobotView {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-struct DriveCommandMessage {
+pub struct DriveCommandMessage {
     left_speed: f32,
     right_speed: f32,
 }

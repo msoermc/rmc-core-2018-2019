@@ -16,7 +16,7 @@ impl ToString for ReviveCommand {
 
 impl<I> Command<I> for ReviveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
-        interface.revive();
+        interface.get_view().revive();
     }
 }
 

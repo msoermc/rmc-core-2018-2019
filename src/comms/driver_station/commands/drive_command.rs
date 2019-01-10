@@ -18,7 +18,7 @@ impl ToString for DriveCommand {
 
 impl<I> Command<I> for DriveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
-        interface.get_drive_interface().drive(self.left_speed, self.right_speed).unwrap();
+        interface.get_view().drive(self.left_speed, self.right_speed).unwrap();
     }
 }
 

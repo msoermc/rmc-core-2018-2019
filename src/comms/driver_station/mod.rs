@@ -38,7 +38,7 @@ impl FromStr for SubsystemIdentifier {
 }
 
 pub struct ConcreteDriverStationController {
-    view: Box<RobotView>,
+    view: RobotView,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
     life_lock: Arc<RwLock<bool>>,
@@ -61,25 +61,17 @@ impl LogAccepter for ConcreteDriverStationController {
 }
 
 impl DriverStationController for ConcreteDriverStationController {
-    fn get_drive_interface(&self) -> &Box<RobotView> {
+    fn get_view(&self) -> &RobotView {
         &self.view
-    }
-
-    fn kill(&self) {
-        *self.life_lock.write().unwrap() = false;
-    }
-
-    fn revive(&self) {
-        *self.life_lock.write().unwrap() = true;
     }
 }
 
 impl ConcreteDriverStationController {
-    pub fn new(drive_interface: Box<RobotView>, log_sender: LogSender,
+    pub fn new(view: RobotView, log_sender: LogSender,
                message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<RwLock<bool>>) -> Self
     {
         ConcreteDriverStationController {
-            view: drive_interface,
+            view,
             log_sender,
             message_sending_queue,
             life_lock,
@@ -88,7 +80,5 @@ impl ConcreteDriverStationController {
 }
 
 pub trait DriverStationController: CommsController {
-    fn get_drive_interface(&self) -> &Box<RobotView>;
-    fn kill(&self);
-    fn revive(&self);
+    fn get_view(&self) -> &RobotView;
 }
