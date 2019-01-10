@@ -21,19 +21,15 @@ fn get_wrong_arg_count_log(message: &[&str], expected: u64, actual: u64) -> LogD
 }
 
 #[derive(Clone, Debug)]
-pub struct CommsInterface {
+pub struct CommsView {
     channel: Sender<Box<SendableMessage>>,
 }
 
-impl CommsView for CommsInterface {
+impl CommsView {
     fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
         match self.channel.send(message) {
             Ok(_) => Ok(()),
             Err(_) => Err(LogData::fatal("Comms sending channel hung up!")),
         }
     }
-}
-
-pub trait CommsView {
-    fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData>;
 }

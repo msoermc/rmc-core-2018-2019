@@ -4,6 +4,7 @@ use std::sync::RwLock;
 
 use crate::logging::log_data::LogData;
 
+pub mod controller;
 mod drive_train;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
