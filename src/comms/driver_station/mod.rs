@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::sync::Arc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 
@@ -8,7 +7,6 @@ use crate::comms::SendableMessage;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
-use std::sync::RwLock;
 use crate::robot_control::RobotView;
 
 pub mod factories;
@@ -41,7 +39,6 @@ pub struct ConcreteDriverStationController {
     view: RobotView,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
-    life_lock: Arc<RwLock<bool>>,
 }
 
 impl CommsController for ConcreteDriverStationController {
@@ -67,14 +64,12 @@ impl DriverStationController for ConcreteDriverStationController {
 }
 
 impl ConcreteDriverStationController {
-    pub fn new(view: RobotView, log_sender: LogSender,
-               message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<RwLock<bool>>) -> Self
+    pub fn new(view: RobotView, log_sender: LogSender, message_sending_queue: Receiver<Box<SendableMessage>>) -> Self
     {
         ConcreteDriverStationController {
             view,
             log_sender,
             message_sending_queue,
-            life_lock,
         }
     }
 }

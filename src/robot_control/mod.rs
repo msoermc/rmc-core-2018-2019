@@ -65,7 +65,7 @@ impl RobotView {
                 *flag = status;
                 Ok(())
             }
-            Err(_) => return Err(LogData::fatal("Failed to revive robot!")),
+            Err(_) => Err(LogData::fatal("Failed to revive robot!")),
         }
     }
 }

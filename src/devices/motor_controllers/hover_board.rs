@@ -19,17 +19,19 @@ pub struct HoverBoardMotor {
 
 impl MotorController for HoverBoardMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
-        if let Err(_) = self.pwm.with_exported(|| {
+        let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
             self.pwm.set_duty_cycle_ns(pwm_out as u32)
-        })
-        {
-            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to set speed of hoverboard motor")))
-        } else if let Err(_) = self.direction.with_exported(|| {
+        };
+
+        let set_direction = || {
             let is_reverse = new_speed < 0.0;
             self.direction.set_active_low(is_reverse ^ self.is_inverted)
-        })
-        {
+        };
+
+        if self.pwm.with_exported(set_duty).is_err() {
+            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to set speed of hoverboard motor")))
+        } else if self.direction.with_exported(set_direction).is_err() {
             Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to set description of hoverboard motor")))
         } else {
             Ok(())
@@ -37,10 +39,11 @@ impl MotorController for HoverBoardMotor {
     }
 
     fn stop(&mut self) -> Result<(), MotorFailure> {
-        if let Err(_) = self.pwm.with_exported(|| {
+        let set_duty = || {
             self.pwm.set_duty_cycle_ns(0)
-        })
-        {
+        };
+
+        if self.pwm.with_exported(set_duty).is_err() {
             Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to stop hoverboard motor")))
         } else {
             Ok(())
