@@ -86,10 +86,14 @@ pub struct DriveCommandMessage {
 
 impl DriveCommandMessage {
     fn new(left_speed: f32, right_speed: f32) -> Self {
-        if (left_speed <= 1.0) && (left_speed >= -1.0) && (right_speed <= 1.0) && (right_speed >= -1.0) {
+        if !check_speed(left_speed) && check_speed(right_speed) {
             panic!("Error in creating a DriveCommandMessage: left speed and right speed must be in range [-1, 1]!");
         } else {
             DriveCommandMessage { left_speed, right_speed }
         }
     }
+}
+
+fn check_speed(speed: f32) -> bool {
+    speed <= 1.0 && speed >= -1.0
 }

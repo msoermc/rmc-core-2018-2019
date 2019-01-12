@@ -17,15 +17,18 @@ impl MotorGroup {
     }
 
     pub fn set_speed(&mut self, new_speed: f32) -> Result<(), Vec<MotorFailure>> {
+        self.old_speed = new_speed;
         self.run_operation(|motor| motor.set_speed(new_speed))
     }
 
     pub fn stop(&mut self) -> Result<(), Vec<MotorFailure>> {
+        self.old_speed = 0.0;
         self.run_operation(|motor| motor.stop())
     }
 
     pub fn invert(&mut self) -> Result<(), Vec<MotorFailure>> {
         self.is_inverted = !self.is_inverted;
+        self.old_speed = -self.old_speed;
         self.run_operation(|motor| motor.invert())
     }
 

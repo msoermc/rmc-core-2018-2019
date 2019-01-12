@@ -46,14 +46,14 @@ impl Runnable for RobotController {
 
 impl RobotController {
     pub fn new(log_view: LogSender, driver_station_view: CommsView,
-           command_receiver: Receiver<RobotControllerCommand>,
-           drive_train: DriveTrain, life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
-            Self {
-                log_view,
-                driver_station_view,
-                command_receiver,
-                drive_train,
-                life_status
-            }
+               command_receiver: Receiver<RobotControllerCommand>,
+               drive_train: DriveTrain, life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
+        Self {
+            log_view,
+            driver_station_view,
+            command_receiver,
+            drive_train,
+            life_status,
+        }
     }
 }
