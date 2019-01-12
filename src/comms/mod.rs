@@ -26,10 +26,16 @@ pub struct CommsView {
 }
 
 impl CommsView {
-    fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
+    pub fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
         match self.channel.send(message) {
             Ok(_) => Ok(()),
             Err(_) => Err(LogData::fatal("Comms sending channel hung up!")),
+        }
+    }
+
+    pub fn new(channel: Sender<Box<SendableMessage>>) -> Self {
+        Self {
+            channel
         }
     }
 }

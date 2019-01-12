@@ -36,3 +36,4 @@ impl ToString for MotorID {
 
 pub const ADDRESS: &str = "0.0.0.0";
 pub const PORT: u16 = 2401;
+pub const LOG_PATH: &str = "./rmc-logs/";

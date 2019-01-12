@@ -5,7 +5,7 @@ use std::sync::RwLock;
 use crate::logging::log_data::LogData;
 
 pub mod controller;
-mod drive_train;
+pub mod drive_train;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum RobotLifeStatus {
@@ -27,6 +27,13 @@ pub struct RobotView {
 }
 
 impl RobotView {
+    pub fn new(channel: Sender<RobotControllerCommand>, robot_life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
+        Self {
+            channel,
+            robot_life_status,
+        }
+    }
+
     pub fn revive(&self) -> Result<(), LogData> {
         self.change_life_status(RobotLifeStatus::Alive)
     }
