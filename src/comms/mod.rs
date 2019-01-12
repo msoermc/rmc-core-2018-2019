@@ -1,6 +1,7 @@
+use std::sync::mpsc::Sender;
+
 use crate::comms::parsing::rebuild_message;
 use crate::logging::log_data::LogData;
-use std::sync::mpsc::Sender;
 
 pub mod robot_communicator;
 

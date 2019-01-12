@@ -1,6 +1,7 @@
-use crate::logging::log_data::LogData;
-use sysfs_pwm::Pwm;
 use sysfs_gpio::Pin;
+use sysfs_pwm::Pwm;
+
+use crate::logging::log_data::LogData;
 
 pub mod motor_controllers;
 pub mod sensors;

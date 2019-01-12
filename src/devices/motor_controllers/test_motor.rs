@@ -1,5 +1,6 @@
-use super::*;
 use std::sync::mpsc::Sender;
+
+use super::*;
 
 pub struct TestMotor {
     inverted: bool,

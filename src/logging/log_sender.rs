@@ -1,6 +1,7 @@
-use crate::logging::log_data::LogData;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::SendError;
+
+use crate::logging::log_data::LogData;
 use crate::logging::LogAccepter;
 
 #[derive(Debug, Clone)]

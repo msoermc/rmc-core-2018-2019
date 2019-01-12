@@ -5,7 +5,7 @@ const FLOAT_ERROR: f32 = 0.05;
 pub struct PrintMotor {
     name: String,
     inverted: bool,
-    last: f32
+    last: f32,
 }
 
 impl MotorController for PrintMotor {
@@ -38,7 +38,7 @@ impl PrintMotor {
         PrintMotor {
             name: name.to_string(),
             inverted: false,
-            last: -10.0
+            last: -10.0,
         }
     }
 }

@@ -44,8 +44,9 @@ impl<I> CommandParser<I> for BrakeCommandParser where I: DriverStationController
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::comms::driver_station::ConcreteDriverStationController;
+
+    use super::*;
 
     #[test]
     fn test_valid() {
