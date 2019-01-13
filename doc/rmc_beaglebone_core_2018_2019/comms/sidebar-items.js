@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["driver_station",""],["io",""]],"struct":[["CommsView",""],["RobotCommunicator",""]],"trait":[["CommsController",""],["SendableMessage",""]]});
