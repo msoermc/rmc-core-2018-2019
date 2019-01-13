@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::comms::robot_communicator::CommsController;
+use crate::comms::CommsController;
 use crate::logging::log_data::LogData;
 
 pub trait Command<I>: ToString where I: CommsController {

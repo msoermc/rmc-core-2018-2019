@@ -1,7 +1,7 @@
 use crate::comms::driver_station::commands::create_command_parser;
 use crate::comms::driver_station::DriverStationController;
 use crate::comms::io::IoServerManager;
-use crate::comms::robot_communicator::RobotCommunicator;
+use crate::comms::RobotCommunicator;
 
 pub fn create_driver_station_comms<C, I>(controller: C, io_manager: I) -> RobotCommunicator<C, I>
     where C: DriverStationController, I: IoServerManager

@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::TryRecvError;
 
-use crate::comms::robot_communicator::CommsController;
+use crate::comms::CommsController;
 use crate::comms::SendableMessage;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
