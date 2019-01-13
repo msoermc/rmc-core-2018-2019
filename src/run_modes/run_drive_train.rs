@@ -1,7 +1,7 @@
 use sysfs_gpio::Pin;
 use sysfs_pwm::Pwm;
 
-use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
+use crate::devices::motor_controllers::pwm::PwmMotor;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::robot_map::*;
 use crate::run_modes::run_with_motors;
@@ -17,10 +17,10 @@ pub fn run_drive_train() {
     let rear_right_direction = Pin::new(REAR_RIGHT_DIRECTION);
     let rear_left_direction = Pin::new(REAR_LEFT_DIRECTION);
 
-    let front_right_motor = Box::new(HoverBoardMotor::create(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight).expect("Front right"));
-    let front_left_motor = Box::new(HoverBoardMotor::create(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft).expect("Front left"));
-    let rear_right_motor = Box::new(HoverBoardMotor::create(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight).expect("Rear right"));
-    let rear_left_motor = Box::new(HoverBoardMotor::create(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft).expect("Rear left"));
+    let front_right_motor = Box::new(PwmMotor::create(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight).expect("Front right"));
+    let front_left_motor = Box::new(PwmMotor::create(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft).expect("Front left"));
+    let rear_right_motor = Box::new(PwmMotor::create(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight).expect("Rear right"));
+    let rear_left_motor = Box::new(PwmMotor::create(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft).expect("Rear left"));
 
     let left = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
     let right = MotorGroup::new(vec![front_right_motor, rear_right_motor]);

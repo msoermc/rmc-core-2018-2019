@@ -2,7 +2,7 @@ use crate::comms::SendableMessage;
 use crate::logging::log_data::LogData;
 use crate::robot_map::MotorID;
 
-pub mod hover_board;
+pub mod pwm;
 pub mod test_motor;
 pub mod motor_group;
 pub mod print_motor;

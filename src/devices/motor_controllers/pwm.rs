@@ -11,14 +11,14 @@ use super::MotorController;
 
 const PERIOD_NS: u32 = 20_000;
 
-pub struct HoverBoardMotor {
+pub struct PwmMotor {
     is_inverted: bool,
     id: MotorID,
     pwm: Pwm,
     direction: Pin,
 }
 
-impl MotorController for HoverBoardMotor {
+impl MotorController for PwmMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
@@ -67,7 +67,7 @@ impl MotorController for HoverBoardMotor {
     }
 }
 
-impl HoverBoardMotor {
+impl PwmMotor {
     pub fn create(pwm: Pwm, direction: Pin, id: MotorID) -> Result<Self, LogData> {
         if pwm.export().is_err() {
             Err(LogData::fatal("Failed to export pwm!"))
@@ -84,7 +84,7 @@ impl HoverBoardMotor {
         } else if direction.set_value(0).is_err() {
             Err(LogData::fatal("Failed to set initial pin value!"))
         } else {
-            Ok(HoverBoardMotor {
+            Ok(PwmMotor {
                 is_inverted: false,
                 id,
                 pwm,
@@ -94,7 +94,7 @@ impl HoverBoardMotor {
     }
 }
 
-impl Drop for HoverBoardMotor {
+impl Drop for PwmMotor {
     fn drop(&mut self) {
         self.stop().expect("Failed to stop while dropping motor!");
     }
