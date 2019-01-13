@@ -32,8 +32,8 @@ pub const FRONT_LEFT_DIRECTION: u64 = 60;
 // P8.7
 pub const FRONT_RIGHT_DIRECTION: u64 = 66;
 
-// P8.9
-pub const REAR_LEFT_DIRECTION: u64 = 69;
+// P8.17
+pub const REAR_LEFT_DIRECTION: u64 = 27;
 
 // P8.11
 pub const REAR_RIGHT_DIRECTION: u64 = 45;
