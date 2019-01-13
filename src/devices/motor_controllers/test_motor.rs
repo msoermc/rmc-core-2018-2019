@@ -5,40 +5,37 @@ use super::*;
 pub struct TestMotor {
     inverted: bool,
     speed: f32,
-    test_channel: Sender<TestAction>,
-}
-
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum TestAction {
-    SetSpeed(f32),
-    Stop,
-    Invert,
 }
 
 impl MotorController for TestMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
-        unimplemented!()
+        self.speed = new_speed;
+        Ok(())
     }
 
     fn stop(&mut self) -> Result<(), MotorFailure> {
-        unimplemented!()
+        self.set_speed(0.0)
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        unimplemented!()
+        self.inverted = !self.inverted;
+        self.stop()
     }
 
     fn is_inverted(&self) -> Result<bool, MotorFailure> {
-        unimplemented!()
+        Ok(self.inverted)
     }
 }
 
 impl TestMotor {
-    pub fn new(test_channel: Sender<TestAction>) -> TestMotor {
+    pub fn new() -> TestMotor {
         TestMotor {
             inverted: false,
             speed: 0.0,
-            test_channel,
         }
+    }
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
     }
 }

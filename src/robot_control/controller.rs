@@ -26,21 +26,21 @@ impl Runnable for RobotController {
         if let Ok(message) = self.command_receiver.try_recv() {
             match message {
                 RobotControllerCommand::Drive(drive_command) => {
-                    self.drive_train.drive(drive_command.left_speed, drive_command.right_speed);
+                    self.drive_train.drive(drive_command.left_speed, drive_command.right_speed).unwrap();
                 }
                 RobotControllerCommand::Brake => {
-                    self.drive_train.stop();
+                    self.drive_train.stop().unwrap();
                 }
                 RobotControllerCommand::Enable => {
                     self.drive_train.enable();
                 }
                 RobotControllerCommand::Disable => {
-                    self.drive_train.disable();
+                    self.drive_train.disable().unwrap();
                 }
             }
         }
 
-        self.drive_train.run_cycle();
+        self.drive_train.run_cycle().unwrap();
     }
 }
 
