@@ -1,12 +1,15 @@
 use sysfs_gpio::Pin;
 use sysfs_pwm::Pwm;
 
-use crate::devices::motor_controllers::pwm::PwmMotor;
+use crate::devices::enable_pins;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::devices::motor_controllers::pwm::PwmMotor;
 use crate::robot_map::*;
 use crate::run_modes::run_with_motors;
 
 pub fn run_drive_train() {
+    enable_pins().expect("Failed to enable pins!");
+
     let left_front_pwm = Pwm::new(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER).expect("Front left pwm");
     let left_rear_pwm = Pwm::new(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER).expect("Rear left pwm");
     let right_front_pwm = Pwm::new(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER).expect("Front right pwm");
