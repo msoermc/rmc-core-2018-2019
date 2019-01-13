@@ -30,7 +30,7 @@ impl Runnable for RobotController {
                     self.drive_train.drive(drive_command.left_speed, drive_command.right_speed)
                 }
                 RobotControllerCommand::Brake => {
-                    self.drive_train.stop()
+                    self.drive_train.brake()
                 }
                 RobotControllerCommand::Enable => {
                     self.drive_train.enable();

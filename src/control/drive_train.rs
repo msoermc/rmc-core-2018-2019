@@ -5,6 +5,7 @@ use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorFailure;
 use crate::control::RobotLifeStatus;
 
+/// Manages and controls the drive train.
 pub struct DriveTrain {
     is_enabled: bool,
     left: MotorGroup,
@@ -22,6 +23,7 @@ impl DriveTrain {
         }
     }
 
+    /// Runs a cycle of the drive train, instructing all motors to do what they did last time.
     pub fn run_cycle(&mut self) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
 
@@ -29,7 +31,7 @@ impl DriveTrain {
             if let Err(e) = &mut self.maintain_last() {
                 errors.append(e);
             }
-        } else if let Err(e) = &mut self.stop() {
+        } else if let Err(e) = &mut self.brake() {
             errors.append(e);
         }
 
@@ -40,6 +42,7 @@ impl DriveTrain {
         }
     }
 
+    /// Drives the robot at the supplied speeds.
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
         if let Err(e) = &mut self.left.set_speed(left_speed) {
@@ -57,7 +60,8 @@ impl DriveTrain {
         }
     }
 
-    pub fn stop(&mut self) -> Result<(), Vec<MotorFailure>> {
+    /// Causes the robot to brake.
+    pub fn brake(&mut self) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
         if let Err(e) = &mut self.left.stop() {
             errors.append(e);
@@ -74,13 +78,15 @@ impl DriveTrain {
         }
     }
 
+    /// Enables the `DriveTrain`.
     pub fn enable(&mut self) {
         self.is_enabled = true;
     }
 
+    /// Disables the `DriveTrain`.
     pub fn disable(&mut self) -> Result<(), Vec<MotorFailure>> {
         self.is_enabled = false;
-        self.stop()
+        self.brake()
     }
 
     fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
