@@ -12,13 +12,13 @@ use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
 use crate::logging::log_manager::LogManager;
 use crate::logging::log_sender::LogSender;
-use crate::robot_control::controller::RobotController;
-use crate::robot_control::drive_train::DriveTrain;
-use crate::robot_control::RobotLifeStatus;
-use crate::robot_control::RobotView;
 use crate::robot_map::ADDRESS;
 use crate::robot_map::LOG_PATH;
 use crate::robot_map::PORT;
+use crate::control::RobotLifeStatus;
+use crate::control::RobotView;
+use crate::control::drive_train::DriveTrain;
+use crate::control::controller::RobotController;
 
 pub mod demo_mode;
 pub mod run_drive_train;

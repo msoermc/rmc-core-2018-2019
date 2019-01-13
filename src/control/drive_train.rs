@@ -3,7 +3,7 @@ use std::sync::RwLock;
 
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorFailure;
-use crate::robot_control::RobotLifeStatus;
+use crate::control::RobotLifeStatus;
 
 pub struct DriveTrain {
     is_enabled: bool,

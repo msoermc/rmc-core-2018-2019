@@ -7,7 +7,7 @@ use crate::comms::SendableMessage;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
-use crate::robot_control::RobotView;
+use crate::control::RobotView;
 
 pub mod factories;
 mod commands;

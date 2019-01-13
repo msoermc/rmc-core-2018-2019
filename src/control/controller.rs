@@ -6,9 +6,9 @@ use crate::comms::CommsView;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
-use crate::robot_control::drive_train::DriveTrain;
-use crate::robot_control::RobotControllerCommand;
-use crate::robot_control::RobotLifeStatus;
+use crate::control::RobotControllerCommand;
+use crate::control::drive_train::DriveTrain;
+use crate::control::RobotLifeStatus;
 
 pub struct RobotController {
     log_view: LogSender,
