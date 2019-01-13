@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use crate::comms::CommsView;
 use crate::framework::Runnable;
 use crate::logging::log_sender::LogSender;
+use crate::logging::LogAccepter;
 use crate::robot_control::drive_train::DriveTrain;
 use crate::robot_control::RobotControllerCommand;
 use crate::robot_control::RobotLifeStatus;
@@ -24,23 +25,34 @@ impl Runnable for RobotController {
 
     fn run(&mut self) {
         if let Ok(message) = self.command_receiver.try_recv() {
-            match message {
+            let res = match message {
                 RobotControllerCommand::Drive(drive_command) => {
-                    self.drive_train.drive(drive_command.left_speed, drive_command.right_speed).unwrap();
+                    self.drive_train.drive(drive_command.left_speed, drive_command.right_speed)
                 }
                 RobotControllerCommand::Brake => {
-                    self.drive_train.stop().unwrap();
+                    self.drive_train.stop()
                 }
                 RobotControllerCommand::Enable => {
                     self.drive_train.enable();
+                    Ok(())
                 }
                 RobotControllerCommand::Disable => {
-                    self.drive_train.disable().unwrap();
+                    self.drive_train.disable()
+                }
+            };
+
+            if let Err(errors) = res {
+                for error in errors {
+                    self.log_view.accept_log(error.get_log())
                 }
             }
         }
 
-        self.drive_train.run_cycle().unwrap();
+        if let Err(errors) = self.drive_train.run_cycle() {
+            for error in errors {
+                self.log_view.accept_log(error.get_log())
+            }
+        }
     }
 }
 

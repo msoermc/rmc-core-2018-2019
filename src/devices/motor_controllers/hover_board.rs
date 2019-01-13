@@ -22,7 +22,12 @@ impl MotorController for HoverBoardMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
-            self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
+            if self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32).is_err() {
+                self.pwm.export()?;
+                self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
+            } else {
+                Ok(())
+            }
         };
 
         let set_direction = || {

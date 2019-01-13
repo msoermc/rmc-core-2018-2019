@@ -45,19 +45,19 @@ pub struct MotorFailure {
 }
 
 impl MotorFailure {
-    fn new(motor: MotorID, kind: MotorFailureKind, log: LogData) -> Self {
+    pub fn new(motor: MotorID, kind: MotorFailureKind, log: LogData) -> Self {
         MotorFailure { motor, kind, log }
     }
 
-    fn get_motor(&self) -> MotorID {
+    pub fn get_motor(&self) -> MotorID {
         self.motor
     }
 
-    fn get_log(&self) -> LogData {
+    pub fn get_log(&self) -> LogData {
         self.log.clone()
     }
 
-    fn get_kind(&self) -> MotorFailureKind {
+    pub fn get_kind(&self) -> MotorFailureKind {
         self.kind.clone()
     }
 }
