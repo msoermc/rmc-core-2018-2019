@@ -4,13 +4,18 @@ use std::sync::mpsc::TryRecvError;
 
 use crate::comms::CommsController;
 use crate::comms::SendableMessage;
+use crate::control::RobotView;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
-use crate::control::RobotView;
 
+/// Contains factories for creating the Driver Station Comms
 pub mod factories;
 mod commands;
+
+pub trait DriverStationController: CommsController {
+    fn get_view(&self) -> &RobotView;
+}
 
 pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
@@ -72,8 +77,4 @@ impl ConcreteDriverStationController {
             message_sending_queue,
         }
     }
-}
-
-pub trait DriverStationController: CommsController {
-    fn get_view(&self) -> &RobotView;
 }
