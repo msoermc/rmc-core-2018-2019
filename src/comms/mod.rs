@@ -62,8 +62,9 @@ impl CommsView {
 }
 
 
-impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
-    pub fn new(parser: MessageParser<R>, robot_interface: R, io: I) -> Self {
+impl<Controller, Io> RobotCommunicator<Controller, Io> where Io: IoServerManager, Controller: CommsController {
+    /// Constructs a new RobotCommunicator from the supplied `IoServerManager`, `MessageParser` and `CommsController`.
+    pub fn new(parser: MessageParser<Controller>, robot_interface: Controller, io: Io) -> Self {
         RobotCommunicator {
             parser,
             controller: robot_interface,
@@ -71,12 +72,14 @@ impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController 
         }
     }
 
+    /// Checks the statuses of any remote connections.
     fn check_connection_statuses(&mut self) {
         if let Err(connection_status) = self.io.check_connections() {
             self.controller.accept_log(connection_status);
         }
     }
 
+    /// Receives and handles all messages received from remote devices.
     fn receive_messages(&mut self) {
         let messages_results = self.io.receive_next_lines();
 
@@ -93,6 +96,7 @@ impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController 
         }
     }
 
+    /// Sends all sendable messages in it's sending queue to the remote hosts.
     fn send_messages(&mut self) {
         if let Some(next_message) = self.controller.get_next_requested_send() {
             let encoding = next_message.encode();
@@ -113,6 +117,7 @@ impl<R, I> Runnable for RobotCommunicator<R, I> where I: IoServerManager, R: Com
     }
 }
 
+/// Returns back a LogData for a message which had the wrong number of args.
 fn get_wrong_arg_count_log(message: &[&str], expected: u64, actual: u64) -> LogData {
     let message = rebuild_message(message);
     let description = format!("Received wrong arg count to message '{}'. Expected {}, got {}!",
