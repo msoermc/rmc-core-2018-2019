@@ -11,26 +11,35 @@ pub mod driver_station;
 pub mod io;
 mod parsing;
 
+/// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
 pub trait SendableMessage: Send {
     fn encode(&self) -> String;
 }
 
+/// A `CommsController` is an object with methods that are called to run the Comms by the `RobotCommunicator`.
 pub trait CommsController: LogAccepter {
     fn get_next_requested_send(&self) -> Option<Box<SendableMessage>>;
 }
 
+/// The `CommsView` is a view into a `RobotCommunicator` that other threads/objects
+/// can use to request that messages be sent.
 #[derive(Clone, Debug)]
 pub struct CommsView {
     channel: Sender<Box<SendableMessage>>,
 }
 
-pub struct RobotCommunicator<R, I> where I: IoServerManager, R: CommsController {
-    parser: MessageParser<R>,
-    robot_interface: R,
+/// A `RobotCommunicator` is a complete Comms system which can be run.
+/// It has a `CommsController` that it owns and a driver that it owns for io purposes.
+/// The `C` type parameter is the type of the `CommsController`.
+/// The `I` type parameter is the type of the `IoServerManager`.
+pub struct RobotCommunicator<C, I> where I: IoServerManager, C: CommsController {
+    parser: MessageParser<C>,
+    controller: C,
     io: I,
 }
 
 impl CommsView {
+    /// Sends a message to the remote receiver and returns `Err(LogData)` if the channel hangs up.
     pub fn send_message(&self, message: Box<SendableMessage>) -> Result<(), LogData> {
         match self.channel.send(message) {
             Ok(_) => Ok(()),
@@ -38,6 +47,7 @@ impl CommsView {
         }
     }
 
+    /// Constructs a new `CommsView`
     pub fn new(channel: Sender<Box<SendableMessage>>) -> Self {
         Self {
             channel
@@ -50,14 +60,14 @@ impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController 
     pub fn new(parser: MessageParser<R>, robot_interface: R, io: I) -> Self {
         RobotCommunicator {
             parser,
-            robot_interface,
+            controller: robot_interface,
             io,
         }
     }
 
     fn check_connection_statuses(&mut self) {
         if let Err(connection_status) = self.io.check_connections() {
-            self.robot_interface.accept_log(connection_status);
+            self.controller.accept_log(connection_status);
         }
     }
 
@@ -68,17 +78,17 @@ impl<R, I> RobotCommunicator<R, I> where I: IoServerManager, R: CommsController 
             match message_result {
                 Ok(message) => {
                     match self.parser.parse(&message) {
-                        Ok(command) => command.execute(&self.robot_interface),
-                        Err(log) => self.robot_interface.accept_log(log),
+                        Ok(command) => command.execute(&self.controller),
+                        Err(log) => self.controller.accept_log(log),
                     }
                 }
-                Err(log) => self.robot_interface.accept_log(log),
+                Err(log) => self.controller.accept_log(log),
             }
         }
     }
 
     fn send_messages(&mut self) {
-        if let Some(next_message) = self.robot_interface.get_next_requested_send() {
+        if let Some(next_message) = self.controller.get_next_requested_send() {
             let encoding = next_message.encode();
             self.io.send_line(encoding);
         }
