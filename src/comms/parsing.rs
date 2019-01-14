@@ -28,7 +28,7 @@ pub struct MessageParser<I> where I: CommsController {
 
 impl<I> MessageParser<I> where I: CommsController {
     /// Parses a message into a command using the stored `CommandParser` objects.
-    /// Returns `Err(LogData)` if
+    /// Returns `Err(LogData)` if the command is invalid.
     pub fn parse(&self, message: &str) -> Result<Box<Command<I>>, LogData> {
         let split_message: Vec<&str> = message.split_whitespace().map(str::trim).collect();
 
@@ -45,6 +45,7 @@ impl<I> MessageParser<I> where I: CommsController {
         }
     }
 
+    /// Dynamically adds a new reader to the `MessageParser`.
     pub fn add_reader(&mut self, id: &str, reader: Box<CommandParser<I>>) {
         if self.readers.insert(id.to_string(), reader).is_some() {
             panic!("Attempted to add duplicate reader!");
