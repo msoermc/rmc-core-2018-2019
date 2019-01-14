@@ -11,8 +11,11 @@ use crate::logging::LogAccepter;
 
 /// Contains factories for creating the Driver Station Comms
 pub mod factories;
+
+/// Contains `Command` and `CommandParser` objects for the Driver Station Comms
 mod commands;
 
+///
 pub trait DriverStationController: CommsController {
     fn get_view(&self) -> &RobotView;
 }
