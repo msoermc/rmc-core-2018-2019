@@ -7,8 +7,14 @@ use crate::framework::Runnable;
 use crate::logging::log_data::LogData;
 use crate::logging::LogAccepter;
 
+/// Contains the implementation for communicating with the Driver Station.
+/// Also contains factory methods for instantiating that implementation.
 pub mod driver_station;
+
+/// Contains drivers for communicating with over different protocols or interfaces.
 pub mod io;
+
+/// Contains code related to parsing.
 mod parsing;
 
 /// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
