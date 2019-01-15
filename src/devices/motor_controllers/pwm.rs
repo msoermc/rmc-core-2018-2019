@@ -71,25 +71,27 @@ impl PwmMotor {
     pub fn create(pwm: Pwm, direction: Pin, id: MotorID) -> Result<Self, LogData> {
         if pwm.export().is_err() {
             Err(LogData::fatal("Failed to export pwm!"))
-        } else if direction.export().is_err() {
-            Err(LogData::fatal("Failed to export pin!"))
-        } else if pwm.set_duty_cycle_ns(0).is_err() {
-            Err(LogData::fatal("Failed to set the initial duty cycle!"))
-        } else if pwm.set_period_ns(PERIOD_NS).is_err() {
-            Err(LogData::fatal("Failed to set the initial period!"))
-        } else if pwm.enable(true).is_err() {
-            Err(LogData::fatal("Failed to enable initially!"))
-        } else if direction.set_direction(Direction::Out).is_err() {
-            Err(LogData::fatal("Failed to set initial direction!"))
-        } else if direction.set_value(0).is_err() {
-            Err(LogData::fatal("Failed to set initial pin value!"))
         } else {
-            Ok(PwmMotor {
-                is_inverted: false,
-                id,
-                pwm,
-                direction,
-            })
+            if direction.export().is_err() {
+                Err(LogData::fatal("Failed to export pin!"))
+            } else if pwm.enable(true).is_err() {
+                Err(LogData::fatal("Failed to enable initially!"))
+            } else if pwm.set_period_ns(PERIOD_NS).is_err() {
+                Err(LogData::fatal("Failed to set the initial period!"))
+            } else if pwm.set_duty_cycle_ns(0).is_err() {
+                Err(LogData::fatal("Failed to set the initial duty cycle!"))
+            } else if direction.set_direction(Direction::Out).is_err() {
+                Err(LogData::fatal("Failed to set initial direction!"))
+            } else if direction.set_value(0).is_err() {
+                Err(LogData::fatal("Failed to set initial pin value!"))
+            } else {
+                Ok(PwmMotor {
+                    is_inverted: false,
+                    id,
+                    pwm,
+                    direction,
+                })
+            }
         }
     }
 }
