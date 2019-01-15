@@ -2,7 +2,6 @@ use crate::comms::driver_station::DriverStationController;
 use crate::comms::get_wrong_arg_count_log;
 use crate::comms::parsing::Command;
 use crate::comms::parsing::CommandParser;
-use crate::drive_train::DriveTrainCommand;
 use crate::logging::log_data::LogData;
 
 pub struct ReviveCommand {}
@@ -11,13 +10,13 @@ pub struct ReviveCommandParser {}
 
 impl ToString for ReviveCommand {
     fn to_string(&self) -> String {
-        format!("revive")
+        "revive".to_string()
     }
 }
 
 impl<I> Command<I> for ReviveCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
-        interface.revive();
+        interface.get_view().revive();
     }
 }
 

@@ -1,21 +1,24 @@
 use std::str::FromStr;
-use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
-use std::sync::atomic::Ordering;
 
-use crate::comms::robot_communicator::CommsController;
+use crate::comms::CommsController;
 use crate::comms::SendableMessage;
-use crate::drive_train::DriveTrainCommand;
-use crate::framework::interfaces::TankDriveInterface;
+use crate::control::RobotView;
 use crate::logging::log_data::LogData;
 use crate::logging::log_sender::LogSender;
 use crate::logging::LogAccepter;
 
+/// Contains factories for creating the Driver Station Comms
 pub mod factories;
+
+/// Contains `Command` and `CommandParser` objects for the Driver Station Comms
 mod commands;
+
+///
+pub trait DriverStationController: CommsController {
+    fn get_view(&self) -> &RobotView;
+}
 
 pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
@@ -41,10 +44,9 @@ impl FromStr for SubsystemIdentifier {
 }
 
 pub struct ConcreteDriverStationController {
-    drive_interface: Box<TankDriveInterface>,
+    view: RobotView,
     log_sender: LogSender,
     message_sending_queue: Receiver<Box<SendableMessage>>,
-    life_lock: Arc<AtomicBool>,
 }
 
 impl CommsController for ConcreteDriverStationController {
@@ -64,34 +66,18 @@ impl LogAccepter for ConcreteDriverStationController {
 }
 
 impl DriverStationController for ConcreteDriverStationController {
-    fn get_drive_interface(&self) -> &Box<TankDriveInterface> {
-        &self.drive_interface
-    }
-
-    fn kill(&self) {
-        self.life_lock.store(false, Ordering::SeqCst)
-    }
-
-    fn revive(&self) {
-        self.life_lock.store(true, Ordering::SeqCst)
+    fn get_view(&self) -> &RobotView {
+        &self.view
     }
 }
 
 impl ConcreteDriverStationController {
-    pub fn new(drive_interface: Box<TankDriveInterface>, log_sender: LogSender,
-               message_sending_queue: Receiver<Box<SendableMessage>>, life_lock: Arc<AtomicBool>) -> Self
+    pub fn new(view: RobotView, log_sender: LogSender, message_sending_queue: Receiver<Box<SendableMessage>>) -> Self
     {
         ConcreteDriverStationController {
-            drive_interface,
+            view,
             log_sender,
             message_sending_queue,
-            life_lock,
         }
     }
-}
-
-pub trait DriverStationController: CommsController {
-    fn get_drive_interface(&self) -> &Box<dyn TankDriveInterface>;
-    fn kill(&self);
-    fn revive(&self);
 }

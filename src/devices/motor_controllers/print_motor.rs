@@ -1,26 +1,35 @@
 use super::*;
 
+const FLOAT_ERROR: f32 = 0.05;
+
 pub struct PrintMotor {
     name: String,
     inverted: bool,
+    last: f32,
 }
 
 impl MotorController for PrintMotor {
-    fn set_speed(&mut self, new_speed: f32) {
-        println!("{}: Set speed to {}!", self.name, new_speed);
+    fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
+        if self.last - new_speed < FLOAT_ERROR && new_speed - self.last > FLOAT_ERROR {
+            println!("{}: -> {}", self.name, new_speed);
+            self.last = new_speed;
+        }
+        Ok(())
     }
 
-    fn stop(&mut self) {
-        println!("{}: Stop!", self.name);
+    fn stop(&mut self) -> Result<(), MotorFailure> {
+        println!("{}: STOP", self.name);
+        Ok(())
     }
 
-    fn invert(&mut self) {
+    fn invert(&mut self) -> Result<(), MotorFailure> {
+        println!("{}: INVERT", self.name);
         self.inverted = !self.inverted;
-        println!("{}: Invert!", self.name);
+        Ok(())
     }
 
-    fn is_inverted(&self) -> bool {
-        self.inverted
+    fn is_inverted(&self) -> Result<bool, MotorFailure> {
+        Ok(self.inverted)
     }
 }
 
@@ -29,6 +38,7 @@ impl PrintMotor {
         PrintMotor {
             name: name.to_string(),
             inverted: false,
+            last: -10.0,
         }
     }
 }
