@@ -15,12 +15,11 @@ pub mod factories;
 /// Contains `Command` and `CommandParser` objects for the Driver Station Comms
 mod commands;
 
-/// Contains a view into the robot which is used to handle messages from the comms.
+///
 pub trait DriverStationController: CommsController {
     fn get_view(&self) -> &RobotView;
 }
 
-/// Used to identify subsystems sent through the protocol.
 pub enum SubsystemIdentifier {
     DriveTrainIdentifier,
 }
@@ -44,7 +43,6 @@ impl FromStr for SubsystemIdentifier {
     }
 }
 
-/// Concrete implementation of the DriverStationController
 pub struct ConcreteDriverStationController {
     view: RobotView,
     log_sender: LogSender,
