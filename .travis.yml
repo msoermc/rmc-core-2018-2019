@@ -19,18 +19,9 @@ addons:
       - gcc
       - binutils-dev
       - libiberty-dev
+      - kcov
 
 after_success: |
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz &&
-  cd kcov-master &&
-  mkdir build &&
-  cd build &&
-  cmake .. &&
-  make &&
-  make install DESTDIR=../../kcov-build &&
-  cd ../.. &&
-  rm -rf kcov-master &&
-  kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/rmc-core
+  kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/rmc-core &&
   bash <(curl -s https://codecov.io/bash) &&
   echo "Uploaded code coverage"
