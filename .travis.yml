@@ -31,6 +31,7 @@ after_success: |
     ninja &&
     # puts kcov in the default location usually /usr/local/bin/kcov &&
     sudo ninja install &&
-    kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/rmc-core &&
+    cd
+    kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/deps/rmc-core &&
     bash <(curl -s https://codecov.io/bash) &&
     echo "Uploaded code coverage"
