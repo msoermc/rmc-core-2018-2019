@@ -31,7 +31,7 @@ after_success: |
     ninja &&
     # puts kcov in the default location usually /usr/local/bin/kcov &&
     sudo ninja install &&
-    cd
+    cd &&
     ls &&
     pwd &&
     kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/deps/rmc-core &&
