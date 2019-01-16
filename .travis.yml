@@ -19,6 +19,7 @@ addons:
       - gcc
       - binutils-dev
       - libiberty-dev
+      - ninja-build
 
 after_success: |
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
