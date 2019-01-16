@@ -26,10 +26,10 @@ after_success: |
     cd kcov-master &&
     mkdir build &&
     cd build &&
-    cmake .. &&
-    make &&
+    cmake .. -GNinja &&
+    ninja &&
     # puts kcov in the default location usually /usr/local/bin/kcov &&
-    sudo make install &&
+    sudo ninja install &&
     kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/rmc-core &&
     bash <(curl -s https://codecov.io/bash) &&
     echo "Uploaded code coverage"
