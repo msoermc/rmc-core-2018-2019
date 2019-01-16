@@ -3,4 +3,4 @@
 # MSOE NASA RMC Robot Core
 
 ## Links
-[API Docs](doc/rmc_core/index.html)
+[API Docs](doc/rmc_beaglebone_core_2018_2019/index.html)
