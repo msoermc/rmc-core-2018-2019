@@ -1,15 +1,17 @@
-use std::io::BufWriter;
-use std::fs::File;
-use std::sync::mpsc::Receiver;
-use crate::logging::log_data::LogData;
-use crate::framework::Runnable;
-use std::sync::mpsc::TryRecvError;
-use std::io::Write;
-use std::fs::OpenOptions;
 use std::fs::create_dir_all;
-use chrono::Utc;
-use std::path::Path;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::io::BufWriter;
 use std::io::Result;
+use std::io::Write;
+use std::path::Path;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::TryRecvError;
+
+use chrono::Utc;
+
+use crate::framework::Runnable;
+use crate::logging::log_data::LogData;
 use crate::logging::LogAccepter;
 
 pub struct LogManager {
@@ -25,7 +27,7 @@ impl Runnable for LogManager {
         // Do nothing
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self) {
         match self.logging_queue.try_recv() {
             Ok(log) => {
                 for accepter in &mut self.downstream {
@@ -42,8 +44,6 @@ impl Runnable for LogManager {
         if self.counter % self.flush_period == 0 {
             self.writer.flush().expect("Could not flush logger!");
         }
-
-        true
     }
 }
 

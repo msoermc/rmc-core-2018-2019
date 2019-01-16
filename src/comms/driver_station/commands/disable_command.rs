@@ -3,7 +3,6 @@ use crate::comms::driver_station::SubsystemIdentifier;
 use crate::comms::get_wrong_arg_count_log;
 use crate::comms::parsing::Command;
 use crate::comms::parsing::CommandParser;
-use crate::drive_train::DriveTrainCommand;
 use crate::logging::log_data::LogData;
 
 pub struct DisableCommand {
@@ -22,8 +21,8 @@ impl<I> Command<I> for DisableCommand where I: DriverStationController {
     fn execute(&self, interface: &I) {
         match self.subsystem {
             SubsystemIdentifier::DriveTrainIdentifier =>
-                interface.get_drive_interface().disable().unwrap(),
-        }
+                interface.get_view().disable_drive_train(),
+        };
     }
 }
 
