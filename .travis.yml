@@ -32,6 +32,6 @@ after_success: |
   sudo ninja install &&
   cd ../.. &&
   rm -rf kcov-master &&
-  kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/<executable name>-* &&
+  kcov --exclude-pattern=/.cargo,/usr/lib --verify target/cov target/debug/rmc-core-* &&
   bash <(curl -s https://codecov.io/bash) &&
   echo "Uploaded code coverage"
