@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TcpServerManager","An object used to take care of the TCP IO and abstract other objects from those details."]]});
