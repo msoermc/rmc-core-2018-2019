@@ -66,14 +66,20 @@ mod tests {
     fn test_set_speed() {
         let speed_0 = Arc::new(RwLock::new(0.0));
         let inverted_0 = Arc::new(RwLock::new(false));
-        let motor_0 = TestMotor::new(s0.clone(), i0.clone());
+        let motor_0 = TestMotor::new(speed_0.clone(), inverted_0.clone());
 
         let speed_1 = Arc::new(RwLock::new(0.0));
         let inverted_1 = Arc::new(RwLock::new(false));
-        let motor_1 = TestMotor::new(s0.clone(), i0.clone());
+        let motor_1 = TestMotor::new(speed_1.clone(), inverted_1.clone());
 
-        let group = MotorGroup::new(vec![Box::new(motor_0), Box::new(motor_1)]);
+        let mut group = MotorGroup::new(vec![Box::new(motor_0), Box::new(motor_1)]);
 
+        group.set_speed(1.0).unwrap();
 
+        assert_eq!(1.0, *speed_0.read().unwrap());
+        assert_eq!(1.0, *speed_1.read().unwrap());
+
+        assert_eq!(false, *inverted_0.read().unwrap());
+        assert_eq!(false, *inverted_1.read().unwrap());
     }
 }
