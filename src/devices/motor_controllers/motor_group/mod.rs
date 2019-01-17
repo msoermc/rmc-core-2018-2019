@@ -1,9 +1,6 @@
 use crate::devices::motor_controllers::MotorController;
 use crate::devices::motor_controllers::MotorFailure;
 
-#[cfg(test)]
-mod tests;
-
 pub struct MotorGroup {
     is_inverted: bool,
     motors: Vec<Box<MotorController>>,
@@ -56,4 +53,10 @@ impl MotorGroup {
             Err(results)
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
 }
