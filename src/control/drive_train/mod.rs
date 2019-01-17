@@ -5,6 +5,9 @@ use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorFailure;
 use crate::control::RobotLifeStatus;
 
+#[cfg(test)]
+mod tests;
+
 /// Manages and controls the drive train.
 pub struct DriveTrain {
     is_enabled: bool,
