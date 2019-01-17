@@ -3,7 +3,7 @@ use std::sync::RwLock;
 use std::sync::Arc;
 
 pub struct TestMotor {
-    inverted: bool,
+    inverted: Arc<RwLock<bool>>,
     speed: Arc<RwLock<f32>>,
 }
 
@@ -18,20 +18,21 @@ impl MotorController for TestMotor {
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        self.inverted = !self.inverted;
+        let mut inv = *self.inverted.write().unwrap();
+        inv = !inv;
         self.stop()
     }
 
     fn is_inverted(&self) -> Result<bool, MotorFailure> {
-        Ok(self.inverted)
+        Ok(self.inverted.read().)
     }
 }
 
 impl TestMotor {
-    pub fn new() -> TestMotor {
+    pub fn new(speed: Arc<RwLock<f32>>, inverted: Arc<RwLock<bool>>) -> TestMotor {
         TestMotor {
-            inverted: false,
-            speed: Arc::new(RwLock::new(0.0)),
+            inverted,
+            speed,
         }
     }
 
