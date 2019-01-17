@@ -58,5 +58,22 @@ impl MotorGroup {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
+    use std::sync::RwLock;
+    use crate::devices::motor_controllers::test_motor::TestMotor;
 
+    #[test]
+    fn test_set_speed() {
+        let speed_0 = Arc::new(RwLock::new(0.0));
+        let inverted_0 = Arc::new(RwLock::new(false));
+        let motor_0 = TestMotor::new(s0.clone(), i0.clone());
+
+        let speed_1 = Arc::new(RwLock::new(0.0));
+        let inverted_1 = Arc::new(RwLock::new(false));
+        let motor_1 = TestMotor::new(s0.clone(), i0.clone());
+
+        let group = MotorGroup::new(vec![Box::new(motor_0), Box::new(motor_1)]);
+
+
+    }
 }

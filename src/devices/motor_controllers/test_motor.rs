@@ -24,7 +24,7 @@ impl MotorController for TestMotor {
     }
 
     fn is_inverted(&self) -> Result<bool, MotorFailure> {
-        Ok(self.inverted.read().)
+        Ok(*self.inverted.read().unwrap())
     }
 }
 
