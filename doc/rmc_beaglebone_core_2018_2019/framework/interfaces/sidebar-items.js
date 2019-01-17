@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["CommunicationsInterface",""],["EnablingInterface",""],["RobotInterface",""],["TankDriveInterface",""]]});

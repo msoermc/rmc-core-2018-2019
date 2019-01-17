@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["rebuild_message",""]],"struct":[["MessageParser",""]],"trait":[["Command",""],["CommandParser",""]]});

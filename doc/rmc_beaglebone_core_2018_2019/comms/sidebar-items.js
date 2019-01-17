@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["get_wrong_arg_count_log",""]],"mod":[["driver_station",""],["io",""],["parsing",""],["robot_communicator",""]],"struct":[["ConcreteCommsInterface",""]],"trait":[["SendableMessage",""]]});
