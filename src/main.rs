@@ -2,20 +2,21 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
-extern crate rocket;
-#[macro_use]
 extern crate log;
+#[macro_use]
+extern crate rocket;
 #[macro_use(slog_o, slog_kv)]
 extern crate slog;
-extern crate slog_stdlog;
-extern crate slog_scope;
-extern crate slog_term;
 extern crate slog_async;
+extern crate slog_scope;
+extern crate slog_stdlog;
+extern crate slog_term;
 
+
+use slog::Drain;
 
 use crate::run_modes::demo_mode::run_demo_mode;
 use crate::run_modes::run_drive_train::run_drive_train;
-use slog::Drain;
 
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
@@ -43,7 +44,14 @@ pub mod control;
 pub mod robot_map;
 
 fn main() {
-    setup_logger();
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
+    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
+
+    let _scope_guard = slog_scope::set_global_logger(logger);
+    let _log_guard = slog_stdlog::init().unwrap();
+    info!("standard logging redirected to slog");
     run_demo_mode();
 }
 
@@ -55,5 +63,5 @@ fn setup_logger() {
 
     let _scope_guard = slog_scope::set_global_logger(logger);
     let _log_guard = slog_stdlog::init().unwrap();
-    info!("Launched logger");
+    info!("standard logging redirected to slog");
 }
