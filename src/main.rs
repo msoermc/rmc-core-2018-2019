@@ -36,5 +36,5 @@ pub mod logging;
 pub mod robot_map;
 
 fn main() {
-    run_drive_train();
+    run_demo_mode();
 }

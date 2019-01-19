@@ -1,3 +1,5 @@
+use std::path::Path;
+use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
@@ -6,6 +8,7 @@ use std::sync::Mutex;
 use std::sync::RwLock;
 
 use rocket::http::Status;
+use rocket::response::NamedFile;
 use rocket::State;
 
 use crate::control::DriveCommandMessage;
@@ -30,7 +33,7 @@ impl CommsView {
     }
 
     /// Constructs a new `CommsView`
-    pub fn new(channel: Sender<Box<SendableMessage>>) -> Self {
+    fn new(channel: Sender<Box<SendableMessage>>) -> Self {
         Self {
             channel
         }
@@ -61,7 +64,9 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
                               handle_disable_drive,
                               handle_kill,
                               handle_revive,
-                              handle_brake])
+                              handle_brake,
+                              index,
+                              files])
         .launch();
 
     comms_view
@@ -103,6 +108,15 @@ fn handle_kill(state: State<CommsState>) -> Status {
     }
 }
 
+#[post("/brake")]
+fn handle_brake(state: State<CommsState>) -> Status {
+    if state.robot_controller.lock().unwrap().brake().is_err() {
+        Status::BadRequest
+    } else {
+        Status::Ok
+    }
+}
+
 #[post("/revive")]
 fn handle_revive(state: State<CommsState>) -> Status {
     if state.robot_controller.lock().unwrap().revive().is_err() {
@@ -112,11 +126,12 @@ fn handle_revive(state: State<CommsState>) -> Status {
     }
 }
 
-#[post("/brake")]
-fn handle_brake(state: State<CommsState>) -> Status {
-    if state.robot_controller.lock().unwrap().brake().is_err() {
-        Status::BadRequest
-    } else {
-        Status::Ok
-    }
+#[get("/")]
+fn index() -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join("index.html")).ok()
+}
+
+#[get("/static/<file..>")]
+fn files(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(file)).ok()
 }

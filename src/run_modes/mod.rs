@@ -15,13 +15,13 @@ use crate::control::RobotLifeStatus;
 use crate::control::RobotView;
 use crate::control::drive_train::DriveTrain;
 use crate::control::controller::RobotController;
+use crate::comms;
 
 pub mod demo_mode;
 pub mod run_drive_train;
 
 fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     // Create channels
-    let (ds_sender, ds_receiver) = channel();
     let (controller_sender, controller_receiver) = channel();
     let (log_sender, log_receiver) = channel();
 
@@ -34,8 +34,8 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     // Create RobotView
     let robot_view = RobotView::new(controller_sender, robot_status.clone());
 
-    // Create DS View
-    let comms_view = CommsView::new(ds_sender);
+    // Create comms
+    let comms_view = comms::launch(robot_view);
 
     // Create DriveTrain
     let drive_train = DriveTrain::new(left_group, right_group, robot_status.clone());
