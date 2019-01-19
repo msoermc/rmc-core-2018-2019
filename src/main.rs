@@ -5,7 +5,7 @@
 extern crate log;
 #[macro_use]
 extern crate rocket;
-#[macro_use(slog_o, slog_kv)]
+#[macro_use(slog_o, slog_kv, o)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_scope;
@@ -13,8 +13,16 @@ extern crate slog_stdlog;
 extern crate slog_term;
 
 
-use slog::Drain;
+use std::fs::OpenOptions;
 
+use slog::Drain;
+use slog::Duplicate;
+use slog::Fuse;
+use slog::Logger;
+use slog::SendSyncUnwindSafeDrain;
+use slog_async::Async;
+
+use crate::robot_map::*;
 use crate::run_modes::demo_mode::run_demo_mode;
 use crate::run_modes::run_drive_train::run_drive_train;
 
@@ -44,24 +52,26 @@ pub mod control;
 pub mod robot_map;
 
 fn main() {
-    let decorator = slog_term::TermDecorator::new().build();
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_async::Async::new(drain).build().fuse();
-    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
+    let term_decorator = slog_term::TermDecorator::new().build();
+    let term_drain = slog_term::FullFormat::new(term_decorator).build().fuse();
+    let term_drain = slog_async::Async::new(term_drain).build().fuse();
 
-    let _scope_guard = slog_scope::set_global_logger(logger);
-    let _log_guard = slog_stdlog::init().unwrap();
+    let file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(true)
+        .open(LOG_PATH)
+        .unwrap();
+
+    let file_decorator = slog_term::PlainDecorator::new(file);
+    let file_drain = slog_term::FullFormat::new(file_decorator).build().fuse();
+    let file_drain = slog_async::Async::new(file_drain).build().fuse();
+
+    let broadcaster = slog::Duplicate::new(term_drain, file_drain);
+
+    let _logger = slog::Logger::root(broadcaster.fuse(), o!());
+
     info!("standard logging redirected to slog");
+
     run_demo_mode();
-}
-
-fn setup_logger() {
-    let decorator = slog_term::TermDecorator::new().build();
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_async::Async::new(drain).build().fuse();
-    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
-
-    let _scope_guard = slog_scope::set_global_logger(logger);
-    let _log_guard = slog_stdlog::init().unwrap();
-    info!("standard logging redirected to slog");
 }
