@@ -73,6 +73,7 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
 
 #[post("/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<CommsState>) -> Status {
+    println!("Drive message: [{}, {}]", left, right);
     if state.robot_controller.lock().unwrap().drive(left, right).is_err() {
         Status::BadRequest
     } else {
