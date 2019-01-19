@@ -57,4 +57,4 @@ pub const PORT: u16 = 2401;
 
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.
-pub const LOG_PATH: &str = "./rmc-logs/";
+pub const LOG_PATH: &str = "./rmc.log";
