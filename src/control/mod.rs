@@ -114,7 +114,7 @@ pub struct DriveCommandMessage {
 
 impl DriveCommandMessage {
     /// Constructs a drive command message, returning `Err(LogData)` if invalid arguments are given.
-    fn create(left_speed: f32, right_speed: f32) -> Result<Self, LogData> {
+    pub fn create(left_speed: f32, right_speed: f32) -> Result<Self, LogData> {
         if !(check_speed(left_speed) && check_speed(right_speed)) {
             Err(LogData::warning("Error in creating a DriveCommandMessage: left speed and right speed must be in range [-1, 1]!"))
         } else {

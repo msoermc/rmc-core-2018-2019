@@ -9,6 +9,8 @@ build = "build.rs"
 chrono = ""
 sysfs-pwm = ""
 sysfs_gpio = ""
+stderrlog = "0.4"
+rocket = ""
 
 [build-dependencies.mml]
 version = "0.1"

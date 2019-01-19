@@ -4,10 +4,6 @@ use std::sync::RwLock;
 use std::thread::spawn;
 
 use crate::comms::CommsView;
-use crate::comms::driver_station::ConcreteDriverStationController;
-use crate::comms::driver_station::factories::create_driver_station_comms;
-use crate::comms::io::IoServerManager;
-use crate::comms::io::tcp::TcpServerManager;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
 use crate::logging::log_manager::LogManager;
@@ -38,17 +34,8 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     // Create RobotView
     let robot_view = RobotView::new(controller_sender, robot_status.clone());
 
-    // Create DS IO Driver
-    let ds_io = TcpServerManager::create(ADDRESS, PORT);
-
-    // Create DS Controller
-    let ds_controller = ConcreteDriverStationController::new(robot_view, logger_view.clone(), ds_receiver);
-
     // Create DS View
     let comms_view = CommsView::new(ds_sender);
-
-    // Create DS Comms
-    let mut ds_comms = create_driver_station_comms(ds_controller, ds_io);
 
     // Create DriveTrain
     let drive_train = DriveTrain::new(left_group, right_group, robot_status.clone());
@@ -62,7 +49,6 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     // Create threads
     let _logging_thread = spawn(move || logger.start());
     let controller_thread = spawn(move || robot_controller.start());
-    let _ds_thread = spawn(move || ds_comms.start());
 
     controller_thread.join().expect("Controller thread panicked!");
 }
