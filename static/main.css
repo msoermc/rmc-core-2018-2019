@@ -1,0 +1,9 @@
+html, body, div, br, h1, p {
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    clear: both;
+    float: left;
+}
