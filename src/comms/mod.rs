@@ -42,6 +42,7 @@ struct CommsState {
     robot_controller: Mutex<RobotView>,
 }
 
+/// Launches the comms
 pub fn launch(robot_controller: RobotView) -> CommsView {
     let (send, recv) = channel();
 
