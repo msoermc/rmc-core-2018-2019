@@ -1,4 +1,19 @@
 //! ![uml](ml.svg)
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate rocket;
+#[macro_use(slog_o, slog_kv)]
+extern crate slog;
+extern crate slog_async;
+extern crate slog_scope;
+extern crate slog_stdlog;
+extern crate slog_term;
+
+
+use slog::Drain;
 
 use crate::run_modes::demo_mode::run_demo_mode;
 use crate::run_modes::run_drive_train::run_drive_train;
@@ -23,14 +38,30 @@ pub mod comms;
 /// This includes managing subsystems like the drive train and MH.
 pub mod control;
 
-/// The logging module contains all code for the logging subsystem.
-pub mod logging;
-
 /// The robot map is a file filled with key constants such as pin numbers and network ports that
 /// may change over time.
 /// It is used to make reconfiguring pinouts a simpler process.
 pub mod robot_map;
 
 fn main() {
-    run_drive_train();
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
+    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
+
+    let _scope_guard = slog_scope::set_global_logger(logger);
+    let _log_guard = slog_stdlog::init().unwrap();
+    info!("standard logging redirected to slog");
+    run_demo_mode();
+}
+
+fn setup_logger() {
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
+    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
+
+    let _scope_guard = slog_scope::set_global_logger(logger);
+    let _log_guard = slog_stdlog::init().unwrap();
+    info!("standard logging redirected to slog");
 }

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Mission Control</title>
+</head>
+<body>
+<h1>Mission Control</h1>
+<script>
+    function post() {
+        let command = $("#command-input").val();
+        let url = $(location).attr('href');
+        let send = url + command;
+
+        console.log("Post " + send);
+
+        $.post(send);
+    }
+</script>
+<form onsubmit="post()">
+    Command: <input id="command-input" type="text">
+    <br>
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>
