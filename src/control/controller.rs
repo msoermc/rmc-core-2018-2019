@@ -4,14 +4,11 @@ use std::sync::RwLock;
 
 use crate::comms::CommsView;
 use crate::framework::Runnable;
-use crate::logging::log_sender::LogSender;
-use crate::logging::LogAccepter;
 use crate::control::RobotControllerCommand;
 use crate::control::drive_train::DriveTrain;
 use crate::control::RobotLifeStatus;
 
 pub struct RobotController {
-    log_view: LogSender,
     driver_station_view: CommsView,
     command_receiver: Receiver<RobotControllerCommand>,
     drive_train: DriveTrain,
@@ -43,25 +40,24 @@ impl Runnable for RobotController {
 
             if let Err(errors) = res {
                 for error in errors {
-                    self.log_view.accept_log(error.get_log())
+                    // TODO
                 }
             }
         }
 
         if let Err(errors) = self.drive_train.run_cycle() {
             for error in errors {
-                self.log_view.accept_log(error.get_log())
+                // TODO
             }
         }
     }
 }
 
 impl RobotController {
-    pub fn new(log_view: LogSender, driver_station_view: CommsView,
+    pub fn new(driver_station_view: CommsView,
                command_receiver: Receiver<RobotControllerCommand>,
                drive_train: DriveTrain, life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
         Self {
-            log_view,
             driver_station_view,
             command_receiver,
             drive_train,

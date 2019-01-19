@@ -55,7 +55,6 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
         receiver: Mutex::new(recv),
         robot_controller: Mutex::new(robot_controller),
     };
-
     rocket::ignite()
         .manage(state)
         .mount("/",
@@ -83,20 +82,14 @@ fn handle_drive(left: f32, right: f32, state: State<CommsState>) -> Status {
 
 #[post("/enable/drive_train")]
 fn handle_enable_drive(state: State<CommsState>) -> Status {
-    if state.robot_controller.lock().unwrap().enable_drive_train().is_err() {
-        Status::BadRequest
-    } else {
-        Status::Ok
-    }
+    state.robot_controller.lock().unwrap().enable_drive_train();
+    Status::Ok
 }
 
 #[post("/disable/drive_train")]
 fn handle_disable_drive(state: State<CommsState>) -> Status {
-    if state.robot_controller.lock().unwrap().disable_drive_train().is_err() {
-        Status::BadRequest
-    } else {
-        Status::Ok
-    }
+    state.robot_controller.lock().unwrap().disable_drive_train();
+    Status::Ok
 }
 
 #[post("/kill")]
@@ -110,11 +103,8 @@ fn handle_kill(state: State<CommsState>) -> Status {
 
 #[post("/brake")]
 fn handle_brake(state: State<CommsState>) -> Status {
-    if state.robot_controller.lock().unwrap().brake().is_err() {
-        Status::BadRequest
-    } else {
-        Status::Ok
-    }
+    state.robot_controller.lock().unwrap().brake();
+    Status::Ok
 }
 
 #[post("/revive")]

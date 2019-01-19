@@ -2,10 +2,15 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate rocket;
+
+use std::env::args;
 
 use crate::run_modes::demo_mode::run_demo_mode;
 use crate::run_modes::run_drive_train::run_drive_train;
+use log::LevelFilter;
 
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
@@ -27,14 +32,17 @@ pub mod comms;
 /// This includes managing subsystems like the drive train and MH.
 pub mod control;
 
-/// The logging module contains all code for the logging subsystem.
-pub mod logging;
-
 /// The robot map is a file filled with key constants such as pin numbers and network ports that
 /// may change over time.
 /// It is used to make reconfiguring pinouts a simpler process.
 pub mod robot_map;
 
 fn main() {
+    setup_logger();
     run_demo_mode();
+}
+
+fn setup_logger() {
+    env_logger::Builder::new().filter(None, LevelFilter::Off);
+    info!("Launched logger");
 }
