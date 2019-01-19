@@ -33,6 +33,7 @@ after_success: |
   cd ../.. &&
   rm -rf kcov-master &&
   cargo install cargo-kcov &&
-  cargo kcov
+  cargo clean &&
+  cargo kcov &&
   bash <(curl -s https://codecov.io/bash) &&
   echo "Uploaded code coverage"
