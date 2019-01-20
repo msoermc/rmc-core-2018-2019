@@ -2,4 +2,4 @@
 [![codecov](https://codecov.io/gh/msoermc/rmc-beaglebone-core-2018-2019/branch/master/graph/badge.svg)](https://codecov.io/gh/msoermc/rmc-beaglebone-core-2018-2019)
 
 # MSOE NASA RMC Robot Core
-Checkout our GitHub Pages site [here!](https://msoermc.github.io/rmc-beaglebone-core-2018-2019/index.md)
+Checkout our GitHub Pages site [here!](https://msoermc.github.io/rmc-beaglebone-core-2018-2019/)
