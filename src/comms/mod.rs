@@ -125,7 +125,7 @@ fn handle_revive(state: State<CommsState>) -> Status {
 #[get("/")]
 fn index() -> Option<NamedFile> {
     info!("Received index request");
-    NamedFile::open(Path::new("static/").join("index.html")).ok()
+    NamedFile::open(Path::new("./").join("index.html")).ok()
 }
 
 #[get("/static/<file..>")]
