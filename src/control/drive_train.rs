@@ -234,7 +234,7 @@ mod tests {
         assert_eq!(0.0, *right.speed.read().unwrap());
 
         // Test enable
-        drive_train.disable().expect("Drive command had not reason to fail!");
+        drive_train.enable();
         assert_eq!(false, *left.inverted.read().unwrap());
         assert_eq!(false, *right.inverted.read().unwrap());
 
