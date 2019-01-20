@@ -1,15 +1,18 @@
+use std::sync::Arc;
 use std::sync::mpsc::Sender;
+use std::sync::RwLock;
 
 use super::*;
 
 pub struct TestMotor {
-    inverted: bool,
-    speed: f32,
+    inverted: Arc<RwLock<bool>>,
+    speed: Arc<RwLock<f32>>,
 }
 
 impl MotorController for TestMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
-        self.speed = new_speed;
+        let new_speed = if *self.inverted.read().unwrap() { -new_speed } else { new_speed };
+        *self.speed.write().unwrap() = new_speed;
         Ok(())
     }
 
@@ -18,24 +21,21 @@ impl MotorController for TestMotor {
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        self.inverted = !self.inverted;
+        let mut inverted = *self.inverted.write().unwrap();
+        inverted = !inverted;
         self.stop()
     }
 
     fn is_inverted(&self) -> Result<bool, MotorFailure> {
-        Ok(self.inverted)
+        Ok(*self.inverted.read().unwrap())
     }
 }
 
 impl TestMotor {
-    pub fn new() -> TestMotor {
+    pub fn new(inverted: Arc<RwLock<bool>>, speed: Arc<RwLock<f32>>) -> TestMotor {
         TestMotor {
-            inverted: false,
-            speed: 0.0,
+            inverted,
+            speed,
         }
-    }
-
-    pub fn get_speed(&self) -> f32 {
-        self.speed
     }
 }
