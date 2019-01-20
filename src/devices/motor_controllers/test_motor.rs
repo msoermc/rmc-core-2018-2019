@@ -21,8 +21,8 @@ impl MotorController for TestMotor {
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        let mut inverted = *self.inverted.write().unwrap();
-        inverted = !inverted;
+        let mut inverted = *self.inverted.read().unwrap();
+        *self.inverted.write().unwrap() = !inverted;
         self.stop()
     }
 
