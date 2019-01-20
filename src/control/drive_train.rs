@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use std::sync::RwLock;
 
+use crate::control::RobotLifeStatus;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorFailure;
-use crate::control::RobotLifeStatus;
 
 /// Manages and controls the drive train.
 pub struct DriveTrain {
@@ -109,9 +109,77 @@ impl DriveTrain {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::devices::motor_controllers::test_motor::TestMotor;
+
+    struct TestMotorGroup {
+        pub inverted: Arc<RwLock<bool>>,
+        pub speed: Arc<RwLock<f32>>,
+        pub motor_group: MotorGroup,
+    }
 
     #[test]
-    fn test_drive() {
-        
+    fn test_drive_no_fail_no_inversion() {
+        let (left, right) = create_groups();
+        let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+
+        let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status);
+
+        // Make sure we are setup correctly
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test both forwards
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Test both backwards
+        drive_train.drive(-1.0, -1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(-1.0, *left.speed.read().unwrap());
+        assert_eq!(-1.0, *right.speed.read().unwrap());
+
+        // Test right forwards and left backwards
+        drive_train.drive(-1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(-1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Test right backwards and left forwards
+        drive_train.drive(1.0, -1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(-1.0, *right.speed.read().unwrap());
+    }
+
+    fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
+        let inverted_0 = Arc::new(RwLock::new(false));
+        let inverted_1 = Arc::new(RwLock::new(false));
+
+        let speed_0 = Arc::new(RwLock::new(0.0));
+        let speed_1 = Arc::new(RwLock::new(0.0));
+
+        let test_motor_0 = TestMotor::new(inverted_0.clone(), speed_0.clone());
+        let test_motor_1 = TestMotor::new(inverted_1.clone(), speed_1.clone());
+
+        let test_group_0 = MotorGroup::new(vec![Box::new(test_motor_0)]);
+        let test_group_1 = MotorGroup::new(vec![Box::new(test_motor_1)]);
+
+        let test_unit_0 = TestMotorGroup {inverted: inverted_0, speed: speed_0, motor_group: test_group_0};
+        let test_unit_1 = TestMotorGroup {inverted: inverted_1, speed: speed_1, motor_group: test_group_1};
+
+        (test_unit_0, test_unit_1)
     }
 }
