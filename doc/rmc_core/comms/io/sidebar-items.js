@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["tcp","Contains an implementation of the `IoServerManager` using a TCP server."]],"trait":[["IoServerManager","Abstracts away the implementation of an IO interface from the rest of the comms system."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["LogType",""]],"fn":[["create_log_data",""],["get_timestamp",""]],"struct":[["LogData",""]]});

@@ -1,2 +1,2 @@
 var ALIASES = {};
-ALIASES['rmc_core'] = {};
+ALIASES["rmc_core"] = {};
