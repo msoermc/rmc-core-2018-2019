@@ -68,14 +68,12 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
                               files])
         .launch();
 
-    info!("Launched Logger!");
-
     comms_view
 }
 
 #[post("/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<CommsState>) -> Status {
-    println!("Drive message: [{}, {}]", left, right);
+    info!("Received drive message: [{}, {}]", left, right);
     if state.robot_controller.lock().unwrap().drive(left, right).is_err() {
         Status::BadRequest
     } else {
@@ -85,18 +83,21 @@ fn handle_drive(left: f32, right: f32, state: State<CommsState>) -> Status {
 
 #[post("/enable/drive_train")]
 fn handle_enable_drive(state: State<CommsState>) -> Status {
+    info!("Received enable drive message");
     state.robot_controller.lock().unwrap().enable_drive_train();
     Status::Ok
 }
 
 #[post("/disable/drive_train")]
 fn handle_disable_drive(state: State<CommsState>) -> Status {
+    info!("Received disable drive message");
     state.robot_controller.lock().unwrap().disable_drive_train();
     Status::Ok
 }
 
 #[post("/kill")]
 fn handle_kill(state: State<CommsState>) -> Status {
+    info!("Received kill message");
     if state.robot_controller.lock().unwrap().kill().is_err() {
         Status::BadRequest
     } else {
@@ -106,12 +107,14 @@ fn handle_kill(state: State<CommsState>) -> Status {
 
 #[post("/brake")]
 fn handle_brake(state: State<CommsState>) -> Status {
+    info!("Received brake message");
     state.robot_controller.lock().unwrap().brake();
     Status::Ok
 }
 
 #[post("/revive")]
 fn handle_revive(state: State<CommsState>) -> Status {
+    info!("Received revive message");
     if state.robot_controller.lock().unwrap().revive().is_err() {
         Status::BadRequest
     } else {
@@ -121,10 +124,12 @@ fn handle_revive(state: State<CommsState>) -> Status {
 
 #[get("/")]
 fn index() -> Option<NamedFile> {
+    info!("Received index request");
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
 #[get("/static/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
+    info!("Received static request: {:?}", file);
     NamedFile::open(Path::new("static/").join(file)).ok()
 }

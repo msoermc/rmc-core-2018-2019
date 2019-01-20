@@ -75,7 +75,5 @@ fn main() {
     let _scope_guard = slog_scope::set_global_logger(logger);
     let _log_guard = slog_stdlog::init().unwrap();
 
-    info!("standard logging redirected to slog");
-
     run_demo_mode();
 }
