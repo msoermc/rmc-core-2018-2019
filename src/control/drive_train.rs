@@ -283,15 +283,8 @@ mod tests {
         assert_eq!(1.0, *left.speed.read().unwrap());
         assert_eq!(1.0, *right.speed.read().unwrap());
 
-        // Test disable
+        // Test kill
         *status.write().unwrap() = RobotLifeStatus::Dead;
-        assert_eq!(false, *left.inverted.read().unwrap());
-        assert_eq!(false, *right.inverted.read().unwrap());
-
-        assert_eq!(0.0, *left.speed.read().unwrap());
-        assert_eq!(0.0, *right.speed.read().unwrap());
-
-        // Make sure we can't still drive
         drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
         assert_eq!(false, *left.inverted.read().unwrap());
         assert_eq!(false, *right.inverted.read().unwrap());
@@ -299,7 +292,7 @@ mod tests {
         assert_eq!(0.0, *left.speed.read().unwrap());
         assert_eq!(0.0, *right.speed.read().unwrap());
 
-        // Test enable
+        // Test revive
         *status.write().unwrap() = RobotLifeStatus::Alive;
         assert_eq!(false, *left.inverted.read().unwrap());
         assert_eq!(false, *right.inverted.read().unwrap());
