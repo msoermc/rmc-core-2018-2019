@@ -60,7 +60,7 @@ fn main() {
     let file = OpenOptions::new()
         .create(true)
         .write(true)
-        .truncate(true)
+        .append(true)
         .open(LOG_PATH)
         .unwrap();
 
