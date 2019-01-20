@@ -195,6 +195,61 @@ mod tests {
         assert_eq!(0.0, *right.speed.read().unwrap());
     }
 
+    #[test]
+    fn test_enabling_no_fail_no_inversion() {
+        let (left, right) = create_groups();
+        let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+
+        let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status);
+
+        // Make sure we are setup correctly
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test both forwards
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Test disable
+        drive_train.disable().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Make sure we can't still drive
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test enable
+        drive_train.disable().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Make sure we can drive
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+    }
+
     fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
         let inverted_0 = Arc::new(RwLock::new(false));
         let inverted_1 = Arc::new(RwLock::new(false));
