@@ -68,6 +68,8 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
                               files])
         .launch();
 
+    info!("Launched Logger!");
+
     comms_view
 }
 

@@ -21,6 +21,7 @@ use slog::Fuse;
 use slog::Logger;
 use slog::SendSyncUnwindSafeDrain;
 use slog_async::Async;
+use slog::Level;
 
 use crate::robot_map::*;
 use crate::run_modes::demo_mode::run_demo_mode;
@@ -69,7 +70,10 @@ fn main() {
 
     let broadcaster = slog::Duplicate::new(term_drain, file_drain);
 
-    let _logger = slog::Logger::root(broadcaster.fuse(), o!());
+    let logger = slog::Logger::root(broadcaster.fuse(), o!());
+
+    let _scope_guard = slog_scope::set_global_logger(logger);
+    let _log_guard = slog_stdlog::init().unwrap();
 
     info!("standard logging redirected to slog");
 
