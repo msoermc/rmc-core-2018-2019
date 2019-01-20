@@ -138,6 +138,107 @@ mod tests {
         pub motor_group: MotorGroup,
     }
 
+    fn test_cycle_no_fail_no_inversion() {
+        let (left, right) = create_groups();
+        let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+
+        let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
+
+        // Make sure we are setup correctly
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test both forwards
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Test cycle
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Test brake
+        drive_train.brake().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test cycle
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Test both forwards
+        drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Kill
+        *status.write().unwrap() = RobotLifeStatus::Dead;
+
+        // Test cycle
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Revive
+        *status.write().unwrap() = RobotLifeStatus::Alive;
+
+        // Test cycle
+        drive_train.drive(1.0, 1.0).unwrap();
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+
+        // Disable
+        drive_train.disable().unwrap();
+
+        // Test cycle
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(0.0, *left.speed.read().unwrap());
+        assert_eq!(0.0, *right.speed.read().unwrap());
+
+        // Enable
+        drive_train.enable();
+
+        // Test cycle
+        drive_train.drive(1.0, 1.0).unwrap();
+        drive_train.run_cycle().expect("Drive command had not reason to fail!");
+        assert_eq!(false, *left.inverted.read().unwrap());
+        assert_eq!(false, *right.inverted.read().unwrap());
+
+        assert_eq!(1.0, *left.speed.read().unwrap());
+        assert_eq!(1.0, *right.speed.read().unwrap());
+    }
+
+
     #[test]
     fn test_drive_no_fail_no_inversion() {
         let (left, right) = create_groups();
