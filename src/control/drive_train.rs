@@ -138,6 +138,7 @@ mod tests {
         pub motor_group: MotorGroup,
     }
 
+    #[test]
     fn test_cycle_no_fail_no_inversion() {
         let (left, right) = create_groups();
         let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
