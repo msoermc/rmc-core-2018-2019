@@ -18,10 +18,10 @@ use std::fs::OpenOptions;
 use slog::Drain;
 use slog::Duplicate;
 use slog::Fuse;
+use slog::Level;
 use slog::Logger;
 use slog::SendSyncUnwindSafeDrain;
 use slog_async::Async;
-use slog::Level;
 
 use crate::robot_map::*;
 use crate::run_modes::demo_mode::run_demo_mode;
@@ -68,7 +68,8 @@ fn main() {
     let file_drain = slog_term::FullFormat::new(file_decorator).build().fuse();
     let file_drain = slog_async::Async::new(file_drain).build().fuse();
 
-    let broadcaster = slog::Duplicate::new(term_drain, file_drain);
+    let broadcaster = slog::Duplicate::new(term_drain, file_drain)
+        .filter_level(LOG_FILTER_LEVEL);
 
     let logger = slog::Logger::root(broadcaster.fuse(), o!());
 

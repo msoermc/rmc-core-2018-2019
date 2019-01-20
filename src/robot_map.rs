@@ -2,6 +2,8 @@
 // Drive Train Motor Controller Pins
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+use slog::Level;
+
 // P9.14
 pub const FRONT_LEFT_PWM_CHIP: u32 = 3;
 pub const FRONT_LEFT_PWM_NUMBER: u32 = 0;
@@ -58,3 +60,5 @@ pub const PORT: u16 = 2401;
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.
 pub const LOG_PATH: &str = "./rmc.log";
+
+pub const LOG_FILTER_LEVEL: Level = Level::Info;
