@@ -1,15 +1,15 @@
 language: rust
 
 rust:
-  - stable
-  - beta
+#  - stable
+#  - beta
   - nightly
 
-matrix:
-  allow_failures:
-    - rust:
-        - stable
-        - beta
+#matrix:
+#  allow_failures:
+#    - rust:
+#        - stable
+#        - beta
 
 addons:
   apt:
