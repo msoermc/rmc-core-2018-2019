@@ -93,9 +93,28 @@ mod tests {
         assert_eq!(1.0, *group.speed.read().unwrap());
         assert_eq!(false, *group.inverted.read().unwrap());
 
-        // Go forwards
+        // Go backwards
         group.motor_group.set_speed(-1.0).expect("Command should not have failed!");
         assert_eq!(-1.0, *group.speed.read().unwrap());
+        assert_eq!(false, *group.inverted.read().unwrap());
+    }
+
+    #[test]
+    fn test_stop_no_fail_no_inversion() {
+        let mut group = create_group();
+
+        // Test setup
+        assert_eq!(0.0, *group.speed.read().unwrap());
+        assert_eq!(false, *group.inverted.read().unwrap());
+
+        // Go forwards
+        group.motor_group.set_speed(1.0).expect("Command should not have failed!");
+        assert_eq!(1.0, *group.speed.read().unwrap());
+        assert_eq!(false, *group.inverted.read().unwrap());
+
+        // Stop
+        group.motor_group.stop().expect("Command should not have failed!");
+        assert_eq!(0.0, *group.speed.read().unwrap());
         assert_eq!(false, *group.inverted.read().unwrap());
     }
 }
