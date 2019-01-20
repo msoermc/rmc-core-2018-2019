@@ -1,5 +1,4 @@
 use crate::comms::SendableMessage;
-use crate::logging::log_data::LogData;
 use crate::robot_map::MotorID;
 
 pub mod pwm;
@@ -41,20 +40,15 @@ pub trait MotorController: Send {
 pub struct MotorFailure {
     motor: MotorID,
     kind: MotorFailureKind,
-    log: LogData,
 }
 
 impl MotorFailure {
-    pub fn new(motor: MotorID, kind: MotorFailureKind, log: LogData) -> Self {
-        MotorFailure { motor, kind, log }
+    pub fn new(motor: MotorID, kind: MotorFailureKind) -> Self {
+        MotorFailure { motor, kind }
     }
 
     pub fn get_motor(&self) -> MotorID {
         self.motor
-    }
-
-    pub fn get_log(&self) -> LogData {
-        self.log.clone()
     }
 
     pub fn get_kind(&self) -> MotorFailureKind {
