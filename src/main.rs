@@ -40,7 +40,7 @@ pub mod devices;
 /// Modes are meant to be switched out by altering the code in `main`.
 pub mod run_modes;
 
-/// The comms module contains all code for controlling the communications infrastructure.
+/// The comms module contains the code for running the HTTP server
 pub mod comms;
 
 /// The control module contains all code for the controlling logic of the physical robot.
