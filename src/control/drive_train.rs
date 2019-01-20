@@ -45,7 +45,7 @@ impl DriveTrain {
     /// Drives the robot at the supplied speeds.
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
-        if self.is_enabled {
+        if self.is_enabled && *self.robot_status.read().unwrap() == RobotLifeStatus::Alive {
             if let Err(e) = &mut self.left.set_speed(left_speed) {
                 errors.append(e);
             }
