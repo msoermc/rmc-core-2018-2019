@@ -45,23 +45,13 @@ impl DriveTrain {
     /// Drives the robot at the supplied speeds.
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
-        if *self.robot_status.read().unwrap() == RobotLifeStatus::Alive {
-            if self.is_enabled {
-                if let Err(e) = &mut self.left.set_speed(left_speed) {
-                    errors.append(e);
-                }
+        if *self.robot_status.read().unwrap() == RobotLifeStatus::Alive && self.is_enabled {
+            if let Err(e) = &mut self.left.set_speed(left_speed) {
+                errors.append(e);
+            }
 
-                if let Err(e) = &mut self.right.set_speed(right_speed) {
-                    errors.append(e);
-                }
-            } else {
-                if let Err(e) = &mut self.left.stop() {
-                    errors.append(e);
-                }
-
-                if let Err(e) = &mut self.right.stop() {
-                    errors.append(e);
-                }
+            if let Err(e) = &mut self.right.set_speed(right_speed) {
+                errors.append(e);
             }
         } else {
             if let Err(e) = &mut self.left.stop() {
@@ -238,7 +228,6 @@ mod tests {
         assert_eq!(1.0, *left.speed.read().unwrap());
         assert_eq!(1.0, *right.speed.read().unwrap());
     }
-
 
     #[test]
     fn test_drive_no_fail_no_inversion() {
