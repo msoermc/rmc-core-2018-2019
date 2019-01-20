@@ -45,12 +45,22 @@ impl DriveTrain {
     /// Drives the robot at the supplied speeds.
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
         let mut errors = Vec::new();
-        if let Err(e) = &mut self.left.set_speed(left_speed) {
-            errors.append(e);
-        }
+        if self.is_enabled {
+            if let Err(e) = &mut self.left.set_speed(left_speed) {
+                errors.append(e);
+            }
 
-        if let Err(e) = &mut self.right.set_speed(right_speed) {
-            errors.append(e);
+            if let Err(e) = &mut self.right.set_speed(right_speed) {
+                errors.append(e);
+            }
+        } else {
+            if let Err(e) = &mut self.left.stop() {
+                errors.append(e);
+            }
+
+            if let Err(e) = &mut self.right.stop() {
+                errors.append(e);
+            }
         }
 
         if errors.is_empty() {
@@ -108,8 +118,9 @@ impl DriveTrain {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::devices::motor_controllers::test_motor::TestMotor;
+
+    use super::*;
 
     struct TestMotorGroup {
         pub inverted: Arc<RwLock<bool>>,
@@ -263,8 +274,8 @@ mod tests {
         let test_group_0 = MotorGroup::new(vec![Box::new(test_motor_0)]);
         let test_group_1 = MotorGroup::new(vec![Box::new(test_motor_1)]);
 
-        let test_unit_0 = TestMotorGroup {inverted: inverted_0, speed: speed_0, motor_group: test_group_0};
-        let test_unit_1 = TestMotorGroup {inverted: inverted_1, speed: speed_1, motor_group: test_group_1};
+        let test_unit_0 = TestMotorGroup { inverted: inverted_0, speed: speed_0, motor_group: test_group_0 };
+        let test_unit_1 = TestMotorGroup { inverted: inverted_1, speed: speed_1, motor_group: test_group_1 };
 
         (test_unit_0, test_unit_1)
     }
