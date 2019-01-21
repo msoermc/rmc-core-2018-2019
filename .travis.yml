@@ -5,6 +5,10 @@ rust:
 #  - beta
   - nightly
 
+cache:
+  - cargo
+  - ccache
+
 #matrix:
 #  allow_failures:
 #    - rust:
