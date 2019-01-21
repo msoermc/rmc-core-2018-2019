@@ -1,17 +1,14 @@
-use std::path::Path;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
-use std::sync::Mutex;
-use std::sync::RwLock;
-
 use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::State;
 
-use crate::control::DriveCommandMessage;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::mpsc::channel;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::sync::Mutex;
+
 use crate::control::RobotView;
 
 /// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
@@ -74,32 +71,45 @@ pub fn launch(robot_controller: RobotView) -> CommsView {
 #[post("/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<CommsState>) -> Status {
     info!("Received drive message: [{}, {}]", left, right);
-    if state.robot_controller.lock().unwrap().drive(left, right).is_err() {
-        Status::BadRequest
-    } else {
-        Status::Ok
+    match state.robot_controller.lock() {
+        Ok(controller) => if controller.drive(left, right).is_err() {
+            Status::BadRequest
+        } else {
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
     }
 }
 
 #[post("/enable/drive_train")]
 fn handle_enable_drive(state: State<CommsState>) -> Status {
     info!("Received enable drive message");
-    state.robot_controller.lock().unwrap().enable_drive_train();
-    Status::Ok
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.enable_drive_train();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
 }
 
 #[post("/disable/drive_train")]
 fn handle_disable_drive(state: State<CommsState>) -> Status {
     info!("Received disable drive message");
-    state.robot_controller.lock().unwrap().disable_drive_train();
-    Status::Ok
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.disable_drive_train();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
 }
 
 #[post("/kill")]
 fn handle_kill(state: State<CommsState>) -> Status {
     info!("Received kill message");
     if state.robot_controller.lock().unwrap().kill().is_err() {
-        Status::BadRequest
+        Status::InternalServerError
     } else {
         Status::Ok
     }
@@ -116,7 +126,7 @@ fn handle_brake(state: State<CommsState>) -> Status {
 fn handle_revive(state: State<CommsState>) -> Status {
     info!("Received revive message");
     if state.robot_controller.lock().unwrap().revive().is_err() {
-        Status::BadRequest
+        Status::InternalServerError
     } else {
         Status::Ok
     }
