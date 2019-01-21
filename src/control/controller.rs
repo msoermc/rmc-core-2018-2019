@@ -2,14 +2,14 @@ use std::sync::Arc;
 use std::sync::mpsc::Receiver;
 use std::sync::RwLock;
 
-use crate::comms::CommsView;
+use crate::comms::ServerSender;
 use crate::framework::Runnable;
 use crate::control::RobotControllerCommand;
 use crate::control::drive_train::DriveTrain;
 use crate::control::RobotLifeStatus;
 
 pub struct RobotController {
-    driver_station_view: CommsView,
+    driver_station_view: ServerSender,
     command_receiver: Receiver<RobotControllerCommand>,
     drive_train: DriveTrain,
     life_status: Arc<RwLock<RobotLifeStatus>>,
@@ -54,7 +54,7 @@ impl Runnable for RobotController {
 }
 
 impl RobotController {
-    pub fn new(driver_station_view: CommsView,
+    pub fn new(driver_station_view: ServerSender,
                command_receiver: Receiver<RobotControllerCommand>,
                drive_train: DriveTrain, life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
         Self {

@@ -3,7 +3,7 @@ use std::sync::mpsc::channel;
 use std::sync::RwLock;
 use std::thread::spawn;
 
-use crate::comms::CommsView;
+use crate::comms::ServerSender;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
 use crate::robot_map::ADDRESS;
