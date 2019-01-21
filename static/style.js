@@ -13,7 +13,7 @@ $(document).ready(function() {
 
 function post() {
     var hostname = $(location).attr('host');
-    fetch(hostname) // Call fetch function, passing the URL of the server as a parameter
+    fetch(hostname, {method: "POST"}) // Call fetch function, passing the URL of the server as a parameter
     .then(function (value) {
         // Handle data received from server
     })
