@@ -4,7 +4,6 @@ use sysfs_pwm::Pwm;
 
 use crate::devices::motor_controllers::MotorFailure;
 use crate::devices::motor_controllers::MotorFailureKind;
-use crate::logging::log_data::LogData;
 use crate::robot_map::MotorID;
 
 use super::MotorController;
@@ -36,9 +35,11 @@ impl MotorController for PwmMotor {
         };
 
         if set_duty().is_err() {
-            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to set speed of hoverboard motor")))
+            error!("Failed to set duty cycle!");
+            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown))
         } else if set_direction().is_err() {
-            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to set direction of hoverboard motor")))
+            error!("Failed to set motor direction!");
+            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown))
         } else {
             Ok(())
         }
@@ -50,7 +51,8 @@ impl MotorController for PwmMotor {
         };
 
         if self.pwm.with_exported(set_duty).is_err() {
-            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown, LogData::error("Failed to stop hoverboard motor")))
+            error!("Failed to stop motor!");
+            Err(MotorFailure::new(self.id, MotorFailureKind::Unknown))
         } else {
             Ok(())
         }
@@ -68,21 +70,28 @@ impl MotorController for PwmMotor {
 }
 
 impl PwmMotor {
-    pub fn create(pwm: Pwm, direction: Pin, id: MotorID) -> Result<Self, LogData> {
+    pub fn create(pwm: Pwm, direction: Pin, id: MotorID) -> Result<Self, ()> {
         if pwm.export().is_err() {
-            Err(LogData::fatal("Failed to export pwm!"))
+            error!("Failed to export pwm!");
+            Err(())
         } else if direction.export().is_err() {
-            Err(LogData::fatal("Failed to export pin!"))
+            error!("Failed to export pin!");
+            Err(())
         } else if pwm.enable(true).is_err() {
-            Err(LogData::fatal("Failed to enable initially!"))
+            error!("Failed to enable initially!");
+            Err(())
         } else if pwm.set_period_ns(PERIOD_NS).is_err() {
-            Err(LogData::fatal("Failed to set the initial period!"))
+            error!("Failed to set initial period!");
+            Err(())
         } else if pwm.set_duty_cycle_ns(0).is_err() {
-            Err(LogData::fatal("Failed to set the initial duty cycle!"))
+            error!("Failed to set initial duty cycle!");
+            Err(())
         } else if direction.set_direction(Direction::Out).is_err() {
-            Err(LogData::fatal("Failed to set initial direction!"))
+            error!("Failed to set initial direction!");
+            Err(())
         } else if direction.set_value(0).is_err() {
-            Err(LogData::fatal("Failed to set initial pin value!"))
+            error!("Failed to set initial pin value!");
+            Err(())
         } else {
             Ok(PwmMotor {
                 is_inverted: false,
@@ -97,6 +106,8 @@ impl PwmMotor {
 /// When the motor is dropped, stop it.
 impl Drop for PwmMotor {
     fn drop(&mut self) {
-        self.stop().expect("Failed to stop while dropping motor!");
+        if self.stop().is_err() {
+            error!("Failed to stop while dropping motor!")
+        };
     }
 }

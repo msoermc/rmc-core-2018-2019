@@ -6,9 +6,15 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-chrono = ""
 sysfs-pwm = ""
 sysfs_gpio = ""
+slog = ""
+log = ""
+slog-stdlog = ""
+slog-scope = ""
+slog-term = ""
+slog-async = ""
+rocket = ""
 
 [build-dependencies.mml]
 version = "0.1"
