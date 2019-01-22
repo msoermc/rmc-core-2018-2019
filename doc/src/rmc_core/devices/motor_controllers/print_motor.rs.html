@@ -56,19 +56,19 @@
 <span class="kw">impl</span> <span class="ident">MotorController</span> <span class="kw">for</span> <span class="ident">PrintMotor</span> {
     <span class="kw">fn</span> <span class="ident">set_speed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_speed</span>: <span class="ident">f32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MotorFailure</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last</span> <span class="op">-</span> <span class="ident">new_speed</span> <span class="op">&lt;</span> <span class="ident">FLOAT_ERROR</span> <span class="op">&amp;&amp;</span> <span class="ident">new_speed</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">last</span> <span class="op">&gt;</span> <span class="ident">FLOAT_ERROR</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: -&gt; {}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>, <span class="ident">new_speed</span>);
+            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{}: -&gt; {}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>, <span class="ident">new_speed</span>);
             <span class="self">self</span>.<span class="ident">last</span> <span class="op">=</span> <span class="ident">new_speed</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MotorFailure</span><span class="op">&gt;</span> {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: STOP&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{}: STOP&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn</span> <span class="ident">invert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MotorFailure</span><span class="op">&gt;</span> {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: INVERT&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{}: INVERT&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>);
         <span class="self">self</span>.<span class="ident">inverted</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">inverted</span>;
         <span class="prelude-val">Ok</span>(())
     }

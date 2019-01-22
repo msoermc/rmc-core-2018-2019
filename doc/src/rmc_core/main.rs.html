@@ -73,11 +73,6 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! ![uml](ml.svg)</span>
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">proc_macro_hygiene</span>, <span class="ident">decl_macro</span>)]</span>
@@ -86,7 +81,7 @@
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rocket</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>(<span class="ident">slog_o</span>, <span class="ident">slog_kv</span>, <span class="ident">o</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>(<span class="ident">o</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">slog</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">slog_async</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">slog_scope</span>;
@@ -98,11 +93,6 @@
 
 <span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">Drain</span>;
 <span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">Duplicate</span>;
-<span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">Fuse</span>;
-<span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">Level</span>;
-<span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">Logger</span>;
-<span class="kw">use</span> <span class="ident">slog</span>::<span class="ident">SendSyncUnwindSafeDrain</span>;
-<span class="kw">use</span> <span class="ident">slog_async</span>::<span class="ident">Async</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">robot_map</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">run_modes</span>::<span class="ident">demo_mode</span>::<span class="ident">run_demo_mode</span>;
@@ -149,7 +139,7 @@
     <span class="kw">let</span> <span class="ident">file_drain</span> <span class="op">=</span> <span class="ident">slog_term</span>::<span class="ident">FullFormat</span>::<span class="ident">new</span>(<span class="ident">file_decorator</span>).<span class="ident">build</span>().<span class="ident">fuse</span>();
     <span class="kw">let</span> <span class="ident">file_drain</span> <span class="op">=</span> <span class="ident">slog_async</span>::<span class="ident">Async</span>::<span class="ident">new</span>(<span class="ident">file_drain</span>).<span class="ident">build</span>().<span class="ident">fuse</span>();
 
-    <span class="kw">let</span> <span class="ident">broadcaster</span> <span class="op">=</span> <span class="ident">slog</span>::<span class="ident">Duplicate</span>::<span class="ident">new</span>(<span class="ident">term_drain</span>, <span class="ident">file_drain</span>)
+    <span class="kw">let</span> <span class="ident">broadcaster</span> <span class="op">=</span> <span class="ident">Duplicate</span>::<span class="ident">new</span>(<span class="ident">term_drain</span>, <span class="ident">file_drain</span>)
         .<span class="ident">filter_level</span>(<span class="ident">LOG_FILTER_LEVEL</span>);
 
     <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">slog</span>::<span class="ident">Logger</span>::<span class="ident">root</span>(<span class="ident">broadcaster</span>.<span class="ident">fuse</span>(), <span class="macro">o</span><span class="macro">!</span>());
