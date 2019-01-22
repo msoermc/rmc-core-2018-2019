@@ -5,7 +5,7 @@
 extern crate log;
 #[macro_use]
 extern crate rocket;
-#[macro_use(slog_o, slog_kv, o)]
+#[macro_use(o)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_scope;
@@ -17,11 +17,6 @@ use std::fs::OpenOptions;
 
 use slog::Drain;
 use slog::Duplicate;
-use slog::Fuse;
-use slog::Level;
-use slog::Logger;
-use slog::SendSyncUnwindSafeDrain;
-use slog_async::Async;
 
 use crate::robot_map::*;
 use crate::run_modes::demo_mode::run_demo_mode;
@@ -68,7 +63,7 @@ fn main() {
     let file_drain = slog_term::FullFormat::new(file_decorator).build().fuse();
     let file_drain = slog_async::Async::new(file_drain).build().fuse();
 
-    let broadcaster = slog::Duplicate::new(term_drain, file_drain)
+    let broadcaster = Duplicate::new(term_drain, file_drain)
         .filter_level(LOG_FILTER_LEVEL);
 
     let logger = slog::Logger::root(broadcaster.fuse(), o!());
