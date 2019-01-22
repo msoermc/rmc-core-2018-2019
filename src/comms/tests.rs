@@ -39,6 +39,7 @@ fn setup() -> TestEnvironment {
 #[test]
 fn test_drive_request() {
     let env = setup();
+
     let response = env.client.post("/drive/1.0/1.0").dispatch();
     assert_eq!(Status::Ok, response.status());
 
@@ -48,4 +49,9 @@ fn test_drive_request() {
     } else {
         panic!("Expected drive command, got {:?}!", )
     }
+
+    // bad request
+    let response = env.client.post("/drive/1.0/1.1").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    assert!(env.receiver.try_recv().is_err());
 }
