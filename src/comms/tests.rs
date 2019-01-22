@@ -103,7 +103,7 @@ fn test_brake() {
 #[test]
 fn test_index() {
     let env = setup();
-    let mut response = env.client.get("/index.html").dispatch();
+    let mut response = env.client.get("/").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert!(response.body().is_some());
 }
