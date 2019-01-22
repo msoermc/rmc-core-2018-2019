@@ -99,3 +99,19 @@ fn test_brake() {
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotControllerCommand::Brake, env.receiver.try_recv().unwrap());
 }
+
+#[test]
+fn test_index() {
+    let env = setup();
+    let mut response = env.client.get("/index.html").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert!(response.body().is_some());
+}
+
+#[test]
+fn test_file() {
+    let env = setup();
+    let mut response = env.client.get("/main.css").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert!(response.body().is_some());
+}
