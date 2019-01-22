@@ -13,6 +13,7 @@ struct TestEnvironment {
     receiver: Receiver<RobotControllerCommand>,
     sender: ServerSender,
     client: Client,
+    status: Arc<RwLock<RobotLifeStatus>>
 }
 
 fn setup() -> TestEnvironment {
@@ -32,7 +33,8 @@ fn setup() -> TestEnvironment {
     TestEnvironment {
         receiver: controller_receiver,
         sender: server_sender,
-        client
+        client,
+        status: robot_status
     }
 }
 
@@ -54,4 +56,22 @@ fn test_drive_request() {
     let response = env.client.post("/drive/1.0/1.1").dispatch();
     assert_eq!(Status::BadRequest, response.status());
     assert!(env.receiver.try_recv().is_err());
+}
+
+#[test]
+fn test_kill() {
+    let env = setup();
+    *env.status.write().unwrap() = RobotLifeStatus::Alive;
+    let response = env.client.post("/kill").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(RobotLifeStatus::Dead, *env.status.read().unwrap());
+}
+
+#[test]
+fn test_revive() {
+    let env = setup();
+    *env.status.write().unwrap() = RobotLifeStatus::Dead;
+    let response = env.client.post("/revive").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(RobotLifeStatus::Alive, *env.status.read().unwrap());
 }
