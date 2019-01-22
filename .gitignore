@@ -313,3 +313,4 @@ fabric.properties
 /.idea/
 /RMC_Logs/
 RMC_Logs/
+/rmc.log

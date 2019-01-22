@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mission Control</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="style.js"></script>
+</head>
+<body>
+<audio autoplay>
+    <source src="soviet-anthem.mp3" type="audio/mpeg">
+    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.
+</audio>
+<h1>Mission Control</h1>
+<div>
+    Left:
+    <input type="text" id="left-drive" name="textField" required maxlength="8">
+    Right:
+    <input type="text" id="right-drive" name="textField" required maxlength="8">
+    <button onclick="post_drive()">Drive</button>
+    <br>
+    <button onclick="post_kill()">Kill</button>
+    <button onclick="post_revive()">Revive</button>
+    <br>
+    <button onclick="post_enable_drive_train()">Enable Drive</button>
+    <button onclick="post_disable_drive_train()">Disable Drive</button>
+    <br>
+    <button onclick="post_brake()">Brake</button>
+</div>
+</body>
+</html>

@@ -11,19 +11,19 @@ pub struct PrintMotor {
 impl MotorController for PrintMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
         if self.last - new_speed < FLOAT_ERROR && new_speed - self.last > FLOAT_ERROR {
-            println!("{}: -> {}", self.name, new_speed);
+            info!("{}: -> {}", self.name, new_speed);
             self.last = new_speed;
         }
         Ok(())
     }
 
     fn stop(&mut self) -> Result<(), MotorFailure> {
-        println!("{}: STOP", self.name);
+        info!("{}: STOP", self.name);
         Ok(())
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        println!("{}: INVERT", self.name);
+        info!("{}: INVERT", self.name);
         self.inverted = !self.inverted;
         Ok(())
     }
