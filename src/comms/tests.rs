@@ -75,3 +75,19 @@ fn test_revive() {
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotLifeStatus::Alive, *env.status.read().unwrap());
 }
+
+#[test]
+fn test_enable_drive() {
+    let env = setup();
+    let response = env.client.post("/enable/drive_train").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(RobotControllerCommand::Enable, env.receiver.try_recv().unwrap());
+}
+
+#[test]
+fn test_disable_drive() {
+    let env = setup();
+    let response = env.client.post("/disable/drive_train").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(RobotControllerCommand::Disable, env.receiver.try_recv().unwrap());
+}
