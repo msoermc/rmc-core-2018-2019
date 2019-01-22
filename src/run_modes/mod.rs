@@ -3,18 +3,13 @@ use std::sync::mpsc::channel;
 use std::sync::RwLock;
 use std::thread::spawn;
 
-use crate::comms::ServerSender;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
-use crate::robot_map::ADDRESS;
-use crate::robot_map::LOG_PATH;
-use crate::robot_map::PORT;
 use crate::control::RobotLifeStatus;
 use crate::control::RobotView;
 use crate::control::drive_train::DriveTrain;
 use crate::control::controller::RobotController;
 use crate::comms;
-use std::env::args;
 
 pub mod demo_mode;
 pub mod run_drive_train;
