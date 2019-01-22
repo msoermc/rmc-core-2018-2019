@@ -4,9 +4,12 @@ use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::Mutex;
+use std::thread::JoinHandle;
+use std::thread::Thread;
 
 use rocket::http::Status;
 use rocket::response::NamedFile;
+use rocket::Rocket;
 use rocket::State;
 
 use crate::control::RobotView;
@@ -45,16 +48,16 @@ struct ServerState {
 struct Drive {}
 
 /// Launches the server
-pub fn launch(robot_controller: RobotView) -> ServerSender {
+pub fn stage(robot_controller: RobotView) -> (ServerSender, Rocket) {
     let (send, recv) = channel();
 
-    let comms_view = ServerSender::new(send);
+    let server_sender = ServerSender::new(send);
 
     let state = ServerState {
         receiver: Mutex::new(recv),
         robot_controller: Mutex::new(robot_controller),
     };
-    rocket::ignite()
+    let rocket = rocket::ignite()
         .manage(state)
         .mount("/",
                routes![handle_drive,
@@ -64,10 +67,10 @@ pub fn launch(robot_controller: RobotView) -> ServerSender {
                               handle_revive,
                               handle_brake,
                               index,
-                              files])
-        .launch();
+                              files]);
 
-    comms_view
+
+    (server_sender, rocket)
 }
 
 #[post("/drive/<left>/<right>")]

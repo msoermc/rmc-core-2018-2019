@@ -17,7 +17,7 @@ pub struct RobotController {
 
 impl Runnable for RobotController {
     fn init(&mut self) {
-        // Do nothing
+        info!("Initializing controller!");
     }
 
     fn run(&mut self) {

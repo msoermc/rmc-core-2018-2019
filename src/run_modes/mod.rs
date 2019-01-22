@@ -23,17 +23,18 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     // Create RobotView
     let robot_view = RobotView::new(controller_sender, robot_status.clone());
 
-    // Create comms
-    let comms_view = comms::launch(robot_view);
+    // Create server
+    let (server_sender, bfr) = comms::stage(robot_view);
 
     // Create DriveTrain
     let drive_train = DriveTrain::new(left_group, right_group, robot_status.clone());
 
     // Create Robot Controller
-    let mut robot_controller = RobotController::new(comms_view.clone(), controller_receiver, drive_train, robot_status);
+    let mut robot_controller = RobotController::new(server_sender.clone(), controller_receiver, drive_train, robot_status);
 
     // Create threads
     let controller_thread = spawn(move || robot_controller.start());
+    let rocket_thread = spawn(move || bfr.launch());
 
     controller_thread.join().expect("Controller thread panicked!");
 }
