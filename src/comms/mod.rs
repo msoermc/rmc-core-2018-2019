@@ -12,6 +12,9 @@ use rocket::State;
 
 use crate::control::RobotView;
 
+#[cfg(test)]
+mod tests;
+
 /// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
 pub trait SendableMessage: Send {
     fn encode(&self) -> String;
