@@ -1,7 +1,3 @@
-use rocket::http::Status;
-use rocket::response::NamedFile;
-use rocket::State;
-
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
@@ -9,7 +5,13 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::Mutex;
 
+use rocket::http::Status;
+use rocket::response::NamedFile;
+use rocket::State;
+
 use crate::control::RobotView;
+use rocket_contrib::json::Json;
+use rocket::config::Value;
 
 /// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
 pub trait SendableMessage: Send {
@@ -41,6 +43,8 @@ struct ServerState {
     receiver: Mutex<Receiver<Box<SendableMessage>>>,
     robot_controller: Mutex<RobotView>,
 }
+
+struct Drive {}
 
 /// Launches the server
 pub fn launch(robot_controller: RobotView) -> ServerSender {
@@ -134,11 +138,11 @@ fn handle_revive(state: State<ServerState>) -> Status {
 
 #[get("/")]
 fn index() -> Option<NamedFile> {
-    info!("Received index request");
-    NamedFile::open(Path::new("./").join("index.html")).ok()
+    info!("Received static request for index!");
+    NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
-#[get("/static/<file..>")]
+#[get("/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
     info!("Received static request: {:?}", file);
     NamedFile::open(Path::new("static/").join(file)).ok()

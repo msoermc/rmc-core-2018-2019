@@ -11,13 +11,14 @@ $(document).ready(function() {
     // DOCUMENT READY
 });
 
-function post() {
-    var hostname = $(location).attr('host');
-    fetch(hostname, {method: "POST"}) // Call fetch function, passing the URL of the server as a parameter
+function post_drive() {
+    let url = "/drive/1.0/1.0";
+    console.log(url);
+    fetch(url, {method: "POST"}) // Call fetch function, passing the URL of the server as a parameter
     .then(function (value) {
-        // Handle data received from server
+        alert("Succeeded: " + value);
     })
     .catch(function (reason) {
-        // Catch errors that are thrown
+        alert("Failed: " + value);
     });
 }
