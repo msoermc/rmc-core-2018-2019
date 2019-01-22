@@ -34,7 +34,7 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
 
     // Create threads
     let controller_thread = spawn(move || robot_controller.start());
-    let rocket_thread = spawn(move || bfr.launch());
+    let _rocket_thread = spawn(move || bfr.launch());
 
     controller_thread.join().expect("Controller thread panicked!");
 }

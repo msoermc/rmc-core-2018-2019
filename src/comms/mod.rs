@@ -4,8 +4,6 @@ use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::Mutex;
-use std::thread::JoinHandle;
-use std::thread::Thread;
 
 use rocket::http::Status;
 use rocket::response::NamedFile;

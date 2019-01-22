@@ -5,8 +5,6 @@
 extern crate log;
 #[macro_use]
 extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
 #[macro_use(o)]
 extern crate slog;
 extern crate slog_async;
