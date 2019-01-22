@@ -91,3 +91,11 @@ fn test_disable_drive() {
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotControllerCommand::Disable, env.receiver.try_recv().unwrap());
 }
+
+#[test]
+fn test_brake() {
+    let env = setup();
+    let response = env.client.post("/brake").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(RobotControllerCommand::Brake, env.receiver.try_recv().unwrap());
+}
