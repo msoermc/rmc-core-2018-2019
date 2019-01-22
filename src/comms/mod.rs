@@ -10,8 +10,6 @@ use rocket::response::NamedFile;
 use rocket::State;
 
 use crate::control::RobotView;
-use rocket_contrib::json::Json;
-use rocket::config::Value;
 
 /// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
 pub trait SendableMessage: Send {
