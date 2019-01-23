@@ -74,7 +74,7 @@ pub fn stage(robot_controller: RobotView) -> (ServerSender, Rocket) {
     (server_sender, rocket)
 }
 
-#[post("/drive/<left>/<right>")]
+#[post("/robot/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
     info!("Received drive message: [{}, {}]", left, right);
     match state.robot_controller.lock() {
@@ -87,7 +87,7 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/enable/drive_train")]
+#[post("/robot/enable/drive_train")]
 fn handle_enable_drive(state: State<ServerState>) -> Status {
     info!("Received enable drive message");
     match state.robot_controller.lock() {
@@ -99,7 +99,7 @@ fn handle_enable_drive(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/disable/drive_train")]
+#[post("/robot/disable/drive_train")]
 fn handle_disable_drive(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -111,7 +111,7 @@ fn handle_disable_drive(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/kill")]
+#[post("/robot/kill")]
 fn handle_kill(state: State<ServerState>) -> Status {
     info!("Received kill message");
     if state.robot_controller.lock().unwrap().kill().is_err() {
@@ -121,14 +121,14 @@ fn handle_kill(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/brake")]
+#[post("/robot/brake")]
 fn handle_brake(state: State<ServerState>) -> Status {
     info!("Received brake message");
     state.robot_controller.lock().unwrap().brake();
     Status::Ok
 }
 
-#[post("/revive")]
+#[post("/robot/revive")]
 fn handle_revive(state: State<ServerState>) -> Status {
     info!("Received revive message");
     if state.robot_controller.lock().unwrap().revive().is_err() {
@@ -144,7 +144,7 @@ fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
-#[get("/<file..>")]
+#[get("/static/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
     info!("Received static request: {:?}", file);
     NamedFile::open(Path::new("static/").join(file)).ok()
