@@ -23,14 +23,35 @@
         <tr>
             <td>Left Speed</td>
             <td>
-                <input type="text" id="left-drive" name="textField" required maxlength="8">
+                <input type="text" id="left-drive" name="textField">
             </td>
             <td>Right Speed</td>
             <td>
-                <input type="text" id="right-drive" name="textField" required maxlength="8">
+                <input type="text" id="right-drive" name="textField">
             </td>
             <td>
                 <button onclick="post_drive()">Drive</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="post_kill()">Kill</button>
+            </td>
+            <td>
+                <button onclick="post_revive()">Revive</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="post_enable_drive_train()">Enable Drive</button>
+            </td>
+            <td>
+                <button onclick="post_disable_drive_train()">Disable Drive</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="post_brake()">Brake</button>
             </td>
         </tr>
     </table>
@@ -40,13 +61,6 @@
     <!--<input type="text" id="right-drive" name="textField" required maxlength="8">-->
     <!--<button onclick="post_drive()">Drive</button>-->
     <br>
-    <button onclick="post_kill()">Kill</button>
-    <button onclick="post_revive()">Revive</button>
-    <br>
-    <button onclick="post_enable_drive_train()">Enable Drive</button>
-    <button onclick="post_disable_drive_train()">Disable Drive</button>
-    <br>
-    <button onclick="post_brake()">Brake</button>
 </div>
 </body>
 </html>
