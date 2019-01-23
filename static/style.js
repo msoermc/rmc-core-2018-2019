@@ -1,5 +1,5 @@
 function init() {
-    set_background()
+    //set_background()
 }
 
 function set_background() {
