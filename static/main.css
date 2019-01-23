@@ -9,6 +9,15 @@ p {
     float: left;
 }
 
+table {
+    width: 20%;
+}
+
+td {
+    width: 20%;
+    height: 100%;
+}
+
 input {
     background-color: darkslategray;
     border: 0 !important;
@@ -22,4 +31,7 @@ button {
 input, button {
     background-color: darkslategray;
     color: springgreen;
+    width: 100%;
+    height: 100%;
+    display: flex;
 }
