@@ -1,10 +1,16 @@
-html, body, div, br, h1, p {
+html, body, div, br, h1, p, input, button {
     margin: 0;
     padding: 0;
-    color: white;
+    color: darkorange;
 }
 
 p {
     clear: both;
     float: left;
+}
+
+input, button {
+    background-color: darkslateblue;
+    border-color: darkmagenta;
+    color: darkorange;
 }
