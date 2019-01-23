@@ -74,7 +74,7 @@ pub fn stage(robot_controller: RobotView) -> (ServerSender, Rocket) {
     (server_sender, rocket)
 }
 
-#[post("/robot/drive/<left>/<right>")]
+#[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
     info!("Received drive message: [{}, {}]", left, right);
     match state.robot_controller.lock() {
@@ -87,7 +87,7 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/enable/drive_train")]
+#[post("/robot/drive_train/enable")]
 fn handle_enable_drive(state: State<ServerState>) -> Status {
     info!("Received enable drive message");
     match state.robot_controller.lock() {
@@ -99,7 +99,7 @@ fn handle_enable_drive(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/disable/drive_train")]
+#[post("/robot/drive_train/disable")]
 fn handle_disable_drive(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -121,7 +121,7 @@ fn handle_kill(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/brake")]
+#[post("/robot/drive_train/brake")]
 fn handle_brake(state: State<ServerState>) -> Status {
     info!("Received brake message");
     state.robot_controller.lock().unwrap().brake();
