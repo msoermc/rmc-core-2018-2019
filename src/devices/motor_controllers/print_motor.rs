@@ -6,6 +6,7 @@ pub struct PrintMotor {
     name: String,
     inverted: bool,
     last: f32,
+    is_stopped: bool,
 }
 
 impl MotorController for PrintMotor {
@@ -14,11 +15,17 @@ impl MotorController for PrintMotor {
             info!("{}: -> {}", self.name, new_speed);
             self.last = new_speed;
         }
+
+        self.is_stopped = false;
+
         Ok(())
     }
 
     fn stop(&mut self) -> Result<(), MotorFailure> {
-        info!("{}: STOP", self.name);
+        if !self.is_stopped {
+            info!("{}: STOP", self.name);
+            self.is_stopped = true;
+        }
         Ok(())
     }
 
@@ -39,6 +46,7 @@ impl PrintMotor {
             name: name.to_string(),
             inverted: false,
             last: -10.0,
+            is_stopped: false
         }
     }
 }
