@@ -26,7 +26,6 @@ impl MotorController for PwmMotor {
                 self.pwm.export()?;
                 self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
             } else {
-                self.state.kind = MotorStateKind::Ok;
                 Ok(())
             }
         };
