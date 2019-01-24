@@ -19,17 +19,17 @@ impl MotorGroup {
         }
     }
 
-    pub fn set_speed(&mut self, new_speed: f32) -> Result<(), Vec<MotorState>> {
+    pub fn set_speed(&mut self, new_speed: f32) {
         self.old_speed = new_speed;
         self.run_operation(|motor| motor.set_speed(new_speed))
     }
 
-    pub fn stop(&mut self) -> Result<(), Vec<MotorState>> {
+    pub fn stop(&mut self) {
         self.old_speed = 0.0;
         self.run_operation(|motor| motor.stop())
     }
 
-    pub fn invert(&mut self) -> Result<(), Vec<MotorState>> {
+    pub fn invert(&mut self) {
         self.is_inverted = !self.is_inverted;
         self.old_speed = -self.old_speed;
         self.run_operation(|motor| motor.invert())
@@ -39,21 +39,15 @@ impl MotorGroup {
         self.is_inverted
     }
 
-    pub fn maintain_last(&mut self) -> Result<(), Vec<MotorState>> {
+    pub fn maintain_last(&mut self) {
         self.set_speed(self.old_speed)
     }
 
-    fn run_operation<T: Fn(&mut Box<MotorController>) -> Result<(), MotorState>>(&mut self, operation: T) -> Result<(), Vec<MotorState>> {
-        let results: Vec<MotorState> =
-            self.motors.iter_mut()
-                .map(operation)
-                .filter_map(|res| res.err())
-                .collect();
+    pub fn get_states(&self) -> Vec<MotorState> {
+        self.motors.iter().map(|motor| motor.get_motor_state()).collect()
+    }
 
-        if results.is_empty() {
-            Ok(())
-        } else {
-            Err(results)
-        }
+    fn run_operation<T: Fn(&mut Box<MotorController>)>(&mut self, operation: T) {
+        self.motors.iter_mut().for_each(operation);
     }
 }
