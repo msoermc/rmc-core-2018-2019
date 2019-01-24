@@ -23,15 +23,11 @@ impl MotorController for PwmMotor {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
             if self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32).is_err() {
-                if self.pwm.export().is_err() {
-                    error!("Failed to reexport unexported motor");
-                    self.state.kind = MotorStateKind::Unexported;
-                    return;
-                }
-
+                self.pwm.export()?;
                 self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
             } else {
                 self.state.kind = MotorStateKind::Ok;
+                Ok(())
             }
         };
 

@@ -9,28 +9,27 @@ pub struct TestMotor {
 }
 
 impl MotorController for TestMotor {
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorState> {
+    fn set_speed(&mut self, new_speed: f32) {
         let new_speed = if *self.inverted.read().unwrap() {
             -new_speed
         } else {
             new_speed
         };
         *self.speed.write().unwrap() = new_speed;
-        Ok(())
     }
 
-    fn stop(&mut self) -> Result<(), MotorState> {
+    fn stop(&mut self) {
         self.set_speed(0.0)
     }
 
-    fn invert(&mut self) -> Result<(), MotorState> {
+    fn invert(&mut self) {
         let inverted = *self.inverted.read().unwrap();
         *self.inverted.write().unwrap() = !inverted;
         self.stop()
     }
 
-    fn is_inverted(&self) -> Result<bool, MotorState> {
-        Ok(*self.inverted.read().unwrap())
+    fn get_motor_state(&self) -> MotorState {
+        unimplemented!()
     }
 }
 
