@@ -15,3 +15,4 @@ cross build --release --target=${CROSS_COMPILER_TOOLCHAIN}
 # scp {src} {dest}
 sudo sshpass -p ${REMOTE_PASSWORD} scp ./target/${CROSS_COMPILER_TOOLCHAIN}/release/rmc-core ${REMOTE_USER}@192.168.7.2:/home/${REMOTE_USER}/
 sudo sshpass -p ${REMOTE_PASSWORD} scp ./enable-pwm.sh ${REMOTE_USER}@192.168.7.2:/home/${REMOTE_USER}/
+sudo sshpass -p ${REMOTE_PASSWORD} scp -R ./static/ ${REMOTE_USER}@192.168.7.2:/home/${REMOTE_USER}/

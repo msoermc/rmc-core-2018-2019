@@ -48,7 +48,7 @@ pub mod control;
 pub mod robot_map;
 
 fn main() {
-    let term_decorator = slog_term::TermDecorator::new().build();
+    let term_decorator = slog_term::TermDecorator::new().force_color().build();
     let term_drain = slog_term::FullFormat::new(term_decorator).build().fuse();
     let term_drain = slog_async::Async::new(term_drain).build().fuse();
 
