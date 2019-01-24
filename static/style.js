@@ -1,45 +1,13 @@
-$(document).ready(function () {
-    // DOCUMENT READY
-});
-
-function post_drive() {
-    let left = $("#left-drive").val();
-    let right = $("#right-drive").val();
-    let url = "/drive/" + left + "/" + right;
-    post_command(url);
+function init() {
+    //set_background()
 }
 
-function post_kill() {
-    let url = "/kill";
-    post_command(url);
-}
-
-function post_revive() {
-    let url = "/revive";
-    post_command(url);
-}
-
-function post_enable_drive_train() {
-    let url = "/enable/drive_train";
-    post_command(url);
-}
-
-function post_disable_drive_train() {
-    let url = "/disable/drive_train";
-    post_command(url);
-}
-
-function post_brake() {
-    let url = "/brake";
-    post_command(url);
-}
-
-function post_command(url) {
-    fetch(url, {method: "POST"})
-        .then(function (value) {
-            // I'll be damned if I know what to do here.
-        })
-        .catch(function (reason) {
-            // I'll be damned if I know what to do here.
-        });
+function set_background() {
+    $.get("https://api.nasa.gov/planetary/apod?api_key=RL2kgIrn0TyKnmAg9EKDW6Y18fR3rsWb8yk2Oou8", function (data) {
+        let url = data['url'];
+        console.log(url);
+        //$(this).css('background-image','url(' + data['hdurl'] + ');');
+        document.body.style.backgroundImage = 'url("' + url + '")';
+        $("#mars-max").html()
+    });
 }

@@ -10,7 +10,11 @@ pub struct TestMotor {
 
 impl MotorController for TestMotor {
     fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure> {
-        let new_speed = if *self.inverted.read().unwrap() { -new_speed } else { new_speed };
+        let new_speed = if *self.inverted.read().unwrap() {
+            -new_speed
+        } else {
+            new_speed
+        };
         *self.speed.write().unwrap() = new_speed;
         Ok(())
     }
@@ -20,7 +24,7 @@ impl MotorController for TestMotor {
     }
 
     fn invert(&mut self) -> Result<(), MotorFailure> {
-        let mut inverted = *self.inverted.read().unwrap();
+        let inverted = *self.inverted.read().unwrap();
         *self.inverted.write().unwrap() = !inverted;
         self.stop()
     }
