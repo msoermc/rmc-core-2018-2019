@@ -7,11 +7,12 @@ pub mod motor_group;
 pub mod print_motor;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum MotorFailureKind {
+pub enum MotorStateKind {
     Unknown,
+    Ok
 }
 
-impl ToString for MotorFailureKind {
+impl ToString for MotorStateKind {
     fn to_string(&self) -> String {
         unimplemented!()
     }
@@ -21,42 +22,38 @@ pub trait MotorController: Send {
     /// Sets the current speed of the motor controller.
     /// The speed should be a floating point number between -1 and 1.
     /// A negative speed indicates that the direction is reversed.
-    fn set_speed(&mut self, new_speed: f32) -> Result<(), MotorFailure>;
-
+    fn set_speed(&mut self, new_speed: f32);
 
     /// Sets the current speed of the motor controller to zero.
-    fn stop(&mut self) -> Result<(), MotorFailure>;
-
+    fn stop(&mut self);
 
     /// Inverts the directionality of the motor controller.
-    fn invert(&mut self) -> Result<(), MotorFailure>;
+    fn invert(&mut self);
 
-
-    /// Returns true if the motor controller is inverted and false otherwise.
-    fn is_inverted(&self) -> Result<bool, MotorFailure>;
+    fn get_motor_state(&self) -> MotorState;
 }
 
 #[derive(Clone, Debug)]
-pub struct MotorFailure {
+pub struct MotorState {
     motor: MotorID,
-    kind: MotorFailureKind,
+    kind: MotorStateKind,
 }
 
-impl MotorFailure {
-    pub fn new(motor: MotorID, kind: MotorFailureKind) -> Self {
-        MotorFailure { motor, kind }
+impl MotorState {
+    pub fn new(motor: MotorID, kind: MotorStateKind) -> Self {
+        MotorState { motor, kind }
     }
 
     pub fn get_motor(&self) -> MotorID {
         self.motor
     }
 
-    pub fn get_kind(&self) -> MotorFailureKind {
+    pub fn get_state(&self) -> MotorStateKind {
         self.kind.clone()
     }
 }
 
-impl SendableMessage for MotorFailure {
+impl SendableMessage for MotorState {
     fn encode(&self) -> String {
         // TODO Add to protocol
         unimplemented!()
