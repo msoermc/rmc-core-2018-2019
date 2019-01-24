@@ -23,12 +23,15 @@ impl MotorController for PwmMotor {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
             if self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32).is_err() {
-                self.pwm.export()?;
+                if self.pwm.export().is_err() {
+                    error!("Failed to reexport unexported motor");
+                    self.state.kind = MotorStateKind::Unexported;
+                    return;
+                }
+
                 self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
             } else {
-                if MotorStateKind::Ok != self.state.get_kind() {
-                    self.state.kind = MotorStateKind::Ok;
-                }
+                self.state.kind = MotorStateKind::Ok;
             }
         };
 
@@ -39,36 +42,36 @@ impl MotorController for PwmMotor {
 
         if set_duty().is_err() {
             error!("Failed to set duty cycle!");
-            MotorState::new(self.id, MotorStateKind::Unknown)
+            self.state.kind = MotorStateKind::Unknown;
+            return;
         } else if set_direction().is_err() {
             error!("Failed to set motor direction!");
-            MotorState::new(self.id, MotorStateKind::Unknown)
+            self.state.kind = MotorStateKind::Unknown;
+            return;
         } else {
-            MotorState::new()
+            self.state.kind = MotorStateKind::Ok
         }
     }
 
-    fn stop(&mut self) -> Result<(), MotorState> {
+    fn stop(&mut self) {
         let set_duty = || {
             self.pwm.set_duty_cycle_ns(0)
         };
 
         if self.pwm.with_exported(set_duty).is_err() {
             error!("Failed to stop motor!");
-            Err(MotorState::new(self.id, MotorStateKind::Unknown))
+            self.state.kind = MotorStateKind::Unknown;
         } else {
-            Ok(())
+            self.state.kind = MotorStateKind::Ok;
         }
     }
 
-    fn invert(&mut self) -> Result<(), MotorState> {
+    fn invert(&mut self) {
         self.is_inverted = !self.is_inverted;
-
-        Ok(())
     }
 
-    fn is_inverted(&self) -> Result<bool, MotorState> {
-        Ok(self.is_inverted)
+    fn get_motor_state(&self) -> MotorState {
+        self.state.clone()
     }
 }
 
@@ -101,6 +104,7 @@ impl PwmMotor {
                 id,
                 pwm,
                 direction,
+                state: MotorState::new(id, MotorStateKind::Ok),
             })
         }
     }
@@ -109,8 +113,6 @@ impl PwmMotor {
 /// When the motor is dropped, stop it.
 impl Drop for PwmMotor {
     fn drop(&mut self) {
-        if self.stop().is_err() {
-            error!("Failed to stop while dropping motor!")
-        };
+        self.stop();
     }
 }

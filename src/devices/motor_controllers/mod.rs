@@ -9,6 +9,7 @@ pub mod print_motor;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MotorStateKind {
     Unknown,
+    Unexported,
     Ok
 }
 
