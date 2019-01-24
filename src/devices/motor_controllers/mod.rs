@@ -30,6 +30,7 @@ pub trait MotorController: Send {
     /// Inverts the directionality of the motor controller.
     fn invert(&mut self);
 
+    /// Returns the current motor state
     fn get_motor_state(&self) -> MotorState;
 }
 
