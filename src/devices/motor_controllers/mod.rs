@@ -49,7 +49,7 @@ impl MotorState {
         self.motor
     }
 
-    pub fn get_state(&self) -> MotorStateKind {
+    pub fn get_kind(&self) -> MotorStateKind {
         self.kind.clone()
     }
 }

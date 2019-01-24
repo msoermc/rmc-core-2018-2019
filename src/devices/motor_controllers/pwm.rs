@@ -15,17 +15,20 @@ pub struct PwmMotor {
     id: MotorID,
     pwm: Pwm,
     direction: Pin,
+    state: MotorState,
 }
 
 impl MotorController for PwmMotor {
-    fn set_speed(&mut self, new_speed: f32) -> MotorState {
+    fn set_speed(&mut self, new_speed: f32) {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
             if self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32).is_err() {
                 self.pwm.export()?;
                 self.pwm.set_duty_cycle_ns(pwm_out.abs() as u32)
             } else {
-                Ok(())
+                if MotorStateKind::Ok != self.state.get_kind() {
+                    self.state.kind = MotorStateKind::Ok;
+                }
             }
         };
 
