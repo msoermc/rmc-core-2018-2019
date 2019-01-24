@@ -1,9 +1,37 @@
-html, body, div, br, h1, p {
+html, body, div, br, h1, p, input, button {
     margin: 0;
     padding: 0;
+    color: springgreen;
 }
 
 p {
     clear: both;
     float: left;
+}
+
+table {
+    width: 20%;
+}
+
+td {
+    width: 20%;
+    height: 100%;
+}
+
+input {
+    background-color: darkslategray;
+    border: 0 !important;
+    outline-color: slategray;
+}
+
+button {
+    border-color: orangered;
+}
+
+input, button {
+    background-color: darkslategray;
+    color: springgreen;
+    width: 100%;
+    height: 100%;
+    display: flex;
 }
