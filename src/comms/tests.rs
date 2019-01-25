@@ -42,18 +42,18 @@ fn setup() -> TestEnvironment {
 fn test_drive_request() {
     let env = setup();
 
-    let response = env.client.post("/drive/1.0/1.0").dispatch();
+    let response = env.client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     assert_eq!(Status::Ok, response.status());
 
     if let RobotControllerCommand::Drive(result) = env.receiver.recv().unwrap() {
-        assert_eq!(1.0, result.left_speed);
-        assert_eq!(1.0, result.right_speed);
+        assert_eq!(1.0, result.get_left_speed());
+        assert_eq!(1.0, result.get_right_speed());
     } else {
         panic!("Expected drive command, got {:?}!", )
     }
 
     // bad request
-    let response = env.client.post("/drive/1.0/1.1").dispatch();
+    let response = env.client.post("/robot/drive_train/drive/1.0/1.1").dispatch();
     assert_eq!(Status::BadRequest, response.status());
     assert!(env.receiver.try_recv().is_err());
 }
@@ -62,7 +62,7 @@ fn test_drive_request() {
 fn test_kill() {
     let env = setup();
     *env.status.write().unwrap() = RobotLifeStatus::Alive;
-    let response = env.client.post("/kill").dispatch();
+    let response = env.client.post("/robot/kill").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotLifeStatus::Dead, *env.status.read().unwrap());
 }
@@ -71,7 +71,7 @@ fn test_kill() {
 fn test_revive() {
     let env = setup();
     *env.status.write().unwrap() = RobotLifeStatus::Dead;
-    let response = env.client.post("/revive").dispatch();
+    let response = env.client.post("/robot/revive").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotLifeStatus::Alive, *env.status.read().unwrap());
 }
@@ -79,7 +79,7 @@ fn test_revive() {
 #[test]
 fn test_enable_drive() {
     let env = setup();
-    let response = env.client.post("/enable/drive_train").dispatch();
+    let response = env.client.post("/robot/drive_train/enable").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotControllerCommand::Enable, env.receiver.try_recv().unwrap());
 }
@@ -87,7 +87,7 @@ fn test_enable_drive() {
 #[test]
 fn test_disable_drive() {
     let env = setup();
-    let response = env.client.post("/disable/drive_train").dispatch();
+    let response = env.client.post("/robot/drive_train/disable").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotControllerCommand::Disable, env.receiver.try_recv().unwrap());
 }
@@ -95,7 +95,7 @@ fn test_disable_drive() {
 #[test]
 fn test_brake() {
     let env = setup();
-    let response = env.client.post("/brake").dispatch();
+    let response = env.client.post("/robot/drive_train/brake").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(RobotControllerCommand::Brake, env.receiver.try_recv().unwrap());
 }
@@ -111,7 +111,7 @@ fn test_index() {
 #[test]
 fn test_file() {
     let env = setup();
-    let mut response = env.client.get("/main.css").dispatch();
+    let mut response = env.client.get("/static/main.css").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert!(response.body().is_some());
 }

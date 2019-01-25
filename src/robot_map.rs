@@ -41,12 +41,18 @@ pub enum MotorID {
     DriveTrainFrontRight,
     DriveTrainRearLeft,
     DriveTrainRearRight,
+    Null
 }
 
 impl ToString for MotorID {
     fn to_string(&self) -> String {
-        // TODO Implement motor strings
-        unimplemented!()
+        match self {
+            MotorID::Null => unimplemented!(),
+            MotorID::DriveTrainFrontLeft => "dtfl".to_owned(),
+            MotorID::DriveTrainFrontRight => "dtfr".to_owned(),
+            MotorID::DriveTrainRearLeft => "dtrl".to_owned(),
+            MotorID::DriveTrainRearRight => "dtrr".to_owned(),
+        }
     }
 }
 
@@ -62,3 +68,18 @@ pub const PORT: u16 = 2401;
 pub const LOG_PATH: &str = "./rmc.log";
 
 pub const LOG_FILTER_LEVEL: Level = Level::Info;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::panic::catch_unwind;
+
+    #[test]
+    fn test_motor_id_to_string() {
+        assert!(catch_unwind(|| MotorID::Null.to_string()).is_err());
+        assert_eq!("dtfl".to_owned(), MotorID::DriveTrainFrontLeft.to_string());
+        assert_eq!("dtfr".to_owned(), MotorID::DriveTrainFrontRight.to_string());
+        assert_eq!("dtrl".to_owned(), MotorID::DriveTrainRearLeft.to_string());
+        assert_eq!("dtrr".to_owned(), MotorID::DriveTrainRearRight.to_string());
+    }
+}
