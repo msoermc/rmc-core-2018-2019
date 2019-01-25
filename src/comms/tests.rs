@@ -46,8 +46,8 @@ fn test_drive_request() {
     assert_eq!(Status::Ok, response.status());
 
     if let RobotControllerCommand::Drive(result) = env.receiver.recv().unwrap() {
-        assert_eq!(1.0, result.left_speed);
-        assert_eq!(1.0, result.right_speed);
+        assert_eq!(1.0, result.get_left_speed());
+        assert_eq!(1.0, result.get_right_speed());
     } else {
         panic!("Expected drive command, got {:?}!", )
     }
