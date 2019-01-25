@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["MotorFailureKind",""]],"mod":[["motor_group",""],["print_motor",""],["pwm",""],["test_motor",""]],"struct":[["MotorFailure",""]],"trait":[["MotorController",""]]});
+initSidebarItems({"enum":[["MotorStateKind",""]],"mod":[["motor_group",""],["print_motor",""],["pwm",""],["test_motor",""]],"struct":[["MotorState",""]],"trait":[["MotorController",""]]});
