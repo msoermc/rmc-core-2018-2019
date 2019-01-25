@@ -108,8 +108,8 @@ impl RobotView {
 /// This is composed of the left and right speeds.
 #[derive(Clone, Debug, PartialEq)]
 pub struct DriveCommandMessage {
-    pub left_speed: f32,
-    pub right_speed: f32,
+    left_speed: f32,
+    right_speed: f32,
 }
 
 impl DriveCommandMessage {
@@ -120,6 +120,14 @@ impl DriveCommandMessage {
         } else {
             Ok(Self { left_speed, right_speed })
         }
+    }
+
+    pub fn get_left_speed(&self) -> f32 {
+        self.left_speed
+    }
+
+    pub fn get_right_speed(&self) -> f32 {
+        self.right_speed
     }
 }
 

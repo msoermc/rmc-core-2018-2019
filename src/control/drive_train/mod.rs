@@ -3,7 +3,7 @@ use std::sync::RwLock;
 
 use crate::control::RobotLifeStatus;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::MotorFailure;
+use crate::devices::motor_controllers::MotorState;
 
 #[cfg(test)]
 mod tests;
@@ -27,68 +27,29 @@ impl DriveTrain {
     }
 
     /// Runs a cycle of the drive train, instructing all motors to do what they did last time.
-    pub fn run_cycle(&mut self) -> Result<(), Vec<MotorFailure>> {
-        let mut errors = Vec::new();
-
+    pub fn run_cycle(&mut self) {
         if self.is_enabled && *self.robot_status.read().expect("Drive train failed to read life") == RobotLifeStatus::Alive {
-            if let Err(e) = &mut self.maintain_last() {
-                errors.append(e);
-            }
-        } else if let Err(e) = &mut self.brake() {
-            errors.append(e);
-        }
-
-        if errors.is_empty() {
-            Ok(())
+            self.maintain_last();
         } else {
-            Err(errors)
+            self.brake();
         }
     }
 
     /// Drives the robot at the supplied speeds.
-    pub fn drive(&mut self, left_speed: f32, right_speed: f32) -> Result<(), Vec<MotorFailure>> {
-        let mut errors = Vec::new();
+    pub fn drive(&mut self, left_speed: f32, right_speed: f32) {
         if *self.robot_status.read().unwrap() == RobotLifeStatus::Alive && self.is_enabled {
-            if let Err(e) = &mut self.left.set_speed(left_speed) {
-                errors.append(e);
-            }
-
-            if let Err(e) = &mut self.right.set_speed(right_speed) {
-                errors.append(e);
-            }
+            self.left.set_speed(left_speed);
+            self.right.set_speed(right_speed);
         } else {
-            if let Err(e) = &mut self.left.stop() {
-                errors.append(e);
-            }
-
-            if let Err(e) = &mut self.right.stop() {
-                errors.append(e);
-            }
-        }
-
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
+            self.left.stop();
+            self.right.stop();
         }
     }
 
     /// Causes the robot to brake.
-    pub fn brake(&mut self) -> Result<(), Vec<MotorFailure>> {
-        let mut errors = Vec::new();
-        if let Err(e) = &mut self.left.stop() {
-            errors.append(e);
-        }
-
-        if let Err(e) = &mut self.right.stop() {
-            errors.append(e);
-        }
-
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
-        }
+    pub fn brake(&mut self) {
+        self.left.stop();
+        self.right.stop();
     }
 
     /// Enables the `DriveTrain`.
@@ -97,24 +58,19 @@ impl DriveTrain {
     }
 
     /// Disables the `DriveTrain`.
-    pub fn disable(&mut self) -> Result<(), Vec<MotorFailure>> {
+    pub fn disable(&mut self) {
         self.is_enabled = false;
-        self.brake()
+        self.brake();
     }
 
-    fn maintain_last(&mut self) -> Result<(), Vec<MotorFailure>> {
-        let mut errors = Vec::new();
-        if let Err(e) = &mut self.left.maintain_last() {
-            errors.append(e);
-        }
-        if let Err(e) = &mut self.right.maintain_last() {
-            errors.append(e);
-        }
+    pub fn get_motor_states(&self) -> Vec<MotorState> {
+        let mut states = self.left.get_states();
+        states.append(&mut self.right.get_states());
+        states
+    }
 
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
-        }
+    fn maintain_last(&mut self) {
+        self.left.maintain_last();
+        self.right.maintain_last();
     }
 }
