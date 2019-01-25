@@ -1,6 +1,7 @@
 use crate::devices::motor_controllers::test_motor::TestMotor;
 
 use super::*;
+use crate::devices::motor_controllers::MotorStateKind;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
@@ -23,7 +24,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -31,7 +32,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test cycle
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -39,7 +40,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test brake
-    drive_train.brake().expect("Drive command had not reason to fail!");
+    drive_train.brake();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -47,7 +48,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test cycle
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -55,7 +56,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -66,7 +67,7 @@ fn test_cycle_no_fail_no_inversion() {
     *status.write().unwrap() = RobotLifeStatus::Dead;
 
     // Test cycle
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -77,8 +78,8 @@ fn test_cycle_no_fail_no_inversion() {
     *status.write().unwrap() = RobotLifeStatus::Alive;
 
     // Test cycle
-    drive_train.drive(1.0, 1.0).unwrap();
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -86,10 +87,10 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Disable
-    drive_train.disable().unwrap();
+    drive_train.disable();
 
     // Test cycle
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -100,8 +101,8 @@ fn test_cycle_no_fail_no_inversion() {
     drive_train.enable();
 
     // Test cycle
-    drive_train.drive(1.0, 1.0).unwrap();
-    drive_train.run_cycle().expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
+    drive_train.run_cycle();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -124,7 +125,7 @@ fn test_drive_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -132,7 +133,7 @@ fn test_drive_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test both backwards
-    drive_train.drive(-1.0, -1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(-1.0, -1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -140,7 +141,7 @@ fn test_drive_no_fail_no_inversion() {
     assert_eq!(-1.0, *right.speed.read().unwrap());
 
     // Test right forwards and left backwards
-    drive_train.drive(-1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(-1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -148,7 +149,7 @@ fn test_drive_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test right backwards and left forwards
-    drive_train.drive(1.0, -1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, -1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -171,7 +172,7 @@ fn test_brake_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -179,7 +180,7 @@ fn test_brake_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test brake
-    drive_train.brake().expect("Drive command had not reason to fail!");
+    drive_train.brake();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -202,7 +203,7 @@ fn test_enabling_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -210,7 +211,7 @@ fn test_enabling_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test disable
-    drive_train.disable().expect("Drive command had not reason to fail!");
+    drive_train.disable();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -218,7 +219,7 @@ fn test_enabling_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Make sure we can't still drive
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -234,7 +235,7 @@ fn test_enabling_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Make sure we can drive
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -257,7 +258,7 @@ fn test_killing_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test both forwards
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -266,7 +267,7 @@ fn test_killing_no_fail_no_inversion() {
 
     // Test kill
     *status.write().unwrap() = RobotLifeStatus::Dead;
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -282,12 +283,24 @@ fn test_killing_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Make sure we can drive
-    drive_train.drive(1.0, 1.0).expect("Drive command had not reason to fail!");
+    drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
+}
+
+#[test]
+fn test_get_state_no_fail() {
+    let (left, right) = create_groups();
+    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+
+    let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
+
+    drive_train.drive(1.0,1.0);
+
+    assert!(drive_train.get_motor_states().iter().map(|status| status.get_kind() == MotorStateKind::Ok).fold(true, |old, new| old && new));
 }
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
