@@ -6,6 +6,7 @@ use super::*;
 pub struct TestMotor {
     inverted: Arc<RwLock<bool>>,
     speed: Arc<RwLock<f32>>,
+    state: MotorState,
 }
 
 impl MotorController for TestMotor {
@@ -29,7 +30,7 @@ impl MotorController for TestMotor {
     }
 
     fn get_motor_state(&self) -> MotorState {
-        unimplemented!()
+        self.state.clone()
     }
 }
 
@@ -38,6 +39,11 @@ impl TestMotor {
         TestMotor {
             inverted,
             speed,
+            state: MotorState::new(MotorID::Null, MotorStateKind::Ok)
         }
+    }
+
+    fn set_motor_state(&mut self, new_state: MotorState) {
+        self.state = new_state;
     }
 }
