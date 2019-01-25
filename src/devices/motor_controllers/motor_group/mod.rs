@@ -5,7 +5,6 @@ use crate::devices::motor_controllers::MotorState;
 mod tests;
 
 pub struct MotorGroup {
-    is_inverted: bool,
     motors: Vec<Box<MotorController>>,
     old_speed: f32,
 }
@@ -13,7 +12,6 @@ pub struct MotorGroup {
 impl MotorGroup {
     pub fn new(motors: Vec<Box<MotorController>>) -> Self {
         MotorGroup {
-            is_inverted: false,
             motors,
             old_speed: 0.0,
         }
@@ -30,13 +28,8 @@ impl MotorGroup {
     }
 
     pub fn invert(&mut self) {
-        self.is_inverted = !self.is_inverted;
         self.old_speed = -self.old_speed;
         self.run_operation(|motor| motor.invert())
-    }
-
-    pub fn is_inverted(&self) -> bool {
-        self.is_inverted
     }
 
     pub fn maintain_last(&mut self) {
