@@ -22,34 +22,10 @@ impl Runnable for RobotController {
 
     fn run(&mut self) {
         if let Ok(message) = self.command_receiver.try_recv() {
-            let res = match message {
-                RobotControllerCommand::Drive(drive_command) => {
-                    self.drive_train.drive(drive_command.left_speed, drive_command.right_speed)
-                }
-                RobotControllerCommand::Brake => {
-                    self.drive_train.brake()
-                }
-                RobotControllerCommand::Enable => {
-                    self.drive_train.enable();
-                    Ok(())
-                }
-                RobotControllerCommand::Disable => {
-                    self.drive_train.disable()
-                }
-            };
-
-            if let Err(errors) = res {
-                for error in errors {
-                    // TODO
-                }
-            }
+            self.handle_message(message);
         }
 
-        if let Err(errors) = self.drive_train.run_cycle() {
-            for error in errors {
-                // TODO
-            }
-        }
+        self.process_states();
     }
 }
 
@@ -63,5 +39,26 @@ impl RobotController {
             drive_train,
             life_status,
         }
+    }
+
+    fn handle_message(&mut self, message: RobotControllerCommand) {
+        match message {
+            RobotControllerCommand::Drive(drive_command) => {
+                self.drive_train.drive(drive_command.left_speed, drive_command.right_speed)
+            }
+            RobotControllerCommand::Brake => {
+                self.drive_train.brake()
+            }
+            RobotControllerCommand::Enable => {
+                self.drive_train.enable();
+            }
+            RobotControllerCommand::Disable => {
+                self.drive_train.disable()
+            }
+        }
+    }
+
+    fn process_states(&mut self) {
+        // TODO implement
     }
 }
