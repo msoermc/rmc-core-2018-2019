@@ -107,7 +107,7 @@ impl Robot {
         }
     }
 
-    pub fn launch(mut self) {
+    pub fn launch(self) {
         let bfr = self.bfr;
         let mut controller = self.controller;
         let controller_thread = spawn(move || controller.start());
@@ -116,7 +116,7 @@ impl Robot {
         controller_thread.join().expect("Controller thread panicked!");
     }
 
-    pub fn launch_tester(mut self) -> Client {
+    pub fn launch_tester(self) -> Client {
         let bfr = self.bfr;
         let mut controller = self.controller;
 

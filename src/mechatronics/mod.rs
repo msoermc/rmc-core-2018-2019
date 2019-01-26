@@ -99,7 +99,10 @@ impl MechatronicsMessageSender {
                 *flag = status;
                 Ok(())
             }
-            Err(_) => Err(error!("Failed to revive robot!")),
+            Err(_) => {
+                error!("Failed to revive robot!");
+                Err(())
+            },
         }
     }
 }
@@ -116,7 +119,8 @@ impl DriveCommandMessage {
     /// Constructs a drive command message, returning `Err(LogData)` if invalid arguments are given.
     pub fn create(left_speed: f32, right_speed: f32) -> Result<Self, ()> {
         if !(check_speed(left_speed) && check_speed(right_speed)) {
-            Err(warn!("Error in creating a DriveCommandMessage: left speed and right speed must be in range [-1, 1]!"))
+            warn!("Error in creating a DriveCommandMessage: left speed and right speed must be in range [-1, 1]!");
+            Err(())
         } else {
             Ok(Self { left_speed, right_speed })
         }
