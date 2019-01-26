@@ -9,7 +9,6 @@ use sysfs_gpio::Pin;
 use sysfs_pwm::Pwm;
 
 use crate::comms;
-use crate::comms::ServerSender;
 use crate::devices::enable_pins;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
@@ -20,6 +19,7 @@ use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::mechatronics::RobotLifeStatus;
 use crate::robot_map::*;
+use rocket::local::Client;
 
 pub struct RobotBuilder {
     left_drive: Option<MotorGroup>,
@@ -87,5 +87,38 @@ impl RobotBuilder {
         let _rocket_thread = spawn(move || bfr.launch());
 
         controller_thread.join().expect("Controller thread panicked!");
+    }
+
+    pub fn launch_tester(self) -> Client {
+        let (controller_sender, controller_receiver) = channel();
+
+        // Create Robot status
+        let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+
+        // Create RobotView
+        let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
+
+        // Create server
+        let (server_sender, bfr) = comms::stage(robot_view);
+
+        // Create DriveTrain
+        let drive_train = match (self.left_drive, self.right_drive) {
+            (Some(left), Some(right)) => DriveTrain::new(left, right, robot_status.clone()),
+            _ => {
+                let left_motor = Box::new(PrintMotor::new("Left"));
+                let right_motor = Box::new(PrintMotor::new("Right"));
+
+                let left_group = MotorGroup::new(vec![left_motor]);
+                let right_group = MotorGroup::new(vec![right_motor]);
+                DriveTrain::new(left_group, right_group, robot_status.clone())
+            }
+        };
+
+        // Create Robot Controller
+        let mut robot_controller = RobotController::new(server_sender.clone(), controller_receiver, drive_train, robot_status);
+
+        // Create threads
+        spawn(move || robot_controller.start());
+        Client::new(bfr).expect("Failed to launch client!")
     }
 }
