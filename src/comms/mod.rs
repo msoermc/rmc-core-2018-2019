@@ -9,8 +9,7 @@ use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
-
-use crate::control::RobotView;
+use crate::mechatronics::RobotView;
 
 #[cfg(test)]
 mod tests;

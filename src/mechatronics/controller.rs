@@ -4,9 +4,9 @@ use std::sync::RwLock;
 
 use crate::comms::ServerSender;
 use crate::framework::Runnable;
-use crate::control::RobotControllerCommand;
-use crate::control::drive_train::DriveTrain;
-use crate::control::RobotLifeStatus;
+use crate::mechatronics::RobotControllerCommand;
+use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::RobotLifeStatus;
 
 pub struct RobotController {
     driver_station_view: ServerSender,

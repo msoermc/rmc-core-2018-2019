@@ -38,14 +38,16 @@ pub mod run_modes;
 /// The comms module contains the code for running the HTTP server
 pub mod comms;
 
-/// The control module contains all code for the controlling logic of the physical robot.
+/// The mechatronics module contains all code for the controlling logic of the physical robot.
 /// This includes managing subsystems like the drive train and MH.
-pub mod control;
+pub mod mechatronics;
 
 /// The robot map is a file filled with key constants such as pin numbers and network ports that
 /// may change over time.
 /// It is used to make reconfiguring pinouts a simpler process.
 pub mod robot_map;
+
+pub mod robot;
 
 fn main() {
     let term_decorator = slog_term::TermDecorator::new().force_color().build();

@@ -5,10 +5,10 @@ use std::thread::spawn;
 
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
-use crate::control::RobotLifeStatus;
-use crate::control::RobotView;
-use crate::control::drive_train::DriveTrain;
-use crate::control::controller::RobotController;
+use crate::mechatronics::RobotLifeStatus;
+use crate::mechatronics::RobotView;
+use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::controller::RobotController;
 use crate::comms;
 
 pub mod demo_mode;
