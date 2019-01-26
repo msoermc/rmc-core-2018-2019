@@ -23,7 +23,7 @@ pub enum RobotLifeStatus {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum RobotControllerCommand {
+pub enum MechatronicsCommand {
     Drive(DriveCommandMessage),
     Brake,
     Enable,
@@ -33,15 +33,15 @@ pub enum RobotControllerCommand {
 /// The `RobotView` struct is represents a view into the `RobotController`.
 /// It is used to send requests to the controller to perform operations.
 /// It is primarily used for inter thread messaging.
-pub struct RobotView {
-    channel: Sender<RobotControllerCommand>,
+pub struct MechatronicsMessageSender {
+    channel: Sender<MechatronicsCommand>,
     robot_life_status: Arc<RwLock<RobotLifeStatus>>,
 }
 
-impl RobotView {
+impl MechatronicsMessageSender {
     /// Constructs a view, using a supplied `Sender` to send messages to the `RobotController`.
     /// The other end of the channel should be owned by the `RobotController`.
-    pub fn new(channel: Sender<RobotControllerCommand>, robot_life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
         Self {
             channel,
             robot_life_status,
@@ -69,27 +69,27 @@ impl RobotView {
             Err(_) => return Err(()),
         };
 
-        self.send_command(RobotControllerCommand::Drive(command));
+        self.send_command(MechatronicsCommand::Drive(command));
 
         Ok(())
     }
 
     /// Instructs the drive train to begin braking, halting all motion.
     pub fn brake(&self) {
-        self.send_command(RobotControllerCommand::Brake)
+        self.send_command(MechatronicsCommand::Brake)
     }
 
     /// Reenables the drive train, allowing motor control.
     pub fn enable_drive_train(&self) {
-        self.send_command(RobotControllerCommand::Enable)
+        self.send_command(MechatronicsCommand::Enable)
     }
 
     /// Disables the drive train, preventing motor control and causeing it to brake.
     pub fn disable_drive_train(&self)  {
-        self.send_command(RobotControllerCommand::Disable)
+        self.send_command(MechatronicsCommand::Disable)
     }
 
-    fn send_command(&self, command: RobotControllerCommand) {
+    fn send_command(&self, command: MechatronicsCommand) {
         self.channel.send(command).unwrap();
     }
 

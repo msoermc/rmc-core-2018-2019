@@ -23,7 +23,7 @@ fn setup() -> TestEnvironment {
     let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
 
     // Create RobotView
-    let robot_view = RobotView::new(controller_sender, robot_status.clone());
+    let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
     // Create server
     let (server_sender, grasshopper) = comms::stage(robot_view);

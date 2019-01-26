@@ -49,29 +49,10 @@ pub mod robot_map;
 
 pub mod robot;
 
+pub mod logging;
+
 fn main() {
-    let term_decorator = slog_term::TermDecorator::new().force_color().build();
-    let term_drain = slog_term::FullFormat::new(term_decorator).build().fuse();
-    let term_drain = slog_async::Async::new(term_drain).build().fuse();
-
-    let file = OpenOptions::new()
-        .create(true)
-        .write(true)
-        .append(true)
-        .open(LOG_PATH)
-        .unwrap();
-
-    let file_decorator = slog_term::PlainDecorator::new(file);
-    let file_drain = slog_term::FullFormat::new(file_decorator).build().fuse();
-    let file_drain = slog_async::Async::new(file_drain).build().fuse();
-
-    let broadcaster = Duplicate::new(term_drain, file_drain)
-        .filter_level(LOG_FILTER_LEVEL);
-
-    let logger = slog::Logger::root(broadcaster.fuse(), o!());
-
-    let _scope_guard = slog_scope::set_global_logger(logger);
-    let _log_guard = slog_stdlog::init().unwrap();
+    let _logging_guard = logging::launch_logger();
 
     run_demo_mode();
 }

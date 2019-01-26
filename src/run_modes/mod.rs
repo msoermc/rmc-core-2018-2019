@@ -3,13 +3,13 @@ use std::sync::mpsc::channel;
 use std::sync::RwLock;
 use std::thread::spawn;
 
+use crate::comms;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::framework::Runnable;
-use crate::mechatronics::RobotLifeStatus;
-use crate::mechatronics::RobotView;
-use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::controller::RobotController;
-use crate::comms;
+use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::MechatronicsMessageSender;
+use crate::mechatronics::RobotLifeStatus;
 
 pub mod demo_mode;
 pub mod run_drive_train;
@@ -21,7 +21,7 @@ fn run_with_motors(left_group: MotorGroup, right_group: MotorGroup) {
     let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
 
     // Create RobotView
-    let robot_view = RobotView::new(controller_sender, robot_status.clone());
+    let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
     // Create server
     let (server_sender, bfr) = comms::stage(robot_view);
