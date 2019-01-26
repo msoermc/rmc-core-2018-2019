@@ -121,4 +121,11 @@ impl RobotBuilder {
         spawn(move || robot_controller.start());
         Client::new(bfr).expect("Failed to launch client!")
     }
+
+    pub fn new() -> Self {
+        Self {
+            left_drive: None,
+            right_drive: None
+        }
+    }
 }

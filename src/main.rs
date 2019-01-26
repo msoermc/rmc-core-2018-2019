@@ -13,15 +13,6 @@ extern crate slog_stdlog;
 extern crate slog_term;
 
 
-use std::fs::OpenOptions;
-
-use slog::Drain;
-use slog::Duplicate;
-
-use crate::robot_map::*;
-use crate::run_modes::demo_mode::run_demo_mode;
-use crate::run_modes::run_drive_train::run_drive_train;
-
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
@@ -29,11 +20,6 @@ pub mod framework;
 /// The devices module contains code for interfacing with various peripheral devices employed by the robot.
 /// This category includes sensors and motor controllers.
 pub mod devices;
-
-/// The run_modes module contains various modes for running the robot.
-/// Most of the modes are for test purposes only.
-/// Modes are meant to be switched out by altering the code in `main`.
-pub mod run_modes;
 
 /// The comms module contains the code for running the HTTP server
 pub mod comms;
@@ -53,6 +39,7 @@ pub mod logging;
 
 fn main() {
     let _logging_guard = logging::launch_logger();
-
-    run_demo_mode();
+    let mut robot_builder = robot::RobotBuilder::new();
+    //robot_builder.add_real_drive();
+    robot_builder.launch();
 }
