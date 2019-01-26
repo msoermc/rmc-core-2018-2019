@@ -1,66 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mission Control</title>
-    <link rel="stylesheet" href="/static/dark.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/style.js"></script>
-    <script type="text/javascript" src="/static/requests.js"></script>
-    <script type="text/javascript" src="/static/gamepad.js"></script>
-</head>
-<body>
-<!--<audio autoplay>-->
-<!--    <source src="soviet-anthem.mp3" type="audio/mpeg">-->
-<!--    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.-->
-<!--</audio>-->
-<h1>Mission Control</h1>
-<script>
-    init();
-</script>
-<div>
-    <table>
-        <tr>
-            <td>
-                Left Speed
-                <input type="text" id="left-drive" name="textField">
-            </td>
-            <td>
-                Right Speed
-                <input type="text" id="right-drive" name="textField">
-            </td>
-            <td>
-                <button onclick="post_drive()">Drive</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button onclick="post_kill()">Kill</button>
-            </td>
-            <td>
-                <button onclick="post_revive()">Revive</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button onclick="post_enable_drive_train()">Enable Drive</button>
-            </td>
-            <td>
-                <button onclick="post_disable_drive_train()">Disable Drive</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button onclick="post_brake()">Brake</button>
-            </td>
-        </tr>
-    </table>
-    <!--Left:-->
-    <!--<input type="text" id="left-drive" name="textField" required maxlength="8">-->
-    <!--Right:-->
-    <!--<input type="text" id="right-drive" name="textField" required maxlength="8">-->
-    <!--<button onclick="post_drive()">Drive</button>-->
-    <br>
-</div>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Mission Control</title>
+        <link rel="stylesheet" href="main.css">
+        <!-- <link rel="stylesheet" href="dark.css"> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script type="text/javascript" src="style.js"></script>
+        <script type="text/javascript" src="requests.js"></script>
+        <script type="text/javascript" src="gamepad.js"></script>
+        <!-- add /static/ to imported files -->
+    </head>
+    <body>
+        <!--<audio autoplay>-->
+        <!--    <source src="soviet-anthem.mp3" type="audio/mpeg">-->
+        <!--    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.-->
+        <!--</audio>-->
+        <h1>Mission Control</h1>
+        <script>
+            init();
+        </script>
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        Left Speed
+                        <input type="text" id="left-drive" name="textField">
+                    </td>
+                    <td>
+                        Right Speed
+                        <input type="text" id="right-drive" name="textField">
+                    </td>
+                    <td>
+                        <button onclick="post_drive()">Drive</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button onclick="post_kill()">Kill</button>
+                    </td>
+                    <td>
+                        <button onclick="post_revive()">Revive</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button onclick="post_enable_drive_train()">Enable Drive</button>
+                    </td>
+                    <td>
+                        <button onclick="post_disable_drive_train()">Disable Drive</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button onclick="post_brake()">Brake</button>
+                    </td>
+                </tr>
+            </table>
+            <!--Left:-->
+            <!--<input type="text" id="left-drive" name="textField" required maxlength="8">-->
+            <!--Right:-->
+            <!--<input type="text" id="right-drive" name="textField" required maxlength="8">-->
+            <!--<button onclick="post_drive()">Drive</button>-->
+            <br>
+        </div>
+        <div id="gamepadView">
+            <div id="axis-powers">
+                <canvas id="movement-axis" width="100" height="100"></canvas>
+                <p id="connectionStatus">Disconnected</p>
+                <canvas id="camera-axis" width="100" height="100"></canvas>
+            </div>
+            <div>
+                <canvas id="buttons"></canvas>
+            </div>
+        </div>
+    </body>
 </html>
