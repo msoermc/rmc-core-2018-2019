@@ -109,8 +109,6 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">sysfs_gpio</span>::<span class="ident">Direction</span>;
 <span class="kw">use</span> <span class="ident">sysfs_gpio</span>::<span class="ident">Pin</span>;
@@ -126,7 +124,6 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PwmMotor</span> {
     <span class="ident">is_inverted</span>: <span class="ident">bool</span>,
-    <span class="ident">id</span>: <span class="ident">MotorID</span>,
     <span class="ident">pwm</span>: <span class="ident">Pwm</span>,
     <span class="ident">direction</span>: <span class="ident">Pin</span>,
     <span class="ident">state</span>: <span class="ident">MotorState</span>,
@@ -210,7 +207,6 @@
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">PwmMotor</span> {
                 <span class="ident">is_inverted</span>: <span class="bool-val">false</span>,
-                <span class="ident">id</span>,
                 <span class="ident">pwm</span>,
                 <span class="ident">direction</span>,
                 <span class="ident">state</span>: <span class="ident">MotorState</span>::<span class="ident">new</span>(<span class="ident">id</span>, <span class="ident">MotorStateKind</span>::<span class="prelude-val">Ok</span>),

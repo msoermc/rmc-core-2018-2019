@@ -148,7 +148,6 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
-<span id="151">151</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">PathBuf</span>;
@@ -161,8 +160,7 @@
 <span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">response</span>::<span class="ident">NamedFile</span>;
 <span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">Rocket</span>;
 <span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">State</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">control</span>::<span class="ident">RobotView</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">MechatronicsMessageSender</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
@@ -195,13 +193,13 @@
 
 <span class="kw">struct</span> <span class="ident">ServerState</span> {
     <span class="ident">receiver</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">SendableMessage</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">robot_controller</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">RobotView</span><span class="op">&gt;</span>,
+    <span class="ident">robot_controller</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">MechatronicsMessageSender</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Drive</span> {}
 
 <span class="doccomment">/// Launches the server</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stage</span>(<span class="ident">robot_controller</span>: <span class="ident">RobotView</span>) <span class="op">-&gt;</span> (<span class="ident">ServerSender</span>, <span class="ident">Rocket</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stage</span>(<span class="ident">robot_controller</span>: <span class="ident">MechatronicsMessageSender</span>) <span class="op">-&gt;</span> (<span class="ident">ServerSender</span>, <span class="ident">Rocket</span>) {
     <span class="kw">let</span> (<span class="ident">send</span>, <span class="ident">recv</span>) <span class="op">=</span> <span class="ident">channel</span>();
 
     <span class="kw">let</span> <span class="ident">server_sender</span> <span class="op">=</span> <span class="ident">ServerSender</span>::<span class="ident">new</span>(<span class="ident">send</span>);
