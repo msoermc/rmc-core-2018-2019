@@ -1,8 +1,5 @@
 use std::process::Command;
 
-use sysfs_gpio::Pin;
-use sysfs_pwm::Pwm;
-
 pub mod motor_controllers;
 pub mod sensors;
 
