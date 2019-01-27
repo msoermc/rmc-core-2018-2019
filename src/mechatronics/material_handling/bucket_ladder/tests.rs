@@ -32,6 +32,15 @@ fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
 }
 
 #[test]
+fn test_setup() {
+    let (actuators, digger) = create_groups();
+    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
+
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+}
+
+#[test]
 fn test_raise() {
     let (actuators, digger) = create_groups();
     let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
