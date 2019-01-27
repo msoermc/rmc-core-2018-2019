@@ -4,13 +4,13 @@ use std::sync::RwLock;
 use rocket::local::Client;
 
 use crate::comms;
-use crate::control::RobotControllerCommand;
-use crate::control::RobotLifeStatus;
+use crate::mechatronics::MechatronicsCommand;
+use crate::mechatronics::RobotLifeStatus;
 
 use super::*;
 
 struct TestEnvironment {
-    receiver: Receiver<RobotControllerCommand>,
+    receiver: Receiver<MechatronicsCommand>,
     sender: ServerSender,
     client: Client,
     status: Arc<RwLock<RobotLifeStatus>>
@@ -23,7 +23,7 @@ fn setup() -> TestEnvironment {
     let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
 
     // Create RobotView
-    let robot_view = RobotView::new(controller_sender, robot_status.clone());
+    let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
     // Create server
     let (server_sender, grasshopper) = comms::stage(robot_view);
@@ -45,7 +45,7 @@ fn test_drive_request() {
     let response = env.client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     assert_eq!(Status::Ok, response.status());
 
-    if let RobotControllerCommand::Drive(result) = env.receiver.recv().unwrap() {
+    if let MechatronicsCommand::Drive(result) = env.receiver.recv().unwrap() {
         assert_eq!(1.0, result.get_left_speed());
         assert_eq!(1.0, result.get_right_speed());
     } else {
@@ -81,7 +81,7 @@ fn test_enable_drive() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/enable").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotControllerCommand::Enable, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::Enable, env.receiver.try_recv().unwrap());
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn test_disable_drive() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/disable").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotControllerCommand::Disable, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::Disable, env.receiver.try_recv().unwrap());
 }
 
 #[test]
@@ -97,7 +97,7 @@ fn test_brake() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/brake").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotControllerCommand::Brake, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::Brake, env.receiver.try_recv().unwrap());
 }
 
 #[test]
