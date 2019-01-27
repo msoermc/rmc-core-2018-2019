@@ -1,6 +1,9 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::robot_map::*;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, PartialEq)]
 enum ActuatorState {
     Rising,
@@ -23,6 +26,16 @@ pub struct BucketLadder {
 }
 
 impl BucketLadder {
+    pub fn new(digger: MotorGroup, actuators: MotorGroup) -> Self {
+        Self {
+            is_enabled: false,
+            actuators,
+            digger,
+            digger_state: DiggerState::Stopped,
+            actuator_state: ActuatorState::Stopped
+        }
+    }
+
     pub fn enable(&mut self) {
         self.is_enabled = true;
     }
