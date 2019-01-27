@@ -11,8 +11,8 @@ enum ActuatorState {
 
 #[derive(Clone, PartialEq)]
 enum DiggerState {
-    Digging(f32),
-    Jammed,
+    Digging,
+    Stopped,
 }
 
 pub struct BucketLadder {
@@ -23,6 +23,7 @@ pub struct BucketLadder {
     actuator_state: ActuatorState,
     lower_limit_switch: Box<DigitalInput>,
     upper_limit_switch: Box<DigitalInput>,
+    jam_detector: Box<DigitalInput>,
 }
 
 impl BucketLadder {
@@ -42,7 +43,7 @@ impl BucketLadder {
             }
         } else {
             error!("Failed to read limit switch value!");
-            self.freeze_height();
+            self.stop_actuators();
         }
     }
 
@@ -54,28 +55,38 @@ impl BucketLadder {
             }
         } else {
             error!("Failed to read limit switch value!");
-            self.freeze_height();
+            self.stop_actuators();
         }
     }
 
-    pub fn freeze_height(&mut self) {
+    pub fn stop_actuators(&mut self) {
         self.actuators.stop();
         self.actuator_state = ActuatorState::Stopped;
     }
 
     pub fn dig(&mut self) {
         self.digger.set_speed(DIGGING_RATE);
+        self.digger_state = DiggerState::Digging;
     }
 
     pub fn stop_digging(&mut self) {
         self.digger.stop();
+        self.digger_state = DiggerState::Stopped;
     }
 
     pub fn run_cycle(&mut self) {
-        unimplemented!()
-    }
+        match self.actuator_state {
+            ActuatorState::Rising => self.raise(),
+            ActuatorState::Lowering => self.lower(),
+            ActuatorState::Stopped => self.stop_actuators(),
+        }
 
-    pub fn is_jammed(&self) -> bool {
-        self.digger_state == DiggerState::Jammed
+        if let Ok(is_jammed) = self.jam_detector.get_value() {
+            if is_jammed {
+                self.stop_digging();
+            }
+        } else {
+            self.stop_digging();
+        }
     }
 }
