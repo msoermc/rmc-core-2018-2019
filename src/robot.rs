@@ -11,7 +11,7 @@ use crate::comms;
 use crate::devices::enable_pins;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
-use crate::devices::motor_controllers::pwm::PwmMotor;
+use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
@@ -44,10 +44,10 @@ impl RobotBuilder {
         let rear_right_direction = Pin::new(REAR_RIGHT_DIRECTION);
         let rear_left_direction = Pin::new(REAR_LEFT_DIRECTION);
 
-        let front_right_motor = Box::new(PwmMotor::create(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight).expect("Front right motor"));
-        let front_left_motor = Box::new(PwmMotor::create(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft).expect("Front left motor"));
-        let rear_right_motor = Box::new(PwmMotor::create(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight).expect("Rear right motor"));
-        let rear_left_motor = Box::new(PwmMotor::create(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft).expect("Rear left motor"));
+        let front_right_motor = Box::new(HoverBoardMotor::create(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight).expect("Front right motor"));
+        let front_left_motor = Box::new(HoverBoardMotor::create(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft).expect("Front left motor"));
+        let rear_right_motor = Box::new(HoverBoardMotor::create(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight).expect("Rear right motor"));
+        let rear_left_motor = Box::new(HoverBoardMotor::create(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft).expect("Rear left motor"));
 
         self.left_drive = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
         self.right_drive = MotorGroup::new(vec![front_right_motor, rear_right_motor]);
