@@ -57,3 +57,21 @@ fn test_stop_actuators() {
     ladder.stop_actuators();
     assert_eq!(0.0, *actuators.speed.read().unwrap());
 }
+
+#[test]
+fn test_dig() {
+    let (actuators, digger) = create_groups();
+    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
+
+    ladder.dig();
+    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
+}
+
+#[test]
+fn test_stop_digger() {
+    let (actuators, digger) = create_groups();
+    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
+
+    ladder.stop_digging();
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+}
