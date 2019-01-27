@@ -4,6 +4,7 @@ use std::sync::RwLock;
 use crate::mechatronics::RobotLifeStatus;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorState;
+use crate::mechatronics::GlobalLifeStatus;
 
 #[cfg(test)]
 mod tests;
@@ -13,11 +14,11 @@ pub struct DriveTrain {
     is_enabled: bool,
     left: MotorGroup,
     right: MotorGroup,
-    robot_status: Arc<RwLock<RobotLifeStatus>>,
+    robot_status: GlobalLifeStatus,
 }
 
 impl DriveTrain {
-    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: Arc<RwLock<RobotLifeStatus>>) -> DriveTrain {
+    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: GlobalLifeStatus) -> DriveTrain {
         DriveTrain {
             is_enabled: true,
             left,
@@ -28,7 +29,7 @@ impl DriveTrain {
 
     /// Runs a cycle of the drive train, instructing all motors to do what they did last time.
     pub fn run_cycle(&mut self) {
-        if self.is_enabled && *self.robot_status.read().expect("Drive train failed to read life") == RobotLifeStatus::Alive {
+        if self.is_enabled && self.robot_status.get_status() == RobotLifeStatus::Alive {
             self.maintain_last();
         } else {
             self.brake();
@@ -37,7 +38,7 @@ impl DriveTrain {
 
     /// Drives the robot at the supplied speeds.
     pub fn drive(&mut self, left_speed: f32, right_speed: f32) {
-        if *self.robot_status.read().unwrap() == RobotLifeStatus::Alive && self.is_enabled {
+        if self.robot_status.get_status() == RobotLifeStatus::Alive && self.is_enabled {
             self.left.set_speed(left_speed);
             self.right.set_speed(right_speed);
         } else {

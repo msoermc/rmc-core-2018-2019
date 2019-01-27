@@ -19,6 +19,7 @@ use crate::mechatronics::MechatronicsMessageSender;
 use crate::mechatronics::RobotLifeStatus;
 use crate::robot_map::*;
 use rocket::Rocket;
+use crate::mechatronics::GlobalLifeStatus;
 
 pub struct RobotBuilder {
     left_drive: MotorGroup,
@@ -70,7 +71,7 @@ impl RobotBuilder {
         let (controller_sender, controller_receiver) = channel();
 
         // Create Robot status
-        let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+        let robot_status = GlobalLifeStatus::new();
 
         // Create RobotView
         let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());

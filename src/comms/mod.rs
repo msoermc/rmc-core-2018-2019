@@ -113,11 +113,9 @@ fn handle_disable_drive(state: State<ServerState>) -> Status {
 #[post("/robot/kill")]
 fn handle_kill(state: State<ServerState>) -> Status {
     info!("Received kill message");
-    if state.robot_controller.lock().unwrap().kill().is_err() {
-        Status::InternalServerError
-    } else {
-        Status::Ok
-    }
+    state.robot_controller.lock().unwrap().kill();
+    Status::Ok
+
 }
 
 #[post("/robot/drive_train/brake")]
@@ -130,11 +128,8 @@ fn handle_brake(state: State<ServerState>) -> Status {
 #[post("/robot/revive")]
 fn handle_revive(state: State<ServerState>) -> Status {
     info!("Received revive message");
-    if state.robot_controller.lock().unwrap().revive().is_err() {
-        Status::InternalServerError
-    } else {
-        Status::Ok
-    }
+    state.robot_controller.lock().unwrap().revive();
+    Status::Ok
 }
 
 #[get("/")]

@@ -10,6 +10,8 @@ pub mod controller;
 /// That structure is used to manage the physical drive train and perform operations on it.
 pub mod drive_train;
 
+pub mod material_handling;
+
 /// Represents the current status of the robot.
 /// Many subsystems will check this before determining if it is safe to perform an operation.
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -20,6 +22,31 @@ pub enum RobotLifeStatus {
     /// Indicates that the robot has been disabled by the operators and that it is not
     /// safe to perform many operations.
     Dead,
+}
+
+#[derive(Clone)]
+pub struct GlobalLifeStatus {
+    status: Arc<RwLock<RobotLifeStatus>>
+}
+
+impl GlobalLifeStatus {
+    pub fn new() -> Self {
+        Self {
+            status: Arc::new(RwLock::new(RobotLifeStatus::Alive))
+        }
+    }
+
+    pub fn get_status(&self) -> RobotLifeStatus {
+        *self.status.read().unwrap()
+    }
+
+    pub fn kill(&self) {
+        *self.status.write().unwrap() = RobotLifeStatus::Dead;
+    }
+
+    pub fn revive(&self) {
+        *self.status.write().unwrap() = RobotLifeStatus::Alive;
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -35,13 +62,13 @@ pub enum MechatronicsCommand {
 /// It is primarily used for inter thread messaging.
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
-    robot_life_status: Arc<RwLock<RobotLifeStatus>>,
+    robot_life_status: GlobalLifeStatus,
 }
 
 impl MechatronicsMessageSender {
     /// Constructs a view, using a supplied `Sender` to send messages to the `RobotController`.
     /// The other end of the channel should be owned by the `RobotController`.
-    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: GlobalLifeStatus) -> Self {
         Self {
             channel,
             robot_life_status,
@@ -49,14 +76,15 @@ impl MechatronicsMessageSender {
     }
 
     /// Reenables the robot, allowing motor control.
-    pub fn revive(&self) -> Result<(), ()> {
-        self.change_life_status(RobotLifeStatus::Alive)
+    pub fn revive(&self) {
+        self.robot_life_status.revive();
     }
 
     /// Disables the robot, preventing motor control.
-    pub fn kill(&self) -> Result<(), ()> {
+    pub fn kill(&self) {
         self.brake();
-        self.change_life_status(RobotLifeStatus::Dead)
+        self.robot_life_status.kill();
+        self.brake();
     }
 
     /// Instructs the drive train to begin moving both sides at the provided speeds.
@@ -92,19 +120,6 @@ impl MechatronicsMessageSender {
 
     fn send_command(&self, command: MechatronicsCommand) {
         self.channel.send(command).unwrap();
-    }
-
-    fn change_life_status(&self, status: RobotLifeStatus) -> Result<(), ()> {
-        match self.robot_life_status.write() {
-            Ok(mut flag) => {
-                *flag = status;
-                Ok(())
-            }
-            Err(_) => {
-                error!("Failed to revive robot!");
-                Err(())
-            },
-        }
     }
 }
 

@@ -1,6 +1,3 @@
-use std::sync::Arc;
-use std::sync::RwLock;
-
 use rocket::local::Client;
 
 use crate::comms;
@@ -8,19 +5,20 @@ use crate::mechatronics::MechatronicsCommand;
 use crate::mechatronics::RobotLifeStatus;
 
 use super::*;
+use crate::mechatronics::GlobalLifeStatus;
 
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
     sender: ServerSender,
     client: Client,
-    status: Arc<RwLock<RobotLifeStatus>>
+    status: GlobalLifeStatus
 }
 
 fn setup() -> TestEnvironment {
     let (controller_sender, controller_receiver) = channel();
 
     // Create Robot status
-    let robot_status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let robot_status = GlobalLifeStatus::new();
 
     // Create RobotView
     let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
@@ -61,19 +59,19 @@ fn test_drive_request() {
 #[test]
 fn test_kill() {
     let env = setup();
-    *env.status.write().unwrap() = RobotLifeStatus::Alive;
+    env.status.revive();
     let response = env.client.post("/robot/kill").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotLifeStatus::Dead, *env.status.read().unwrap());
+    assert_eq!(RobotLifeStatus::Dead, env.status.get_status());
 }
 
 #[test]
 fn test_revive() {
     let env = setup();
-    *env.status.write().unwrap() = RobotLifeStatus::Dead;
+    env.status.kill();
     let response = env.client.post("/robot/revive").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotLifeStatus::Alive, *env.status.read().unwrap());
+    assert_eq!(RobotLifeStatus::Alive, env.status.get_status());
 }
 
 #[test]
