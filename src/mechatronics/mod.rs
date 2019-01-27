@@ -55,6 +55,7 @@ impl MechatronicsMessageSender {
 
     /// Disables the robot, preventing motor control.
     pub fn kill(&self) -> Result<(), ()> {
+        self.brake();
         self.change_life_status(RobotLifeStatus::Dead)
     }
 

@@ -98,6 +98,34 @@ fn test_disable_drive() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 }
 
+#[test]
+fn test_kill() {
+    let (left, right) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_drive_groups(left.motor_group, right.motor_group);
+
+    let client = builder.build().launch_tester();
+
+    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
+
+    let status = client.post("/robot/kill").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+
+    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+}
+
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
     let inverted_0 = Arc::new(RwLock::new(false));
     let inverted_1 = Arc::new(RwLock::new(false));
