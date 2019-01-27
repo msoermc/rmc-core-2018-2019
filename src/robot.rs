@@ -25,12 +25,6 @@ pub struct RobotBuilder {
     right_drive: MotorGroup,
 }
 
-impl Default for RobotBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RobotBuilder {
     pub fn use_drive_groups(&mut self, left: MotorGroup, right: MotorGroup) {
         self.left_drive = left;

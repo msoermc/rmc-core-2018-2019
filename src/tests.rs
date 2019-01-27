@@ -11,6 +11,8 @@ use crate::robot::RobotBuilder;
 use std::time::Duration;
 use std::thread::sleep;
 
+const TIMEOUT: u64 = 10;
+
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
     pub speed: Arc<RwLock<f32>>,
@@ -24,7 +26,7 @@ fn test_setup() {
 
     builder.use_drive_groups(left.motor_group, right.motor_group);
 
-    let client = builder.build().launch_tester();
+    let _client = builder.build().launch_tester();
 
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
@@ -40,10 +42,32 @@ fn test_drive() {
     let client = builder.build().launch_tester();
 
     let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
-    sleep(Duration::from_millis(10));
+    sleep(Duration::from_millis(TIMEOUT));
     assert_eq!(Status::Ok, status);
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
+}
+
+#[test]
+fn test_brake() {
+    let (left, right) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_drive_groups(left.motor_group, right.motor_group);
+
+    let client = builder.build().launch_tester();
+
+    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
+
+    let status = client.post("/robot/drive_train/brake").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
 }
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
