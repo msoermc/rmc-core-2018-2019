@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use crate::control::RobotLifeStatus;
+use crate::mechatronics::RobotLifeStatus;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorState;
 
