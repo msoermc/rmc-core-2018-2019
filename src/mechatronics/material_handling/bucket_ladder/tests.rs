@@ -38,6 +38,9 @@ fn test_setup() {
 
     assert_eq!(0.0, *actuators.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
+    ladder.run_cycle();
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
 }
 
 #[test]
@@ -46,6 +49,8 @@ fn test_raise() {
     let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
 
     ladder.raise();
+    assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+    ladder.run_cycle();
     assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
 }
 
@@ -56,6 +61,8 @@ fn test_lower() {
 
     ladder.lower();
     assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+    ladder.run_cycle();
+    assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
 }
 
 #[test]
@@ -64,6 +71,8 @@ fn test_stop_actuators() {
     let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
 
     ladder.stop_actuators();
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    ladder.run_cycle();
     assert_eq!(0.0, *actuators.speed.read().unwrap());
 }
 
@@ -74,6 +83,8 @@ fn test_dig() {
 
     ladder.dig();
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
+    ladder.run_cycle();
+    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
 }
 
 #[test]
@@ -82,5 +93,7 @@ fn test_stop_digger() {
     let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
 
     ladder.stop_digging();
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    ladder.run_cycle();
     assert_eq!(0.0, *digger.speed.read().unwrap());
 }
