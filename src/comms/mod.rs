@@ -9,8 +9,7 @@ use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
-
-use crate::control::RobotView;
+use crate::mechatronics::MechatronicsMessageSender;
 
 #[cfg(test)]
 mod tests;
@@ -43,13 +42,13 @@ impl ServerSender {
 
 struct ServerState {
     receiver: Mutex<Receiver<Box<SendableMessage>>>,
-    robot_controller: Mutex<RobotView>,
+    robot_controller: Mutex<MechatronicsMessageSender>,
 }
 
 struct Drive {}
 
 /// Launches the server
-pub fn stage(robot_controller: RobotView) -> (ServerSender, Rocket) {
+pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rocket) {
     let (send, recv) = channel();
 
     let server_sender = ServerSender::new(send);

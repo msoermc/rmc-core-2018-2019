@@ -12,7 +12,6 @@ const PERIOD_NS: u32 = 20_000;
 
 pub struct PwmMotor {
     is_inverted: bool,
-    id: MotorID,
     pwm: Pwm,
     direction: Pin,
     state: MotorState,
@@ -96,7 +95,6 @@ impl PwmMotor {
         } else {
             Ok(PwmMotor {
                 is_inverted: false,
-                id,
                 pwm,
                 direction,
                 state: MotorState::new(id, MotorStateKind::Ok),

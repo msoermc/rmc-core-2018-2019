@@ -4,13 +4,13 @@ use std::sync::RwLock;
 
 use crate::comms::ServerSender;
 use crate::framework::Runnable;
-use crate::control::RobotControllerCommand;
-use crate::control::drive_train::DriveTrain;
-use crate::control::RobotLifeStatus;
+use crate::mechatronics::MechatronicsCommand;
+use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::RobotLifeStatus;
 
 pub struct RobotController {
     driver_station_view: ServerSender,
-    command_receiver: Receiver<RobotControllerCommand>,
+    command_receiver: Receiver<MechatronicsCommand>,
     drive_train: DriveTrain,
     life_status: Arc<RwLock<RobotLifeStatus>>,
 }
@@ -31,7 +31,7 @@ impl Runnable for RobotController {
 
 impl RobotController {
     pub fn new(driver_station_view: ServerSender,
-               command_receiver: Receiver<RobotControllerCommand>,
+               command_receiver: Receiver<MechatronicsCommand>,
                drive_train: DriveTrain, life_status: Arc<RwLock<RobotLifeStatus>>) -> Self {
         Self {
             driver_station_view,
@@ -41,18 +41,18 @@ impl RobotController {
         }
     }
 
-    fn handle_message(&mut self, message: RobotControllerCommand) {
+    fn handle_message(&mut self, message: MechatronicsCommand) {
         match message {
-            RobotControllerCommand::Drive(drive_command) => {
+            MechatronicsCommand::Drive(drive_command) => {
                 self.drive_train.drive(drive_command.left_speed, drive_command.right_speed)
             }
-            RobotControllerCommand::Brake => {
+            MechatronicsCommand::Brake => {
                 self.drive_train.brake()
             }
-            RobotControllerCommand::Enable => {
+            MechatronicsCommand::Enable => {
                 self.drive_train.enable();
             }
-            RobotControllerCommand::Disable => {
+            MechatronicsCommand::Disable => {
                 self.drive_train.disable()
             }
         }
