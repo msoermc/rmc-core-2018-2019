@@ -21,9 +21,6 @@ pub struct BucketLadder {
     digger: MotorGroup,
     digger_state: DiggerState,
     actuator_state: ActuatorState,
-    lower_limit_switch: Box<DigitalInput>,
-    upper_limit_switch: Box<DigitalInput>,
-    jam_detector: Box<DigitalInput>,
 }
 
 impl BucketLadder {
@@ -36,27 +33,13 @@ impl BucketLadder {
     }
 
     pub fn raise(&mut self) {
-        if let Ok(is_raised) = self.upper_limit_switch.get_value() {
-            if is_raised {
-                self.actuators.set_speed(MH_ACTUATOR_RATE);
-                self.actuator_state = ActuatorState::Rising;
-            }
-        } else {
-            error!("Failed to read limit switch value!");
-            self.stop_actuators();
-        }
+        self.actuators.set_speed(MH_ACTUATOR_RATE);
+        self.actuator_state = ActuatorState::Rising;
     }
 
     pub fn lower(&mut self) {
-        if let Ok(is_lowered) = self.lower_limit_switch.get_value() {
-            if is_lowered {
-                self.actuators.set_speed(-MH_ACTUATOR_RATE);
-                self.actuator_state = ActuatorState::Lowering;
-            }
-        } else {
-            error!("Failed to read limit switch value!");
-            self.stop_actuators();
-        }
+        self.actuators.set_speed(-MH_ACTUATOR_RATE);
+        self.actuator_state = ActuatorState::Lowering;
     }
 
     pub fn stop_actuators(&mut self) {
@@ -81,12 +64,9 @@ impl BucketLadder {
             ActuatorState::Stopped => self.stop_actuators(),
         }
 
-        if let Ok(is_jammed) = self.jam_detector.get_value() {
-            if is_jammed {
-                self.stop_digging();
-            }
-        } else {
-            self.stop_digging();
+        match self.digger_state {
+            DiggerState::Digging => self.dig(),
+            DiggerState::Stopped => self.stop_digging(),
         }
     }
 }
