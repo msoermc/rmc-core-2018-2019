@@ -136,6 +136,18 @@ fn test_kill() {
     assert_eq!(Status::Ok, status);
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
+
+    let status = client.post("/robot/revive").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+
+    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
 }
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
