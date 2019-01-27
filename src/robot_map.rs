@@ -83,3 +83,7 @@ mod tests {
         assert_eq!("dtrr".to_owned(), MotorID::DriveTrainRearRight.to_string());
     }
 }
+
+pub const DIGGING_RATE: f32 = 1.0;
+
+pub const MH_ACTUATOR_RATE: f32 = 1.0;
