@@ -1,5 +1,4 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::sensors::DigitalInput;
 use crate::robot_map::*;
 
 #[derive(Clone, PartialEq)]
