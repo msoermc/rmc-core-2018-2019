@@ -1,15 +1,15 @@
 use crate::comms::SendableMessage;
 use crate::robot_map::MotorID;
 
-pub mod pwm;
+pub mod hover_board;
 pub mod test_motor;
 pub mod motor_group;
 pub mod print_motor;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum MotorStateKind {
-    Unknown,
-    Unexported,
+    UnknownFailure,
+    UnexportedFailure,
     Ok
 }
 
