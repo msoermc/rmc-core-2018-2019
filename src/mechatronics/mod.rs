@@ -99,8 +99,14 @@ impl MechatronicsMessageSender {
     /// Disables the robot, preventing motor control.
     pub fn kill(&self) {
         self.brake();
+        self.stop_digger();
+        self.stop_dumper();
+        self.freeze_ladder_height();
         self.robot_life_status.kill();
         self.brake();
+        self.stop_digger();
+        self.stop_dumper();
+        self.freeze_ladder_height();
     }
 
     /// Instructs the drive train to begin moving both sides at the provided speeds.
