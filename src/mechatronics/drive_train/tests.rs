@@ -12,7 +12,7 @@ struct TestMotorGroup {
 #[test]
 fn test_cycle_no_fail_no_inversion() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
 
@@ -64,7 +64,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Kill
-    *status.write().unwrap() = RobotLifeStatus::Dead;
+    status.kill();
 
     // Test cycle
     drive_train.run_cycle();
@@ -75,7 +75,7 @@ fn test_cycle_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Revive
-    *status.write().unwrap() = RobotLifeStatus::Alive;
+    status.revive();
 
     // Test cycle
     drive_train.drive(1.0, 1.0);
@@ -113,7 +113,7 @@ fn test_cycle_no_fail_no_inversion() {
 #[test]
 fn test_drive_no_fail_no_inversion() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status);
 
@@ -160,7 +160,7 @@ fn test_drive_no_fail_no_inversion() {
 #[test]
 fn test_brake_no_fail_no_inversion() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status);
 
@@ -191,7 +191,7 @@ fn test_brake_no_fail_no_inversion() {
 #[test]
 fn test_enabling_no_fail_no_inversion() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status);
 
@@ -246,7 +246,7 @@ fn test_enabling_no_fail_no_inversion() {
 #[test]
 fn test_killing_no_fail_no_inversion() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
 
@@ -266,7 +266,7 @@ fn test_killing_no_fail_no_inversion() {
     assert_eq!(1.0, *right.speed.read().unwrap());
 
     // Test kill
-    *status.write().unwrap() = RobotLifeStatus::Dead;
+    status.kill();
     drive_train.drive(1.0, 1.0);
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
@@ -275,7 +275,7 @@ fn test_killing_no_fail_no_inversion() {
     assert_eq!(0.0, *right.speed.read().unwrap());
 
     // Test revive
-    *status.write().unwrap() = RobotLifeStatus::Alive;
+    status.revive();
     assert_eq!(false, *left.inverted.read().unwrap());
     assert_eq!(false, *right.inverted.read().unwrap());
 
@@ -294,7 +294,7 @@ fn test_killing_no_fail_no_inversion() {
 #[test]
 fn test_get_state_no_fail() {
     let (left, right) = create_groups();
-    let status = Arc::new(RwLock::new(RobotLifeStatus::Alive));
+    let status = GlobalLifeStatus::new();
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
 
