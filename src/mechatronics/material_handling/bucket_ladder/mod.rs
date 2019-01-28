@@ -28,7 +28,7 @@ pub struct BucketLadder {
 impl BucketLadder {
     pub fn new(digger: MotorGroup, actuators: MotorGroup) -> Self {
         Self {
-            is_enabled: false,
+            is_enabled: true,
             actuators,
             digger,
             digger_state: DiggerState::Stopped,
@@ -42,16 +42,26 @@ impl BucketLadder {
 
     pub fn disable(&mut self) {
         self.is_enabled = false;
+        self.stop_digging();
+        self.stop_actuators();
     }
 
     pub fn raise(&mut self) {
-        self.actuators.set_speed(MH_ACTUATOR_RATE);
-        self.actuator_state = ActuatorState::Rising;
+        if self.is_enabled {
+            self.actuators.set_speed(MH_ACTUATOR_RATE);
+            self.actuator_state = ActuatorState::Rising;
+        } else {
+            self.stop_actuators()
+        }
     }
 
     pub fn lower(&mut self) {
-        self.actuators.set_speed(-MH_ACTUATOR_RATE);
-        self.actuator_state = ActuatorState::Lowering;
+        if self.is_enabled {
+            self.actuators.set_speed(-MH_ACTUATOR_RATE);
+            self.actuator_state = ActuatorState::Lowering;
+        } else {
+            self.stop_actuators();
+        }
     }
 
     pub fn stop_actuators(&mut self) {
@@ -60,8 +70,12 @@ impl BucketLadder {
     }
 
     pub fn dig(&mut self) {
-        self.digger.set_speed(DIGGING_RATE);
-        self.digger_state = DiggerState::Digging;
+        if self.is_enabled {
+            self.digger.set_speed(DIGGING_RATE);
+            self.digger_state = DiggerState::Digging;
+        } else {
+            self.stop_digging();
+        }
     }
 
     pub fn stop_digging(&mut self) {
