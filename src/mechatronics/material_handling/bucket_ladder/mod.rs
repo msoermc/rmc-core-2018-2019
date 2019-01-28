@@ -1,5 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::robot_map::*;
+use crate::mechatronics::GlobalLifeStatus;
 
 #[cfg(test)]
 mod tests;
@@ -21,16 +22,18 @@ pub struct BucketLadder {
     digger: MotorGroup,
     digger_state: DiggerState,
     actuator_state: ActuatorState,
+    life: GlobalLifeStatus,
 }
 
 impl BucketLadder {
-    pub fn new(digger: MotorGroup, actuators: MotorGroup) -> Self {
+    pub fn new(digger: MotorGroup, actuators: MotorGroup, life: GlobalLifeStatus) -> Self {
         Self {
             is_enabled: true,
             actuators,
             digger,
             digger_state: DiggerState::Stopped,
-            actuator_state: ActuatorState::Stopped
+            actuator_state: ActuatorState::Stopped,
+            life
         }
     }
 
@@ -45,7 +48,7 @@ impl BucketLadder {
     }
 
     pub fn raise(&mut self) {
-        if self.is_enabled {
+        if self.is_enabled && self.life.is_alive() {
             self.actuators.set_speed(MH_ACTUATOR_RATE);
             self.actuator_state = ActuatorState::Rising;
         } else {
@@ -54,7 +57,7 @@ impl BucketLadder {
     }
 
     pub fn lower(&mut self) {
-        if self.is_enabled {
+        if self.is_enabled && self.life.is_alive() {
             self.actuators.set_speed(-MH_ACTUATOR_RATE);
             self.actuator_state = ActuatorState::Lowering;
         } else {
@@ -68,7 +71,7 @@ impl BucketLadder {
     }
 
     pub fn dig(&mut self) {
-        if self.is_enabled {
+        if self.is_enabled && self.life.is_alive() {
             self.digger.set_speed(DIGGING_RATE);
             self.digger_state = DiggerState::Digging;
         } else {
