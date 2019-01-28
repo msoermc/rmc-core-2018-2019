@@ -4,14 +4,12 @@ use crate::robot_map::*;
 #[cfg(test)]
 mod tests;
 
-#[derive(Clone, PartialEq)]
 enum ActuatorState {
     Rising,
     Lowering,
     Stopped,
 }
 
-#[derive(Clone, PartialEq)]
 enum DiggerState {
     Digging,
     Stopped,
