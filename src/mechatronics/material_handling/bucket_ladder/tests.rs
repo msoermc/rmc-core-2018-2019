@@ -104,11 +104,18 @@ fn test_disabling() {
     let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group);
     ladder.dig();
     ladder.raise();
+    ladder.lower();
     ladder.disable();
     assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *actuators.speed.read().unwrap());
     ladder.run_cycle();
     assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    ladder.dig();
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    ladder.raise();
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    ladder.lower();
     assert_eq!(0.0, *actuators.speed.read().unwrap());
 }
 
