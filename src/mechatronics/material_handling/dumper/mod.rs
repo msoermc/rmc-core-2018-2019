@@ -41,6 +41,8 @@ impl Dumper {
         if self.is_enabled && self.life.is_alive() {
             self.motors.set_speed(DUMPING_RATE);
             self.state = DumperState::Dumping;
+        } else {
+            self.stop();
         }
     }
 
@@ -48,6 +50,8 @@ impl Dumper {
         if self.is_enabled && self.life.is_alive() {
             self.motors.set_speed(DUMPER_RESET_RATE);
             self.state = DumperState::Resetting;
+        } else {
+            self.stop();
         }
     }
 

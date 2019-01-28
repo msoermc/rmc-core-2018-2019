@@ -101,3 +101,39 @@ fn test_enabling() {
     dumper.run_cycle();
     assert_eq!(DUMPING_RATE, *motors.speed.read().unwrap());
 }
+
+#[test]
+fn test_killing() {
+    let motors = create_group();
+    let life = GlobalLifeStatus::new();
+    let mut dumper = Dumper::new(life.clone(), motors.motor_group);
+
+    dumper.dump();
+    life.kill();
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.dump();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.reset();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+}
+
+#[test]
+fn test_reviving() {
+    let motors = create_group();
+    let life = GlobalLifeStatus::new();
+    let mut dumper = Dumper::new(life.clone(), motors.motor_group);
+
+    life.kill();
+    dumper.run_cycle();
+    life.revive();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.dump();
+    assert_eq!(DUMPING_RATE, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(DUMPING_RATE, *motors.speed.read().unwrap());
+}
