@@ -87,3 +87,7 @@ mod tests {
 pub const DIGGING_RATE: f32 = 1.0;
 
 pub const MH_ACTUATOR_RATE: f32 = 1.0;
+
+pub const DUMPING_RATE: f32 = 1.0;
+
+pub const DUMPER_RESET_RATE: f32 = -1.0;
