@@ -79,7 +79,7 @@ fn test_enable_drive() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/enable").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::Enable, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::EnableDrive, env.receiver.try_recv().unwrap());
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn test_disable_drive() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/disable").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::Disable, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::DisableDrive, env.receiver.try_recv().unwrap());
 }
 
 #[test]

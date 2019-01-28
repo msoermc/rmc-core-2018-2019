@@ -57,8 +57,20 @@ impl GlobalLifeStatus {
 pub enum MechatronicsCommand {
     Drive(DriveCommandMessage),
     Brake,
-    Enable,
-    Disable,
+    EnableDrive,
+    DisableDrive,
+    EnableDumper,
+    DisableDumper,
+    EnableBucketLadder,
+    DisableBucketLadder,
+    Dump,
+    ResetDumper,
+    StopDumper,
+    Dig,
+    StopDigging,
+    RaiseDigger,
+    LowerDigger,
+    FreezeDiggerHeight,
 }
 
 /// The `RobotView` struct is represents a view into the `RobotController`.
@@ -114,14 +126,63 @@ impl MechatronicsMessageSender {
 
     /// Reenables the drive train, allowing motor control.
     pub fn enable_drive_train(&self) {
-        self.send_command(MechatronicsCommand::Enable)
+        self.send_command(MechatronicsCommand::EnableDrive)
     }
 
     /// Disables the drive train, preventing motor control and causeing it to brake.
     pub fn disable_drive_train(&self)  {
-        self.send_command(MechatronicsCommand::Disable)
+        self.send_command(MechatronicsCommand::DisableDrive)
     }
 
+    pub fn disable_dumper(&self) {
+        self.send_command(MechatronicsCommand::DisableDumper)
+    }
+
+    pub fn enable_dumper(&self) {
+        self.send_command(MechatronicsCommand::EnableDumper)
+    }
+
+    pub fn dump(&self) {
+        self.send_command(MechatronicsCommand::Dump)
+    }
+
+    pub fn reset_dumper(&self) {
+        self.send_command(MechatronicsCommand::ResetDumper)
+    }
+
+    pub fn stop_dumper(&self) {
+        self.send_command(MechatronicsCommand::StopDumper)
+    }
+
+    pub fn enable_ladder(&self) {
+        self.send_command(MechatronicsCommand::EnableBucketLadder)
+    }
+
+    pub fn disable_ladder(&self) {
+        self.send_command(MechatronicsCommand::DisableBucketLadder)
+    }
+
+    pub fn dig(&self) {
+        self.send_command(MechatronicsCommand::Dig)
+    }
+
+    pub fn stop_digger(&self) {
+        self.send_command(MechatronicsCommand::StopDigging)
+    }
+
+    pub fn raise_ladder(&self) {
+        self.send_command(MechatronicsCommand::RaiseDigger)
+    }
+
+    pub fn lower_ladder(&self) {
+        self.send_command(MechatronicsCommand::LowerDigger)
+    }
+
+    pub fn freeze_ladder_height(&self) {
+        self.send_command(MechatronicsCommand::FreezeDiggerHeight)
+    }
+
+    #[inline]
     fn send_command(&self, command: MechatronicsCommand) {
         self.channel.send(command).unwrap();
     }

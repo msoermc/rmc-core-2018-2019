@@ -24,7 +24,7 @@ fn test_setup() {
     let (left, right) = create_groups();
     let mut builder = RobotBuilder::new();
 
-    builder.use_drive_groups(left.motor_group, right.motor_group);
+    builder.use_custom_drive(left.motor_group, right.motor_group);
 
     let _client = builder.build().launch_tester();
 
@@ -37,7 +37,7 @@ fn test_drive() {
     let (left, right) = create_groups();
     let mut builder = RobotBuilder::new();
 
-    builder.use_drive_groups(left.motor_group, right.motor_group);
+    builder.use_custom_drive(left.motor_group, right.motor_group);
 
     let client = builder.build().launch_tester();
 
@@ -53,7 +53,7 @@ fn test_brake() {
     let (left, right) = create_groups();
     let mut builder = RobotBuilder::new();
 
-    builder.use_drive_groups(left.motor_group, right.motor_group);
+    builder.use_custom_drive(left.motor_group, right.motor_group);
 
     let client = builder.build().launch_tester();
 
@@ -75,7 +75,7 @@ fn test_disable_drive() {
     let (left, right) = create_groups();
     let mut builder = RobotBuilder::new();
 
-    builder.use_drive_groups(left.motor_group, right.motor_group);
+    builder.use_custom_drive(left.motor_group, right.motor_group);
 
     let client = builder.build().launch_tester();
 
@@ -115,7 +115,7 @@ fn test_kill() {
     let (left, right) = create_groups();
     let mut builder = RobotBuilder::new();
 
-    builder.use_drive_groups(left.motor_group, right.motor_group);
+    builder.use_custom_drive(left.motor_group, right.motor_group);
 
     let client = builder.build().launch_tester();
 

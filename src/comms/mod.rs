@@ -110,6 +110,150 @@ fn handle_disable_drive(state: State<ServerState>) -> Status {
     }
 }
 
+#[post("/robot/dumper/enable")]
+fn handle_enable_dumper(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.enable_dumper();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/dumper/disable")]
+fn handle_disable_dumper(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.disable_dumper();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/dumper/dump")]
+fn handle_dump(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.dump();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/dumper/reset")]
+fn handle_reset_dumper(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.reset_dumper();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/dumper/stop")]
+fn handle_stop_dumper(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.stop_dumper();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/enable")]
+fn handle_enable_digger(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.enable_ladder();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/disable")]
+fn handle_disable_digger(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.disable_ladder();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/rails/raise")]
+fn handle_raise_digger(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.raise_ladder();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/rails/lower")]
+fn handle_lower_digger(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.lower_ladder();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/rails/stop")]
+fn handle_stop_digger_rails(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.freeze_ladder_height();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/dig")]
+fn handle_dig(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.dig();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
+#[post("/robot/digger/stop-digging")]
+fn handle_stop_digging(state: State<ServerState>) -> Status {
+    info!("Received disable drive message");
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            controller.stop_digger();
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
+}
+
 #[post("/robot/kill")]
 fn handle_kill(state: State<ServerState>) -> Status {
     info!("Received kill message");

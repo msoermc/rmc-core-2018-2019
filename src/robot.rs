@@ -1,35 +1,43 @@
-use std::sync::Arc;
 use std::sync::mpsc::channel;
-use std::sync::RwLock;
 use std::thread::spawn;
 
 use rocket::local::Client;
+use rocket::Rocket;
 use sysfs_gpio::Pin;
 use sysfs_pwm::Pwm;
 
 use crate::comms;
 use crate::devices::enable_pins;
+use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
-use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
-use crate::mechatronics::MechatronicsMessageSender;
-use crate::mechatronics::RobotLifeStatus;
-use crate::robot_map::*;
-use rocket::Rocket;
 use crate::mechatronics::GlobalLifeStatus;
+use crate::mechatronics::material_handling::bucket_ladder::BucketLadder;
+use crate::mechatronics::material_handling::dumper::Dumper;
+use crate::mechatronics::MechatronicsMessageSender;
+use crate::robot_map::*;
 
 pub struct RobotBuilder {
     left_drive: MotorGroup,
     right_drive: MotorGroup,
+    digger: MotorGroup,
+    rails: MotorGroup,
+    dumper: MotorGroup,
 }
 
 impl RobotBuilder {
-    pub fn use_drive_groups(&mut self, left: MotorGroup, right: MotorGroup) {
+    pub fn use_custom_drive(&mut self, left: MotorGroup, right: MotorGroup) {
         self.left_drive = left;
         self.right_drive = right;
+    }
+
+    pub fn use_custom_mh(&mut self, digger: MotorGroup, rails: MotorGroup, dumper: MotorGroup) {
+        self.digger = digger;
+        self.rails = rails;
+        self.dumper = dumper;
     }
 
     pub fn use_real_drive(&mut self) {
@@ -57,13 +65,22 @@ impl RobotBuilder {
     pub fn new() -> Self {
         let left_motor = Box::new(PrintMotor::new("Left"));
         let right_motor = Box::new(PrintMotor::new("Right"));
+        let digger_motor = Box::new(PrintMotor::new("Digger"));
+        let rails_motor = Box::new(PrintMotor::new("Rails"));
+        let dumper_motor = Box::new(PrintMotor::new("Dumper"));
 
         let left_group = MotorGroup::new(vec![left_motor]);
         let right_group = MotorGroup::new(vec![right_motor]);
+        let digger_group = MotorGroup::new(vec![digger_motor]);
+        let dumper_group = MotorGroup::new(vec![dumper_motor]);
+        let rails_group = MotorGroup::new(vec![rails_motor]);
 
         Self {
             left_drive: left_group,
             right_drive: right_group,
+            digger: digger_group,
+            rails: rails_group,
+            dumper: dumper_group,
         }
     }
 
@@ -82,8 +99,12 @@ impl RobotBuilder {
         // Create DriveTrain
         let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone());
 
+        let digger = BucketLadder::new(self.digger, self.rails, robot_status.clone());
+
+        let dumper = Dumper::new(robot_status.clone(), self.dumper);
+
         // Create Robot Controller
-        let robot_controller = RobotController::new(server_sender.clone(), controller_receiver, drive_train, robot_status);
+        let robot_controller = RobotController::new(server_sender.clone(), controller_receiver, drive_train, dumper, digger, robot_status);
 
         Robot::new(robot_controller, bfr)
     }
@@ -98,7 +119,7 @@ impl Robot {
     fn new(controller: RobotController, bfr: Rocket) -> Self {
         Self {
             controller,
-            bfr
+            bfr,
         }
     }
 
