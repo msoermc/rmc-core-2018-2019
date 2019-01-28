@@ -66,6 +66,18 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rock
                               handle_kill,
                               handle_revive,
                               handle_brake,
+                              handle_dig,
+                              handle_dump,
+                              handle_enable_digger,
+                              handle_disable_digger,
+                              handle_enable_dumper,
+                              handle_disable_dumper,
+                              handle_lower_digger,
+                              handle_raise_digger,
+                              handle_reset_dumper,
+                              handle_stop_digger,
+                              handle_stop_dumper,
+                              handle_stop_rails,
                               index,
                               files]);
 
@@ -219,7 +231,7 @@ fn handle_lower_digger(state: State<ServerState>) -> Status {
 }
 
 #[post("/robot/digger/rails/stop")]
-fn handle_stop_digger_rails(state: State<ServerState>) -> Status {
+fn handle_stop_rails(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
@@ -242,8 +254,8 @@ fn handle_dig(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/stop-digging")]
-fn handle_stop_digging(state: State<ServerState>) -> Status {
+#[post("/robot/digger/stop")]
+fn handle_stop_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
