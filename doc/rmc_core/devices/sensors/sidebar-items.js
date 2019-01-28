@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Sensor",""]]});
+initSidebarItems({});

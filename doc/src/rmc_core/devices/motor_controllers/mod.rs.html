@@ -65,15 +65,15 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">comms</span>::<span class="ident">SendableMessage</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">robot_map</span>::<span class="ident">MotorID</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pwm</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hover_board</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_motor</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">motor_group</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">print_motor</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MotorStateKind</span> {
-    <span class="ident">Unknown</span>,
-    <span class="ident">Unexported</span>,
+    <span class="ident">UnknownFailure</span>,
+    <span class="ident">UnexportedFailure</span>,
     <span class="prelude-val">Ok</span>
 }
 

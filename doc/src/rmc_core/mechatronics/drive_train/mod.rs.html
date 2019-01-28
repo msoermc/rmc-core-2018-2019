@@ -74,6 +74,7 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
@@ -81,6 +82,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">RobotLifeStatus</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">motor_group</span>::<span class="ident">MotorGroup</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">MotorState</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">GlobalLifeStatus</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
@@ -90,11 +92,11 @@
     <span class="ident">is_enabled</span>: <span class="ident">bool</span>,
     <span class="ident">left</span>: <span class="ident">MotorGroup</span>,
     <span class="ident">right</span>: <span class="ident">MotorGroup</span>,
-    <span class="ident">robot_status</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">RobotLifeStatus</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">robot_status</span>: <span class="ident">GlobalLifeStatus</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DriveTrain</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">left</span>: <span class="ident">MotorGroup</span>, <span class="ident">right</span>: <span class="ident">MotorGroup</span>, <span class="ident">robot_status</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">RobotLifeStatus</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="ident">DriveTrain</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">left</span>: <span class="ident">MotorGroup</span>, <span class="ident">right</span>: <span class="ident">MotorGroup</span>, <span class="ident">robot_status</span>: <span class="ident">GlobalLifeStatus</span>) <span class="op">-&gt;</span> <span class="ident">DriveTrain</span> {
         <span class="ident">DriveTrain</span> {
             <span class="ident">is_enabled</span>: <span class="bool-val">true</span>,
             <span class="ident">left</span>,
@@ -105,7 +107,7 @@
 
     <span class="doccomment">/// Runs a cycle of the drive train, instructing all motors to do what they did last time.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_cycle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_enabled</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">robot_status</span>.<span class="ident">read</span>().<span class="ident">expect</span>(<span class="string">&quot;Drive train failed to read life&quot;</span>) <span class="op">==</span> <span class="ident">RobotLifeStatus</span>::<span class="ident">Alive</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_enabled</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">robot_status</span>.<span class="ident">get_status</span>() <span class="op">==</span> <span class="ident">RobotLifeStatus</span>::<span class="ident">Alive</span> {
             <span class="self">self</span>.<span class="ident">maintain_last</span>();
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">brake</span>();
@@ -114,7 +116,7 @@
 
     <span class="doccomment">/// Drives the robot at the supplied speeds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left_speed</span>: <span class="ident">f32</span>, <span class="ident">right_speed</span>: <span class="ident">f32</span>) {
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">robot_status</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">RobotLifeStatus</span>::<span class="ident">Alive</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_enabled</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">robot_status</span>.<span class="ident">get_status</span>() <span class="op">==</span> <span class="ident">RobotLifeStatus</span>::<span class="ident">Alive</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_enabled</span> {
             <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">set_speed</span>(<span class="ident">left_speed</span>);
             <span class="self">self</span>.<span class="ident">right</span>.<span class="ident">set_speed</span>(<span class="ident">right_speed</span>);
         } <span class="kw">else</span> {

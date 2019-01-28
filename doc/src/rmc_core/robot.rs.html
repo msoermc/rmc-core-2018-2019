@@ -118,38 +118,75 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">spawn</span>;
 
 <span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">local</span>::<span class="ident">Client</span>;
+<span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">Rocket</span>;
 <span class="kw">use</span> <span class="ident">sysfs_gpio</span>::<span class="ident">Pin</span>;
 <span class="kw">use</span> <span class="ident">sysfs_pwm</span>::<span class="ident">Pwm</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">comms</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">enable_pins</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">hover_board</span>::<span class="ident">HoverBoardMotor</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">motor_group</span>::<span class="ident">MotorGroup</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">print_motor</span>::<span class="ident">PrintMotor</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">devices</span>::<span class="ident">motor_controllers</span>::<span class="ident">pwm</span>::<span class="ident">PwmMotor</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">framework</span>::<span class="ident">Runnable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">controller</span>::<span class="ident">RobotController</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">drive_train</span>::<span class="ident">DriveTrain</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">GlobalLifeStatus</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">material_handling</span>::<span class="ident">bucket_ladder</span>::<span class="ident">BucketLadder</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">material_handling</span>::<span class="ident">dumper</span>::<span class="ident">Dumper</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">MechatronicsMessageSender</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">RobotLifeStatus</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">robot_map</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">rocket</span>::<span class="ident">Rocket</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RobotBuilder</span> {
     <span class="ident">left_drive</span>: <span class="ident">MotorGroup</span>,
     <span class="ident">right_drive</span>: <span class="ident">MotorGroup</span>,
+    <span class="ident">digger</span>: <span class="ident">MotorGroup</span>,
+    <span class="ident">rails</span>: <span class="ident">MotorGroup</span>,
+    <span class="ident">dumper</span>: <span class="ident">MotorGroup</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RobotBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_drive_groups</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">MotorGroup</span>, <span class="ident">right</span>: <span class="ident">MotorGroup</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_custom_drive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">MotorGroup</span>, <span class="ident">right</span>: <span class="ident">MotorGroup</span>) {
         <span class="self">self</span>.<span class="ident">left_drive</span> <span class="op">=</span> <span class="ident">left</span>;
         <span class="self">self</span>.<span class="ident">right_drive</span> <span class="op">=</span> <span class="ident">right</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_custom_intake</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">digger</span>: <span class="ident">MotorGroup</span>, <span class="ident">rails</span>: <span class="ident">MotorGroup</span>) {
+        <span class="self">self</span>.<span class="ident">digger</span> <span class="op">=</span> <span class="ident">digger</span>;
+        <span class="self">self</span>.<span class="ident">rails</span> <span class="op">=</span> <span class="ident">rails</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_custom_dumper</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dumper</span>: <span class="ident">MotorGroup</span>) {
+        <span class="self">self</span>.<span class="ident">dumper</span> <span class="op">=</span> <span class="ident">dumper</span>;
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_real_drive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
@@ -165,10 +202,10 @@
         <span class="kw">let</span> <span class="ident">rear_right_direction</span> <span class="op">=</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">REAR_RIGHT_DIRECTION</span>);
         <span class="kw">let</span> <span class="ident">rear_left_direction</span> <span class="op">=</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">REAR_LEFT_DIRECTION</span>);
 
-        <span class="kw">let</span> <span class="ident">front_right_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PwmMotor</span>::<span class="ident">create</span>(<span class="ident">right_front_pwm</span>, <span class="ident">front_right_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainFrontRight</span>).<span class="ident">expect</span>(<span class="string">&quot;Front right motor&quot;</span>));
-        <span class="kw">let</span> <span class="ident">front_left_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PwmMotor</span>::<span class="ident">create</span>(<span class="ident">left_front_pwm</span>, <span class="ident">front_left_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainFrontLeft</span>).<span class="ident">expect</span>(<span class="string">&quot;Front left motor&quot;</span>));
-        <span class="kw">let</span> <span class="ident">rear_right_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PwmMotor</span>::<span class="ident">create</span>(<span class="ident">right_rear_pwm</span>, <span class="ident">rear_right_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainRearRight</span>).<span class="ident">expect</span>(<span class="string">&quot;Rear right motor&quot;</span>));
-        <span class="kw">let</span> <span class="ident">rear_left_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PwmMotor</span>::<span class="ident">create</span>(<span class="ident">left_rear_pwm</span>, <span class="ident">rear_left_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainRearLeft</span>).<span class="ident">expect</span>(<span class="string">&quot;Rear left motor&quot;</span>));
+        <span class="kw">let</span> <span class="ident">front_right_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">HoverBoardMotor</span>::<span class="ident">create</span>(<span class="ident">right_front_pwm</span>, <span class="ident">front_right_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainFrontRight</span>).<span class="ident">expect</span>(<span class="string">&quot;Front right motor&quot;</span>));
+        <span class="kw">let</span> <span class="ident">front_left_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">HoverBoardMotor</span>::<span class="ident">create</span>(<span class="ident">left_front_pwm</span>, <span class="ident">front_left_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainFrontLeft</span>).<span class="ident">expect</span>(<span class="string">&quot;Front left motor&quot;</span>));
+        <span class="kw">let</span> <span class="ident">rear_right_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">HoverBoardMotor</span>::<span class="ident">create</span>(<span class="ident">right_rear_pwm</span>, <span class="ident">rear_right_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainRearRight</span>).<span class="ident">expect</span>(<span class="string">&quot;Rear right motor&quot;</span>));
+        <span class="kw">let</span> <span class="ident">rear_left_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">HoverBoardMotor</span>::<span class="ident">create</span>(<span class="ident">left_rear_pwm</span>, <span class="ident">rear_left_direction</span>, <span class="ident">MotorID</span>::<span class="ident">DriveTrainRearLeft</span>).<span class="ident">expect</span>(<span class="string">&quot;Rear left motor&quot;</span>));
 
         <span class="self">self</span>.<span class="ident">left_drive</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">front_left_motor</span>, <span class="ident">rear_left_motor</span>]);
         <span class="self">self</span>.<span class="ident">right_drive</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">front_right_motor</span>, <span class="ident">rear_right_motor</span>]);
@@ -177,13 +214,22 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">left_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PrintMotor</span>::<span class="ident">new</span>(<span class="string">&quot;Left&quot;</span>));
         <span class="kw">let</span> <span class="ident">right_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PrintMotor</span>::<span class="ident">new</span>(<span class="string">&quot;Right&quot;</span>));
+        <span class="kw">let</span> <span class="ident">digger_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PrintMotor</span>::<span class="ident">new</span>(<span class="string">&quot;Digger&quot;</span>));
+        <span class="kw">let</span> <span class="ident">rails_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PrintMotor</span>::<span class="ident">new</span>(<span class="string">&quot;Rails&quot;</span>));
+        <span class="kw">let</span> <span class="ident">dumper_motor</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PrintMotor</span>::<span class="ident">new</span>(<span class="string">&quot;Dumper&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">left_group</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">left_motor</span>]);
         <span class="kw">let</span> <span class="ident">right_group</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">right_motor</span>]);
+        <span class="kw">let</span> <span class="ident">digger_group</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">digger_motor</span>]);
+        <span class="kw">let</span> <span class="ident">dumper_group</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">dumper_motor</span>]);
+        <span class="kw">let</span> <span class="ident">rails_group</span> <span class="op">=</span> <span class="ident">MotorGroup</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">rails_motor</span>]);
 
         <span class="self">Self</span> {
             <span class="ident">left_drive</span>: <span class="ident">left_group</span>,
             <span class="ident">right_drive</span>: <span class="ident">right_group</span>,
+            <span class="ident">digger</span>: <span class="ident">digger_group</span>,
+            <span class="ident">rails</span>: <span class="ident">rails_group</span>,
+            <span class="ident">dumper</span>: <span class="ident">dumper_group</span>,
         }
     }
 
@@ -191,7 +237,7 @@
         <span class="kw">let</span> (<span class="ident">controller_sender</span>, <span class="ident">controller_receiver</span>) <span class="op">=</span> <span class="ident">channel</span>();
 
         <span class="comment">// Create Robot status</span>
-        <span class="kw">let</span> <span class="ident">robot_status</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">RobotLifeStatus</span>::<span class="ident">Alive</span>));
+        <span class="kw">let</span> <span class="ident">robot_status</span> <span class="op">=</span> <span class="ident">GlobalLifeStatus</span>::<span class="ident">new</span>();
 
         <span class="comment">// Create RobotView</span>
         <span class="kw">let</span> <span class="ident">robot_view</span> <span class="op">=</span> <span class="ident">MechatronicsMessageSender</span>::<span class="ident">new</span>(<span class="ident">controller_sender</span>, <span class="ident">robot_status</span>.<span class="ident">clone</span>());
@@ -202,8 +248,12 @@
         <span class="comment">// Create DriveTrain</span>
         <span class="kw">let</span> <span class="ident">drive_train</span> <span class="op">=</span> <span class="ident">DriveTrain</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">left_drive</span>, <span class="self">self</span>.<span class="ident">right_drive</span>, <span class="ident">robot_status</span>.<span class="ident">clone</span>());
 
+        <span class="kw">let</span> <span class="ident">digger</span> <span class="op">=</span> <span class="ident">BucketLadder</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">digger</span>, <span class="self">self</span>.<span class="ident">rails</span>, <span class="ident">robot_status</span>.<span class="ident">clone</span>());
+
+        <span class="kw">let</span> <span class="ident">dumper</span> <span class="op">=</span> <span class="ident">Dumper</span>::<span class="ident">new</span>(<span class="ident">robot_status</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">dumper</span>);
+
         <span class="comment">// Create Robot Controller</span>
-        <span class="kw">let</span> <span class="ident">robot_controller</span> <span class="op">=</span> <span class="ident">RobotController</span>::<span class="ident">new</span>(<span class="ident">server_sender</span>.<span class="ident">clone</span>(), <span class="ident">controller_receiver</span>, <span class="ident">drive_train</span>, <span class="ident">robot_status</span>);
+        <span class="kw">let</span> <span class="ident">robot_controller</span> <span class="op">=</span> <span class="ident">RobotController</span>::<span class="ident">new</span>(<span class="ident">server_sender</span>.<span class="ident">clone</span>(), <span class="ident">controller_receiver</span>, <span class="ident">drive_train</span>, <span class="ident">dumper</span>, <span class="ident">digger</span>, <span class="ident">robot_status</span>);
 
         <span class="ident">Robot</span>::<span class="ident">new</span>(<span class="ident">robot_controller</span>, <span class="ident">bfr</span>)
     }
@@ -218,7 +268,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">controller</span>: <span class="ident">RobotController</span>, <span class="ident">bfr</span>: <span class="ident">Rocket</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">controller</span>,
-            <span class="ident">bfr</span>
+            <span class="ident">bfr</span>,
         }
     }
 
