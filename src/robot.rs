@@ -34,9 +34,12 @@ impl RobotBuilder {
         self.right_drive = right;
     }
 
-    pub fn use_custom_mh(&mut self, digger: MotorGroup, rails: MotorGroup, dumper: MotorGroup) {
+    pub fn use_custom_intake(&mut self, digger: MotorGroup, rails: MotorGroup) {
         self.digger = digger;
         self.rails = rails;
+    }
+
+    pub fn use_custom_dumper(&mut self, dumper: MotorGroup) {
         self.dumper = dumper;
     }
 

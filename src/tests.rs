@@ -3,6 +3,7 @@ use std::sync::RwLock;
 
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::test_motor::TestMotor;
+use crate::robot_map::*;
 
 use rocket::http::Status;
 
@@ -27,7 +28,8 @@ fn test_setup() {
     let mut builder = RobotBuilder::new();
 
     builder.use_custom_drive(left.motor_group, right.motor_group);
-    builder.use_custom_mh(digger.motor_group, rails.motor_group, dumper.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
     let _client = builder.build().launch_tester();
 
     assert_eq!(0.0, *left.speed.read().unwrap());
@@ -51,6 +53,51 @@ fn test_drive() {
     assert_eq!(Status::Ok, status);
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
+}
+
+#[test]
+fn test_dump() {
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_dumper(dumper.motor_group);
+
+    let client = builder.build().launch_tester();
+
+    let status = client.post("/robot/dumper/dump").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_reset_dumper() {
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_dumper(dumper.motor_group);
+
+    let client = builder.build().launch_tester();
+
+    let status = client.post("/robot/dumper/reset").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(DUMPER_RESET_RATE, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_stop_dumper() {
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_dumper(dumper.motor_group);
+
+    let client = builder.build().launch_tester();
+
+    let status = client.post("/robot/dumper/stop").dispatch().status();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, status);
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
 #[test]
