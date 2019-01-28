@@ -141,7 +141,7 @@ fn test_stop_dumper() {
 #[test]
 fn test_enable_digger() {
     let env = setup();
-    let response = env.client.post("/robot/digger/enable").dispatch();
+    let response = env.client.post("/robot/intake/enable").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::EnableBucketLadder, env.receiver.try_recv().unwrap());
 }
@@ -149,7 +149,7 @@ fn test_enable_digger() {
 #[test]
 fn test_disable_digger() {
     let env = setup();
-    let response = env.client.post("/robot/digger/disable").dispatch();
+    let response = env.client.post("/robot/intake/disable").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::DisableBucketLadder, env.receiver.try_recv().unwrap());
 }
@@ -157,7 +157,7 @@ fn test_disable_digger() {
 #[test]
 fn test_dig() {
     let env = setup();
-    let response = env.client.post("/robot/digger/dig").dispatch();
+    let response = env.client.post("/robot/intake/digger/dig").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::Dig, env.receiver.try_recv().unwrap());
 }
@@ -165,7 +165,7 @@ fn test_dig() {
 #[test]
 fn test_stop_digger() {
     let env = setup();
-    let response = env.client.post("/robot/digger/stop").dispatch();
+    let response = env.client.post("/robot/intake/digger/stop").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::StopDigging, env.receiver.try_recv().unwrap());
 }
@@ -173,7 +173,7 @@ fn test_stop_digger() {
 #[test]
 fn test_raise_digger() {
     let env = setup();
-    let response = env.client.post("/robot/digger/rails/raise").dispatch();
+    let response = env.client.post("/robot/intake/rails/raise").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::RaiseDigger, env.receiver.try_recv().unwrap());
 }
@@ -181,7 +181,7 @@ fn test_raise_digger() {
 #[test]
 fn test_lower_digger() {
     let env = setup();
-    let response = env.client.post("/robot/digger/rails/lower").dispatch();
+    let response = env.client.post("/robot/intake/rails/lower").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::LowerDigger, env.receiver.try_recv().unwrap());
 }
@@ -189,7 +189,7 @@ fn test_lower_digger() {
 #[test]
 fn test_stop_rails() {
     let env = setup();
-    let response = env.client.post("/robot/digger/rails/stop").dispatch();
+    let response = env.client.post("/robot/intake/rails/stop").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::FreezeDiggerHeight, env.receiver.try_recv().unwrap());
 }

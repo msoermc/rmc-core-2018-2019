@@ -182,7 +182,7 @@ fn handle_stop_dumper(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/enable")]
+#[post("/robot/intake/enable")]
 fn handle_enable_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -194,7 +194,7 @@ fn handle_enable_digger(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/disable")]
+#[post("/robot/intake/disable")]
 fn handle_disable_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -206,7 +206,7 @@ fn handle_disable_digger(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/rails/raise")]
+#[post("/robot/intake/rails/raise")]
 fn handle_raise_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -218,7 +218,7 @@ fn handle_raise_digger(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/rails/lower")]
+#[post("/robot/intake/rails/lower")]
 fn handle_lower_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -230,7 +230,7 @@ fn handle_lower_digger(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/rails/stop")]
+#[post("/robot/intake/rails/stop")]
 fn handle_stop_rails(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -242,7 +242,7 @@ fn handle_stop_rails(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/dig")]
+#[post("/robot/intake/digger/dig")]
 fn handle_dig(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
@@ -254,7 +254,7 @@ fn handle_dig(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/digger/stop")]
+#[post("/robot/intake/digger/stop")]
 fn handle_stop_digger(state: State<ServerState>) -> Status {
     info!("Received disable drive message");
     match state.robot_controller.lock() {
