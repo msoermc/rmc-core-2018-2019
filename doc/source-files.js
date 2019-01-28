@@ -1,0 +1,3 @@
+var N = null;var sourcesIndex = {};
+sourcesIndex["rmc_core"] = {"name":"","dirs":[{"name":"comms","dirs":[],"files":["mod.rs"]},{"name":"devices","dirs":[{"name":"motor_controllers","dirs":[{"name":"motor_group","dirs":[],"files":["mod.rs"]}],"files":["mod.rs","print_motor.rs","pwm.rs","test_motor.rs"]},{"name":"sensors","dirs":[],"files":["mod.rs"]}],"files":["mod.rs"]},{"name":"framework","dirs":[],"files":["mod.rs"]},{"name":"mechatronics","dirs":[{"name":"drive_train","dirs":[],"files":["mod.rs"]}],"files":["controller.rs","mod.rs"]}],"files":["logging.rs","main.rs","robot.rs","robot_map.rs"]};
+createSourceSidebar();
