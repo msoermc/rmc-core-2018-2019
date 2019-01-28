@@ -38,7 +38,7 @@ pub mod robot;
 pub mod logging;
 
 #[cfg(test)]
-mod tests;
+mod integration_tests;
 
 fn main() {
     let _logging_guard = logging::launch_logger();
