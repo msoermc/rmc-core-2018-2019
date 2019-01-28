@@ -40,6 +40,10 @@ impl GlobalLifeStatus {
         *self.status.read().unwrap()
     }
 
+    pub fn is_alive(&self) -> bool {
+        self.get_status() == RobotLifeStatus::Alive
+    }
+
     pub fn kill(&self) {
         *self.status.write().unwrap() = RobotLifeStatus::Dead;
     }
