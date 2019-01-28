@@ -10,14 +10,14 @@ use super::MotorController;
 
 const PERIOD_NS: u32 = 20_000;
 
-pub struct PwmMotor {
+pub struct HoverBoardMotor {
     is_inverted: bool,
     pwm: Pwm,
     direction: Pin,
     state: MotorState,
 }
 
-impl MotorController for PwmMotor {
+impl MotorController for HoverBoardMotor {
     fn set_speed(&mut self, new_speed: f32) {
         let set_duty = || {
             let pwm_out = new_speed * PERIOD_NS as f32;
@@ -36,11 +36,11 @@ impl MotorController for PwmMotor {
 
         if set_duty().is_err() {
             error!("Failed to set duty cycle!");
-            self.state.kind = MotorStateKind::Unknown;
+            self.state.kind = MotorStateKind::UnknownFailure;
             return;
         } else if set_direction().is_err() {
             error!("Failed to set motor direction!");
-            self.state.kind = MotorStateKind::Unknown;
+            self.state.kind = MotorStateKind::UnknownFailure;
             return;
         } else {
             self.state.kind = MotorStateKind::Ok
@@ -54,7 +54,7 @@ impl MotorController for PwmMotor {
 
         if self.pwm.with_exported(set_duty).is_err() {
             error!("Failed to stop motor!");
-            self.state.kind = MotorStateKind::Unknown;
+            self.state.kind = MotorStateKind::UnknownFailure;
         } else {
             self.state.kind = MotorStateKind::Ok;
         }
@@ -69,7 +69,7 @@ impl MotorController for PwmMotor {
     }
 }
 
-impl PwmMotor {
+impl HoverBoardMotor {
     pub fn create(pwm: Pwm, direction: Pin, id: MotorID) -> Result<Self, ()> {
         if pwm.export().is_err() {
             error!("Failed to export pwm!");
@@ -93,7 +93,7 @@ impl PwmMotor {
             error!("Failed to set initial pin value!");
             Err(())
         } else {
-            Ok(PwmMotor {
+            Ok(HoverBoardMotor {
                 is_inverted: false,
                 pwm,
                 direction,
@@ -104,7 +104,7 @@ impl PwmMotor {
 }
 
 /// When the motor is dropped, stop it.
-impl Drop for PwmMotor {
+impl Drop for HoverBoardMotor {
     fn drop(&mut self) {
         self.stop();
     }
