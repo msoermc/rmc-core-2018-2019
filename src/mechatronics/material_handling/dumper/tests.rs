@@ -62,4 +62,42 @@ fn test_stopping() {
     dumper.dump();
     dumper.stop();
     assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+}
+
+#[test]
+fn test_disabling() {
+    let motors = create_group();
+    let life = GlobalLifeStatus::new();
+    let mut dumper = Dumper::new(life, motors.motor_group);
+
+    dumper.dump();
+    dumper.disable();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.dump();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.reset();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+}
+
+#[test]
+fn test_enabling() {
+    let motors = create_group();
+    let life = GlobalLifeStatus::new();
+    let mut dumper = Dumper::new(life, motors.motor_group);
+
+    dumper.disable();
+    dumper.enable();
+    assert_eq!(0.0, *motors.speed.read().unwrap());
+    dumper.dump();
+    assert_eq!(DUMPING_RATE, *motors.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(DUMPING_RATE, *motors.speed.read().unwrap());
 }
