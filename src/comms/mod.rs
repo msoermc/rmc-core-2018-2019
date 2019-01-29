@@ -87,7 +87,6 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rock
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
-    info!("Received drive message: [{}, {}]", left, right);
     match state.robot_controller.lock() {
         Ok(controller) => if controller.drive(left, right).is_err() {
             Status::BadRequest
@@ -100,7 +99,6 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
 
 #[post("/robot/drive_train/enable")]
 fn handle_enable_drive(state: State<ServerState>) -> Status {
-    info!("Received enable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.enable_drive_train();
@@ -112,7 +110,6 @@ fn handle_enable_drive(state: State<ServerState>) -> Status {
 
 #[post("/robot/drive_train/disable")]
 fn handle_disable_drive(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.disable_drive_train();
@@ -124,7 +121,6 @@ fn handle_disable_drive(state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/enable")]
 fn handle_enable_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.enable_dumper();
@@ -136,7 +132,6 @@ fn handle_enable_dumper(state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/disable")]
 fn handle_disable_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.disable_dumper();
@@ -148,7 +143,6 @@ fn handle_disable_dumper(state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/dump")]
 fn handle_dump(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.dump();
@@ -160,7 +154,6 @@ fn handle_dump(state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/reset")]
 fn handle_reset_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.reset_dumper();
@@ -172,7 +165,6 @@ fn handle_reset_dumper(state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/stop")]
 fn handle_stop_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.stop_dumper();
@@ -184,7 +176,6 @@ fn handle_stop_dumper(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/enable")]
 fn handle_enable_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.enable_ladder();
@@ -196,7 +187,6 @@ fn handle_enable_digger(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/disable")]
 fn handle_disable_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.disable_ladder();
@@ -208,7 +198,6 @@ fn handle_disable_digger(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/rails/raise")]
 fn handle_raise_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.raise_ladder();
@@ -220,7 +209,6 @@ fn handle_raise_digger(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/rails/lower")]
 fn handle_lower_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.lower_ladder();
@@ -232,7 +220,6 @@ fn handle_lower_digger(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/rails/stop")]
 fn handle_stop_rails(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.freeze_ladder_height();
@@ -244,7 +231,6 @@ fn handle_stop_rails(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/digger/dig")]
 fn handle_dig(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.dig();
@@ -256,7 +242,6 @@ fn handle_dig(state: State<ServerState>) -> Status {
 
 #[post("/robot/intake/digger/stop")]
 fn handle_stop_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.stop_digger();
@@ -268,7 +253,6 @@ fn handle_stop_digger(state: State<ServerState>) -> Status {
 
 #[post("/robot/kill")]
 fn handle_kill(state: State<ServerState>) -> Status {
-    info!("Received kill message");
     state.robot_controller.lock().unwrap().kill();
     Status::Ok
 
@@ -276,26 +260,22 @@ fn handle_kill(state: State<ServerState>) -> Status {
 
 #[post("/robot/drive_train/brake")]
 fn handle_brake(state: State<ServerState>) -> Status {
-    info!("Received brake message");
     state.robot_controller.lock().unwrap().brake();
     Status::Ok
 }
 
 #[post("/robot/revive")]
 fn handle_revive(state: State<ServerState>) -> Status {
-    info!("Received revive message");
     state.robot_controller.lock().unwrap().revive();
     Status::Ok
 }
 
 #[get("/")]
 fn index() -> Option<NamedFile> {
-    info!("Received static request for index!");
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
 #[get("/static/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
-    info!("Received static request: {:?}", file);
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
