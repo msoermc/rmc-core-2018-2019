@@ -312,6 +312,7 @@ fn test_disable_intake() {
     let response = client.post("/robot/intake/digger/dig").dispatch();
     assert_eq!(Status::Ok, response.status());
     let response = client.post("/robot/intake/rails/raise").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
     assert_eq!(Status::Ok, response.status());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
