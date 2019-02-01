@@ -14,6 +14,7 @@ cache:
 #    - rust:
 #        - stable
 #        - beta
+sudo: false
 
 addons:
   apt:
