@@ -45,7 +45,7 @@ after_success: |
   sudo ninja install &&
   cd ../.. &&
   rm -rf kcov-master &&
-  cargo install cargo-kcov &&
+  cargo +nightly install cargo-kcov &&
   cargo clean &&
   cargo kcov &&
   bash <(curl -s https://codecov.io/bash) &&
