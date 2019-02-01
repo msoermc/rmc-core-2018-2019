@@ -6,7 +6,7 @@ rust:
   - nightly
 
 script:
-  - cargo test --verbose --all -- --test-threads=4
+  - cargo test --verbose --all -- --test-threads=2
 
 cache:
   - cargo
