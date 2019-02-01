@@ -1,9 +1,12 @@
 language: rust
-
+dist: xenial
 rust:
 #  - stable
 #  - beta
   - nightly
+
+script:
+  - cargo test --verbose --all -- --test-threads=4
 
 cache:
   - cargo
@@ -14,7 +17,10 @@ cache:
 #    - rust:
 #        - stable
 #        - beta
-sudo: false
+
+env:
+  global:
+    - MAKEFLAGS="-j 2"
 
 addons:
   apt:
@@ -35,7 +41,7 @@ after_success: |
   mkdir build &&
   cd build &&
   cmake .. -GNinja &&
-  ninja -j4 &&
+  ninja -j2 &&
   sudo ninja install &&
   cd ../.. &&
   rm -rf kcov-master &&
