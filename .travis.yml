@@ -28,7 +28,7 @@ before_install:
     cd ../..;
     rm -rf kcov-master;
     fi
-  - cargo +nightly install --force cargo-kcov;
+  - if [ ! -f "${HOME}/.cargo/bin/cargo-kcov" ]; then cargo +nightly install --force cargo-kcov; fi
 
 addons:
   apt:
