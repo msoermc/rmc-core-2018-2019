@@ -28,7 +28,9 @@ before_install:
     cd ../..;
     rm -rf kcov-master;
     fi
-  - cargo +nightly install cargo-kcov;
+  - if [ ! -d "${HOME}/.cargo/bin/cargo-kcov" ]; then wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz;
+    cargo +nightly install cargo-kcov;
+    fi
 
 addons:
   apt:
