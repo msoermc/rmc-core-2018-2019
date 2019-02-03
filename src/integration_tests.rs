@@ -12,7 +12,7 @@ use crate::robot::RobotBuilder;
 use std::time::Duration;
 use std::thread::sleep;
 
-const TIMEOUT: u64 = 50;
+const TIMEOUT: u64 = 100;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
