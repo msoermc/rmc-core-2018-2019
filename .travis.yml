@@ -14,7 +14,7 @@ cache:
 env:
   global:
     - MAKEFLAGS="-j 2"
-  - PATH=$PATH:${HOME}/kcov/bin
+    - PATH=$PATH:${HOME}/kcov/bin
 
 before_install: |
   wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
