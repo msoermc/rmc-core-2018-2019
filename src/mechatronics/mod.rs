@@ -1,6 +1,6 @@
 use std::sync::Arc;
+use std::sync::atomic;
 use std::sync::mpsc::Sender;
-use std::sync::RwLock;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -14,42 +14,42 @@ pub mod material_handling;
 
 /// Represents the current status of the robot.
 /// Many subsystems will check this before determining if it is safe to perform an operation.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 pub enum RobotLifeStatus {
     /// Indicates that the robot is in a normal operating state.
-    Alive,
+    Alive = 0,
 
     /// Indicates that the robot has been disabled by the operators and that it is not
     /// safe to perform many operations.
-    Dead,
+    Dead = 1,
 }
 
 #[derive(Clone)]
 pub struct GlobalLifeStatus {
-    status: Arc<RwLock<RobotLifeStatus>>
+    status: Arc<atomic::AtomicUsize>
 }
 
 impl GlobalLifeStatus {
     pub fn new() -> Self {
         Self {
-            status: Arc::new(RwLock::new(RobotLifeStatus::Alive))
+            status: Arc::new(atomic::AtomicUsize::new(RobotLifeStatus::Alive as usize))
         }
     }
 
     pub fn get_status(&self) -> RobotLifeStatus {
-        *self.status.read().unwrap()
+        num::FromPrimitive::from_usize(self.status.load(atomic::Ordering::Relaxed)).unwrap()
     }
 
     pub fn is_alive(&self) -> bool {
-        self.get_status() == RobotLifeStatus::Alive
+        self.status.load(atomic::Ordering::Relaxed) == RobotLifeStatus::Alive as usize
     }
 
     pub fn kill(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Dead;
+        self.status.store(RobotLifeStatus::Dead as usize, atomic::Ordering::SeqCst)
     }
 
     pub fn revive(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Alive;
+        self.status.store(RobotLifeStatus::Alive as usize, atomic::Ordering::SeqCst)
     }
 }
 
@@ -136,7 +136,7 @@ impl MechatronicsMessageSender {
     }
 
     /// Disables the drive train, preventing motor control and causeing it to brake.
-    pub fn disable_drive_train(&self)  {
+    pub fn disable_drive_train(&self) {
         self.send_command(MechatronicsCommand::DisableDrive)
     }
 

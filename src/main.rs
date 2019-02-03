@@ -3,6 +3,9 @@
 
 #[macro_use]
 extern crate log;
+extern crate num;
+#[macro_use]
+extern crate num_derive;
 #[macro_use]
 extern crate rocket;
 #[macro_use(o)]
@@ -11,7 +14,6 @@ extern crate slog_async;
 extern crate slog_scope;
 extern crate slog_stdlog;
 extern crate slog_term;
-
 
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
