@@ -23,8 +23,8 @@ before_install:
     mkdir build;
     cd build;
     cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov ..;
-    make;
-    make install;
+    ninja;
+    ninja install;
     cd ../..;
     rm -rf kcov-master;
     fi
@@ -42,8 +42,8 @@ addons:
       - libiberty-dev
       - ninja-build
 
-after_success: |
-  cargo clean &&
-  cargo kcov &&
-  bash <(curl -s https://codecov.io/bash) &&
-  echo "Uploaded code coverage"
+after_success:
+  - cargo clean
+  - cargo kcov
+  - bash <(curl -s https://codecov.io/bash)
+  - echo "Uploaded code coverage"
