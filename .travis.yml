@@ -43,7 +43,6 @@ addons:
       - ninja-build
 
 after_success:
-  - cargo clean
   - cargo kcov
   - bash <(curl -s https://codecov.io/bash)
   - echo "Uploaded code coverage"
