@@ -62,7 +62,7 @@ fn test_kill() {
     env.status.revive();
     let response = env.client.post("/robot/kill").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotLifeStatus::Dead, env.status.get_status());
+    assert!(env.status.is_dead());
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn test_revive() {
     env.status.kill();
     let response = env.client.post("/robot/revive").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(RobotLifeStatus::Alive, env.status.get_status());
+    assert!(env.status.is_alive());
 }
 
 #[test]
