@@ -1,4 +1,5 @@
 use std::sync::mpsc::Sender;
+
 use crate::status::life::GlobalLifeStatus;
 
 /// The controller module contains the `RobotController` struct.
