@@ -1,27 +1,19 @@
 language: rust
 dist: xenial
 rust:
-  #  - stable
-  #  - beta
   - nightly
 
 script:
   - cargo test --verbose --all -- --test-threads=2
 
 cache:
-  - directories:
-      - /home/travis/.cargo
+  - cargo
+#  - directories:
+#      - /home/travis/.cargo
 
-# But don't cache the cargo registry
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
-
-
-#matrix:
-#  allow_failures:
-#    - rust:
-#        - stable
-#        - beta
+## But don't cache the cargo registry
+#before_cache:
+#  - rm -rf /home/travis/.cargo/registry
 
 env:
   global:
