@@ -28,6 +28,7 @@ before_install:
     cd ../..;
     rm -rf kcov-master;
     cargo +nightly install cargo-kcov;
+    fi
 
 addons:
   apt:
