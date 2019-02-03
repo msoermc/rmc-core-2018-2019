@@ -1,10 +1,10 @@
 use std::sync::Arc;
 use std::sync::RwLock;
 
-use crate::mechatronics::RobotLifeStatus;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorState;
-use crate::mechatronics::GlobalLifeStatus;
+use crate::status::life::GlobalLifeStatus;
+use crate::status::life::RobotLifeStatus;
 
 #[cfg(test)]
 mod tests;

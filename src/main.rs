@@ -39,6 +39,8 @@ pub mod robot;
 
 pub mod logging;
 
+pub mod status;
+
 #[cfg(test)]
 mod integration_tests;
 

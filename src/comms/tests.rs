@@ -2,16 +2,16 @@ use rocket::local::Client;
 
 use crate::comms;
 use crate::mechatronics::MechatronicsCommand;
-use crate::mechatronics::RobotLifeStatus;
+use crate::status::life::GlobalLifeStatus;
+use crate::status::life::RobotLifeStatus;
 
 use super::*;
-use crate::mechatronics::GlobalLifeStatus;
 
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
     sender: ServerSender,
     client: Client,
-    status: GlobalLifeStatus
+    status: GlobalLifeStatus,
 }
 
 fn setup() -> TestEnvironment {
@@ -32,7 +32,7 @@ fn setup() -> TestEnvironment {
         receiver: controller_receiver,
         sender: server_sender,
         client,
-        status: robot_status
+        status: robot_status,
     }
 }
 
