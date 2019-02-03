@@ -9,25 +9,26 @@ script:
 cache:
   - cargo
   - directories:
-      - "${HOME}/kcov/"
+      - ${HOME}/kcov/
 
 env:
   global:
     - MAKEFLAGS="-j 2"
     - PATH=$PATH:${HOME}/kcov/bin
 
-before_install: |
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz &&
-  cd kcov-master &&
-  mkdir build &&
-  cd build &&
-  cmake .. -GNinja &&
-  ninja &&
-  sudo ninja install &&
-  cd ../.. &&
-  rm -rf kcov-master &&
-  cargo +nightly install cargo-kcov
+before_install:
+  - if [ ! -d "${HOME}/kcov/bin" ]; then wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz;
+    tar xzf master.tar.gz;
+    cd kcov-master;
+    mkdir build;
+    cd build;
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov ..;
+    make;
+    make install;
+    cd ../..;
+    rm -rf kcov-master;
+    mkdir -p coverage; fi
+  - cargo +nightly install cargo-kcov
 
 addons:
   apt:
