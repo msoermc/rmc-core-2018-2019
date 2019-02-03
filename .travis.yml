@@ -47,7 +47,7 @@ after_success: |
   mkdir build &&
   cd build &&
   cmake .. -GNinja &&
-  ninja -j2 &&
+  ninja &&
   sudo ninja install &&
   cd ../.. &&
   rm -rf kcov-master &&
