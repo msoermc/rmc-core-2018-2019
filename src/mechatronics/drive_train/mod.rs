@@ -4,7 +4,6 @@ use std::sync::RwLock;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorState;
 use crate::status::life::GlobalLifeStatus;
-use crate::status::life::RobotLifeStatus;
 
 #[cfg(test)]
 mod tests;

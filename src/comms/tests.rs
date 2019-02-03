@@ -3,7 +3,6 @@ use rocket::local::Client;
 use crate::comms;
 use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeStatus;
-use crate::status::life::RobotLifeStatus;
 
 use super::*;
 
