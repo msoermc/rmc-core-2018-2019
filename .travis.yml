@@ -27,8 +27,8 @@ before_install:
     make install;
     cd ../..;
     rm -rf kcov-master;
-    cargo +nightly install cargo-kcov;
     fi
+  - cargo +nightly install cargo-kcov;
 
 addons:
   apt:
