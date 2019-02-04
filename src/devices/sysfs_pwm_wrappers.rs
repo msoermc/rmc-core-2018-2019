@@ -43,7 +43,7 @@ impl SysfsPwm {
             .arg("pwm")
             .output();
 
-        if let Err(e) = config__command {
+        if let Err(e) = config_command {
             warn!("Failed to configure pin {}! Error:\n{}", board_location, e);
             return Err(sysfs_pwm::Error::Unexpected(format!("Failed to configure pin {}! Error:\n{}", board_location, e)));
         }
