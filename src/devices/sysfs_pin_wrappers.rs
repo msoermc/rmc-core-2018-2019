@@ -7,11 +7,16 @@ pub struct SysfsPin {
 }
 
 impl DigitalOutput for SysfsPin {
-    fn set_value(&mut self, val: bool) {
+    fn set_value(&mut self, val: bool) -> Result<(), String> {
+        let mut counter: u8 = 0;
         loop {
             if self.pin.set_value(val as u8).is_ok() {
-                break;
+                return Ok(());
             } else {
+                if counter >= 7 {
+                    return Err("Failed to set sysfs pin and reexport!".to_owned());
+                }
+                counter += 1;
                 warn!("Failed to set sysfs pin {}!", self.pin.get_pin_num());
                 if self.pin.export().is_err() {
                     error!("Failed to reexport sysfs pin {}!", self.pin.get_pin_num());

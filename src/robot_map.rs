@@ -5,18 +5,22 @@
 use slog::Level;
 
 // P9.14
+pub const FRONT_LEFT_STRING: &str = "P9_14";
 pub const FRONT_LEFT_PWM_CHIP: u32 = 3;
 pub const FRONT_LEFT_PWM_NUMBER: u32 = 0;
 
 // P9.16
+pub const FRONT_RIGHT_STRING: &str = "P9_16";
 pub const FRONT_RIGHT_PWM_CHIP: u32 = 3;
 pub const FRONT_RIGHT_PWM_NUMBER: u32 = 1;
 
 // P8.19
+pub const REAR_LEFT_STRING: &str = "P8_19";
 pub const REAR_LEFT_PWM_CHIP: u32 = 6;
 pub const REAR_LEFT_PWM_NUMBER: u32 = 1;
 
 // P8.13
+pub const REAR_RIGHT_STRING: &str = "P8_13";
 pub const REAR_RIGHT_PWM_CHIP: u32 = 6;
 pub const REAR_RIGHT_PWM_NUMBER: u32 = 0;
 

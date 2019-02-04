@@ -1,3 +1,6 @@
+use std::io;
+use std::process;
+
 use sysfs_pwm;
 
 use super::AnalogOutput;
@@ -11,29 +14,39 @@ pub struct SysfsPwm {
 }
 
 impl AnalogOutput for SysfsPwm {
-    fn set_value(&mut self, val: f32) {
+    fn set_value(&mut self, val: f32) -> Result<(), String> {
         let pwm_out = f32::abs(val * PERIOD_NS as f32) as u32;
-        let mut fail_count = 0;
-        while self.pwm.set_duty_cycle_ns(pwm_out).is_err() {
-            fail_count += 1;
+
+        if self.pwm.set_duty_cycle_ns(pwm_out).is_err() {
             warn!("Failed to set duty cycle for sysfs pwm <{},{}>!", self.chip, self.number);
-            if self.pwm.export().is_err() {
+            if let Err(e) = self.pwm.export() {
                 warn!("Failed to reexport sysfs pwm <{},{}>!", self.chip, self.number);
+                Err(e.to_string())
             } else {
-                if self.pwm.set_period_ns(PERIOD_NS).is_err() {
+                if let Err(e) = self.pwm.set_period_ns(PERIOD_NS) {
                     warn!("Failed to export sysfs pwm <{},{}>!", self.chip, self.number);
+                    Err(e.to_string())
+                } else {
+                    Ok(())
                 }
             }
-
-            if fail_count >= 7 {
-                error!("Failed to set value for sysfs pwm <{},{}>!", self.chip, self.number);
-            }
+        } else {
+            Ok(())
         }
     }
 }
 
 impl SysfsPwm {
-    pub fn create(chip: u32, number: u32) -> sysfs_pwm::Result<Self> {
+    pub fn create(chip: u32, number: u32, board_location: &str) -> sysfs_pwm::Result<Self> {
+        let config__command = process::Command::new("config-pin")
+            .arg(board_location)
+            .arg("pwm");
+
+        if let Err(e) = config__command.output() {
+            warn!("Failed to configure pin {}! Error:\n{}", board_location, e);
+            return Err(sysfs_pwm::Error::Unexpected(format!("Failed to configure pin {}! Error:\n{}", board_location, e)));
+        }
+
         let pwm = sysfs_pwm::Pwm::new(chip, number)?;
 
         if pwm.export().is_err() {
