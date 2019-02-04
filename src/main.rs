@@ -12,7 +12,6 @@ extern crate slog_scope;
 extern crate slog_stdlog;
 extern crate slog_term;
 
-
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
@@ -36,6 +35,8 @@ pub mod robot_map;
 pub mod robot;
 
 pub mod logging;
+
+pub mod status;
 
 #[cfg(test)]
 mod integration_tests;

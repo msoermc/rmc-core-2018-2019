@@ -15,6 +15,5 @@ slog-scope = ""
 slog-term = ""
 slog-async = ""
 rocket = ""
-
 [build-dependencies.mml]
 version = "0.1"

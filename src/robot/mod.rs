@@ -14,11 +14,11 @@ use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
-use crate::mechatronics::GlobalLifeStatus;
 use crate::mechatronics::material_handling::bucket_ladder::BucketLadder;
 use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
+use crate::status::life::GlobalLifeStatus;
 
 pub struct RobotBuilder {
     left_drive: MotorGroup,

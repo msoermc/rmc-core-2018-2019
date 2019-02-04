@@ -1,6 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::robot_map::*;
 use crate::mechatronics::GlobalLifeStatus;
+use crate::robot_map::*;
 
 #[cfg(test)]
 mod tests;
@@ -33,7 +33,7 @@ impl BucketLadder {
             digger,
             digger_state: DiggerState::Stopped,
             actuator_state: ActuatorState::Stopped,
-            life
+            life,
         }
     }
 
