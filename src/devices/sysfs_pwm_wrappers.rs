@@ -38,7 +38,7 @@ impl AnalogOutput for SysfsPwm {
 
 impl SysfsPwm {
     pub fn create(chip: u32, number: u32, board_location: &str) -> sysfs_pwm::Result<Self> {
-        let config__command = process::Command::new("config-pin")
+        let config_command = process::Command::new("config-pin")
             .arg(board_location)
             .arg("pwm")
             .output();
