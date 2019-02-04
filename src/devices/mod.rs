@@ -1,7 +1,10 @@
 use std::process::Command;
+use std::io;
 
 pub mod motor_controllers;
 pub mod sensors;
+mod sysfs_pins;
+mod sysfs_pwm;
 
 /// Runs a bash script which will enable the PWM drivers and configure the pins used by the program.
 pub fn enable_pins() -> Result<(), ()> {
@@ -14,4 +17,12 @@ pub fn enable_pins() -> Result<(), ()> {
             Err(())
         },
     }
+}
+
+pub trait DigitalOutput {
+    fn set_value(&mut self, val: bool);
+}
+
+pub trait AnalogOutput {
+    fn set_value(&mut self, val: f32);
 }
