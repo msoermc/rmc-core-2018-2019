@@ -47,20 +47,20 @@ impl RobotBuilder {
     pub fn use_real_drive(&mut self) {
         enable_pins().expect("Failed to enable pins!");
 
-        let left_front_pwm = SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_STRING).expect("Front left pwm");
-        let right_front_pwm = SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_STRING).expect("Front right pwm");
-        let left_rear_pwm = SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_STRING).expect("Rear left pwm");
-        let right_rear_pwm = SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_STRING).expect("Rear right pwm");
+        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_STRING).expect("Front left pwm"));
+        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_STRING).expect("Front right pwm"));
+        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_STRING).expect("Rear left pwm"));
+        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_STRING).expect("Rear right pwm"));
 
-        let front_right_direction = SysfsPin::new(FRONT_RIGHT_DIRECTION);
-        let front_left_direction = SysfsPin::new(FRONT_LEFT_DIRECTION);
-        let rear_right_direction = SysfsPin::new(REAR_RIGHT_DIRECTION);
-        let rear_left_direction = SysfsPin::new(REAR_LEFT_DIRECTION);
+        let front_right_direction = Box::new(SysfsPin::new(FRONT_RIGHT_DIRECTION));
+        let front_left_direction = Box::new(SysfsPin::new(FRONT_LEFT_DIRECTION));
+        let rear_right_direction = Box::new(SysfsPin::new(REAR_RIGHT_DIRECTION));
+        let rear_left_direction = Box::new(SysfsPin::new(REAR_LEFT_DIRECTION));
 
-        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight).expect("Front right motor"));
-        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft).expect("Front left motor"));
-        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight).expect("Rear right motor"));
-        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft).expect("Rear left motor"));
+        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight));
+        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft));
+        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight));
+        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft));
 
         self.left_drive = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
         self.right_drive = MotorGroup::new(vec![front_right_motor, rear_right_motor]);
