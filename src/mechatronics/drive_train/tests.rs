@@ -1,7 +1,7 @@
+use crate::devices::motor_controllers::MotorStateKind;
 use crate::devices::motor_controllers::test_motor::TestMotor;
 
 use super::*;
-use crate::devices::motor_controllers::MotorStateKind;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
@@ -298,7 +298,7 @@ fn test_get_state_no_fail() {
 
     let mut drive_train = DriveTrain::new(left.motor_group, right.motor_group, status.clone());
 
-    drive_train.drive(1.0,1.0);
+    drive_train.drive(1.0, 1.0);
 
     assert!(drive_train.get_motor_states().iter().map(|status| status.get_kind() == MotorStateKind::Ok).fold(true, |old, new| old && new));
 }

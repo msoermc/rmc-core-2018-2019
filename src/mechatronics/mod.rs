@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use std::sync::mpsc::Sender;
-use std::sync::RwLock;
+
+use crate::status::life::GlobalLifeStatus;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -11,47 +11,6 @@ pub mod controller;
 pub mod drive_train;
 
 pub mod material_handling;
-
-/// Represents the current status of the robot.
-/// Many subsystems will check this before determining if it is safe to perform an operation.
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum RobotLifeStatus {
-    /// Indicates that the robot is in a normal operating state.
-    Alive,
-
-    /// Indicates that the robot has been disabled by the operators and that it is not
-    /// safe to perform many operations.
-    Dead,
-}
-
-#[derive(Clone)]
-pub struct GlobalLifeStatus {
-    status: Arc<RwLock<RobotLifeStatus>>
-}
-
-impl GlobalLifeStatus {
-    pub fn new() -> Self {
-        Self {
-            status: Arc::new(RwLock::new(RobotLifeStatus::Alive))
-        }
-    }
-
-    pub fn get_status(&self) -> RobotLifeStatus {
-        *self.status.read().unwrap()
-    }
-
-    pub fn is_alive(&self) -> bool {
-        self.get_status() == RobotLifeStatus::Alive
-    }
-
-    pub fn kill(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Dead;
-    }
-
-    pub fn revive(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Alive;
-    }
-}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {
@@ -136,7 +95,7 @@ impl MechatronicsMessageSender {
     }
 
     /// Disables the drive train, preventing motor control and causeing it to brake.
-    pub fn disable_drive_train(&self)  {
+    pub fn disable_drive_train(&self) {
         self.send_command(MechatronicsCommand::DisableDrive)
     }
 

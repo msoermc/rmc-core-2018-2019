@@ -12,7 +12,7 @@ use crate::robot::RobotBuilder;
 use std::time::Duration;
 use std::thread::sleep;
 
-const TIMEOUT: u64 = 50;
+const TIMEOUT: u64 = 100;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
@@ -48,9 +48,9 @@ fn test_drive() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 }
@@ -64,9 +64,9 @@ fn test_raise_rails() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
+    let response = client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 }
 
@@ -79,9 +79,9 @@ fn test_lower_rails() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/rails/lower").dispatch().status();
+    let response = client.post("/robot/intake/rails/lower").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(-MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 }
 
@@ -94,9 +94,9 @@ fn test_stop_rails() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/rails/stop").dispatch().status();
+    let response = client.post("/robot/intake/rails/stop").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *rails.speed.read().unwrap());
 }
 
@@ -109,9 +109,9 @@ fn test_dig() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
+    let response = client.post("/robot/intake/digger/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
 }
 
@@ -124,9 +124,9 @@ fn test_stop_digging() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/digger/stop").dispatch().status();
+    let response = client.post("/robot/intake/digger/stop").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *digger.speed.read().unwrap());
 }
 
@@ -139,9 +139,9 @@ fn test_dump() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 }
 
@@ -154,9 +154,9 @@ fn test_reset_dumper() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/dumper/reset").dispatch().status();
+    let response = client.post("/robot/dumper/reset").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPER_RESET_RATE, *dumper.speed.read().unwrap());
 }
 
@@ -169,9 +169,9 @@ fn test_stop_dumper() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/dumper/stop").dispatch().status();
+    let response = client.post("/robot/dumper/stop").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
@@ -184,15 +184,15 @@ fn test_brake() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/brake").dispatch().status();
+    let response = client.post("/robot/drive_train/brake").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 }
@@ -206,33 +206,33 @@ fn test_disable_drive() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/disable").dispatch().status();
+    let response = client.post("/robot/drive_train/disable").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/enable").dispatch().status();
+    let response = client.post("/robot/drive_train/enable").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 }
@@ -246,29 +246,29 @@ fn test_disable_dumper() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/disable").dispatch().status();
+    let response = client.post("/robot/dumper/disable").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/enable").dispatch().status();
+    let response = client.post("/robot/dumper/enable").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 }
 
@@ -281,37 +281,39 @@ fn test_disable_intake() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
-    assert_eq!(Status::Ok, status);
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
-    assert_eq!(Status::Ok, status);
+    let response = client.post("/robot/intake/digger/dig").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    let response = client.post("/robot/intake/rails/raise").dispatch();
+    assert_eq!(Status::Ok, response.status());
     sleep(Duration::from_millis(TIMEOUT));
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/disable").dispatch().status();
+    let response = client.post("/robot/intake/disable").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *rails.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
-    assert_eq!(Status::Ok, status);
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
-    assert_eq!(Status::Ok, status);    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-
-    let status = client.post("/robot/intake/enable").dispatch().status();
+    let response = client.post("/robot/intake/digger/dig").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    let response = client.post("/robot/intake/rails/raise").dispatch();
+    assert_eq!(Status::Ok, response.status());
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
     assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *rails.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
-    assert_eq!(Status::Ok, status);
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
-    assert_eq!(Status::Ok, status);    sleep(Duration::from_millis(TIMEOUT));
+    let response = client.post("/robot/intake/enable").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+
+    let response = client.post("/robot/intake/digger/dig").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    let response = client.post("/robot/intake/rails/raise").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 }
@@ -329,85 +331,85 @@ fn test_kill() {
 
     let client = builder.build().launch_tester();
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
+    let response = client.post("/robot/intake/digger/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
+    let response = client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 
-    let status = client.post("/robot/kill").dispatch().status();
+    let response = client.post("/robot/kill").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
     assert_eq!(0.0, *rails.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
+    let response = client.post("/robot/intake/digger/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *digger.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
+    let response = client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *rails.speed.read().unwrap());
 
-    let status = client.post("/robot/revive").dispatch().status();
+    let response = client.post("/robot/revive").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
     assert_eq!(0.0, *rails.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/drive_train/drive/1.0/1.0").dispatch().status();
+    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
 
-    let status = client.post("/robot/dumper/dump").dispatch().status();
+    let response = client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/digger/dig").dispatch().status();
+    let response = client.post("/robot/intake/digger/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
 
-    let status = client.post("/robot/intake/rails/raise").dispatch().status();
+    let response = client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, status);
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 }
 
