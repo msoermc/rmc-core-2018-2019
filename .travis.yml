@@ -22,7 +22,7 @@ before_install:
     cd kcov-master;
     mkdir build;
     cd build;
-    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov ..;
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov -GNinja ..;
     ninja;
     ninja install;
     cd ../..;
