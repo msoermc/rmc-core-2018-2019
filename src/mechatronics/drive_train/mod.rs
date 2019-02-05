@@ -14,11 +14,11 @@ pub struct DriveTrain {
     state: Arc<GlobalDriveTrainState>,
     left: MotorGroup,
     right: MotorGroup,
-    robot_status: GlobalLifeState,
+    robot_status: Arc<GlobalLifeState>,
 }
 
 impl DriveTrain {
-    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: GlobalLifeState, state: Arc<GlobalDriveTrainState>) -> DriveTrain {
+    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: Arc<GlobalLifeState>, state: Arc<GlobalDriveTrainState>) -> DriveTrain {
         DriveTrain {
             state,
             left,

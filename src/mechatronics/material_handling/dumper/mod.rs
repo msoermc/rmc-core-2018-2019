@@ -12,11 +12,11 @@ pub mod state;
 pub struct Dumper {
     motors: MotorGroup,
     state: Arc<GlobalDumperState>,
-    life: GlobalLifeState,
+    life: Arc<GlobalLifeState>,
 }
 
 impl Dumper {
-    pub fn new(life: GlobalLifeState, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
+    pub fn new(life: Arc<GlobalLifeState>, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
         Self {
             motors,
             state,

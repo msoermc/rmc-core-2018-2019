@@ -16,11 +16,11 @@ pub struct Ladder {
     actuators: MotorGroup,
     ladder: MotorGroup,
     state: Arc<GlobalIntakeState>,
-    life: GlobalLifeState,
+    life: Arc<GlobalLifeState>,
 }
 
 impl Ladder {
-    pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: GlobalLifeState) -> Self {
+    pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
         Self {
             actuators,
             ladder,
