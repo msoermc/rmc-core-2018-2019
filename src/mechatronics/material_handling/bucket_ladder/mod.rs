@@ -84,11 +84,6 @@ impl BucketLadder {
         self.digger_state = DiggerState::Stopped;
     }
 
-    pub fn stop_all(&mut self) {
-        self.stop_digging();
-        self.stop_actuators();
-    }
-
     pub fn run_cycle(&mut self) {
         match self.actuator_state {
             ActuatorState::Rising => self.raise(),
