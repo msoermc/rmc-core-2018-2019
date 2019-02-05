@@ -54,6 +54,6 @@ impl Dumper {
     }
 
     pub fn run_cycle(&mut self) {
-
+        self.motors.maintain_last();
     }
 }
