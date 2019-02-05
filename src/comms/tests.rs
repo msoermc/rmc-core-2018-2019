@@ -1,3 +1,7 @@
+use std::sync::mpsc::channel;
+use std::sync::mpsc::Receiver;
+
+use rocket::http::ContentType;
 use rocket::local::Client;
 
 use crate::comms;
@@ -5,8 +9,6 @@ use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeState;
 
 use super::*;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::channel;
 
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
@@ -33,6 +35,16 @@ fn setup() -> TestEnvironment {
         client,
         status: robot_status,
     }
+}
+
+#[test]
+fn test_get_state() {
+    let env = setup();
+
+    let response = env.client.get("/robot/state").dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(Some(ContentType::JSON), response.content_type());
 }
 
 #[test]
