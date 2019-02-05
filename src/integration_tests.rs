@@ -39,7 +39,27 @@ fn test_setup() {
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
+#[test]
+fn test_drive() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
 
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/drive_train/drive/1/1").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+}
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
     let inverted_0 = Arc::new(RwLock::new(false));
