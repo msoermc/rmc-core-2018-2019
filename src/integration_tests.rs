@@ -42,375 +42,154 @@ fn test_setup() {
 #[test]
 fn test_drive() {
     let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
     let mut builder = RobotBuilder::new();
 
     builder.use_custom_drive(left.motor_group, right.motor_group);
-
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
     let client = builder.build().launch_tester();
 
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
+    client.post("/robot/drive_train/drive/1/1").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
-}
-
-#[test]
-fn test_raise_rails() {
-    let (digger, rails) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
-}
-
-#[test]
-fn test_lower_rails() {
-    let (digger, rails) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/intake/rails/lower").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(-MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
-}
-
-#[test]
-fn test_stop_rails() {
-    let (digger, rails) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/intake/rails/stop").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
     assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+
+    client.post("/robot/modes/dig").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+
+    client.post("/robot/modes/drive").dispatch();
+    client.post("/robot/drive_train/drive/1/1").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
 #[test]
 fn test_dig() {
+    let (left, right) = create_groups();
     let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
     let mut builder = RobotBuilder::new();
 
+    builder.use_custom_drive(left.motor_group, right.motor_group);
     builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
+    builder.use_custom_dumper(dumper.motor_group);
     let client = builder.build().launch_tester();
 
-    let response = client.post("/robot/intake/digger/dig").dispatch();
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/digger/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
 #[test]
-fn test_stop_digging() {
+fn test_raise() {
+    let (left, right) = create_groups();
     let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
     let mut builder = RobotBuilder::new();
 
+    builder.use_custom_drive(left.motor_group, right.motor_group);
     builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
+    builder.use_custom_dumper(dumper.motor_group);
     let client = builder.build().launch_tester();
 
-    let response = client.post("/robot/intake/digger/stop").dispatch();
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_lower() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/rails/lower").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(-MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
 #[test]
 fn test_dump() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
     let (_, dumper) = create_groups();
     let mut builder = RobotBuilder::new();
 
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
     builder.use_custom_dumper(dumper.motor_group);
-
     let client = builder.build().launch_tester();
 
-    let response = client.post("/robot/dumper/dump").dispatch();
+    client.post("/robot/modes/dump").dispatch();
+    client.post("/robot/dumper/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
     assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
 }
 
 #[test]
 fn test_reset_dumper() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
     let (_, dumper) = create_groups();
     let mut builder = RobotBuilder::new();
 
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
     builder.use_custom_dumper(dumper.motor_group);
-
     let client = builder.build().launch_tester();
 
-    let response = client.post("/robot/dumper/reset").dispatch();
+    client.post("/robot/modes/dump").dispatch();
+    client.post("/robot/dumper/reset").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
     assert_eq!(DUMPER_RESET_RATE, *dumper.speed.read().unwrap());
-}
-
-#[test]
-fn test_stop_dumper() {
-    let (_, dumper) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_dumper(dumper.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/dumper/stop").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-}
-
-#[test]
-fn test_brake() {
-    let (left, right) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_drive(left.motor_group, right.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(1.0, *left.speed.read().unwrap());
-    assert_eq!(1.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/brake").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-}
-
-#[test]
-fn test_disable_drive() {
-    let (left, right) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_drive(left.motor_group, right.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(1.0, *left.speed.read().unwrap());
-    assert_eq!(1.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/disable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/enable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(1.0, *left.speed.read().unwrap());
-    assert_eq!(1.0, *right.speed.read().unwrap());
-}
-
-#[test]
-fn test_disable_dumper() {
-    let (_, dumper) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_dumper(dumper.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/disable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/enable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
-}
-
-#[test]
-fn test_disable_intake() {
-    let (digger, rails) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_intake(digger.motor_group, rails.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
-    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/disable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/enable").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
-    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
-}
-
-#[test]
-fn test_kill() {
-    let (left, right) = create_groups();
-    let (digger, rails) = create_groups();
-    let (_, dumper) = create_groups();
-    let mut builder = RobotBuilder::new();
-
-    builder.use_custom_drive(left.motor_group, right.motor_group);
-    builder.use_custom_intake(digger.motor_group, rails.motor_group);
-    builder.use_custom_dumper(dumper.motor_group);
-
-    let client = builder.build().launch_tester();
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(1.0, *left.speed.read().unwrap());
-    assert_eq!(1.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/kill").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-
-    let response = client.post("/robot/revive").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, *left.speed.read().unwrap());
-    assert_eq!(0.0, *right.speed.read().unwrap());
-    assert_eq!(0.0, *rails.speed.read().unwrap());
-    assert_eq!(0.0, *digger.speed.read().unwrap());
-    assert_eq!(0.0, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(1.0, *left.speed.read().unwrap());
-    assert_eq!(1.0, *right.speed.read().unwrap());
-
-    let response = client.post("/robot/dumper/dump").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/digger/dig").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
-
-    let response = client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT));
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
 }
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
