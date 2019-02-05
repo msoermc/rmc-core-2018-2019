@@ -22,7 +22,7 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
     let state = ServerState {
         robot_controller: Mutex::new(robot_controller),
     };
-    let rocket = rocket::ignite()
+    rocket::ignite()
         .manage(state)
         .mount("/",
                routes![handle_drive,
@@ -39,10 +39,7 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
                               handle_stop_rails,
                               switch_mode,
                               index,
-                              files]);
-
-
-    rocket
+                              files])
 }
 
 #[post("/robot/modes/<mode>")]
