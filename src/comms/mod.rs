@@ -14,47 +14,15 @@ use crate::mechatronics::MechatronicsMessageSender;
 #[cfg(test)]
 mod tests;
 
-/// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
-pub trait SendableMessage: Send {
-    fn encode(&self) -> String;
-}
-
-/// The `ServerSender` is a view into a `RobotCommunicator` that other threads/objects
-/// can use to request that messages be sent.
-#[derive(Clone, Debug)]
-pub struct ServerSender {
-    channel: Sender<Box<SendableMessage>>,
-}
-
-impl ServerSender {
-    /// Sends a message to the remote receiver and returns `Err(LogData)` if the channel hangs up.
-    pub fn send_message(&self, message: Box<SendableMessage>) {
-        self.channel.send(message).expect("Failed to send message!");
-    }
-
-    /// Constructs a new `ServerSender`
-    fn new(channel: Sender<Box<SendableMessage>>) -> Self {
-        Self {
-            channel
-        }
-    }
-}
-
 struct ServerState {
-    receiver: Mutex<Receiver<Box<SendableMessage>>>,
     robot_controller: Mutex<MechatronicsMessageSender>,
 }
 
 struct Drive {}
 
 /// Launches the server
-pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rocket) {
-    let (send, recv) = channel();
-
-    let server_sender = ServerSender::new(send);
-
+pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
     let state = ServerState {
-        receiver: Mutex::new(recv),
         robot_controller: Mutex::new(robot_controller),
     };
     let rocket = rocket::ignite()
@@ -77,7 +45,7 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rock
                               files]);
 
 
-    (server_sender, rocket)
+    rocket
 }
 
 #[post("/robot/modes/<mode>")]

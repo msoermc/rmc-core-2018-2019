@@ -1,6 +1,5 @@
 use std::sync::mpsc::Receiver;
 
-use crate::comms::ServerSender;
 use crate::framework::Runnable;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::material_handling::bucket_ladder::BucketLadder;
@@ -15,7 +14,6 @@ pub enum MechState {
 }
 
 pub struct RobotController {
-    driver_station_view: ServerSender,
     command_receiver: Receiver<MechatronicsCommand>,
     drive_train: DriveTrain,
     dumper: Dumper,
@@ -43,11 +41,9 @@ impl Runnable for RobotController {
 }
 
 impl RobotController {
-    pub fn new(driver_station_view: ServerSender,
-               command_receiver: Receiver<MechatronicsCommand>,
+    pub fn new(command_receiver: Receiver<MechatronicsCommand>,
                drive_train: DriveTrain, dumper: Dumper, ladder: BucketLadder, life_status: GlobalLifeStatus) -> Self {
         Self {
-            driver_station_view,
             command_receiver,
             drive_train,
             dumper,

@@ -8,7 +8,6 @@ use super::*;
 
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
-    sender: ServerSender,
     client: Client,
     status: GlobalLifeStatus,
 }
@@ -23,13 +22,12 @@ fn setup() -> TestEnvironment {
     let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
     // Create server
-    let (server_sender, grasshopper) = comms::stage(robot_view);
+    let grasshopper = comms::stage(robot_view);
 
     let client = Client::new(grasshopper).unwrap();
 
     TestEnvironment {
         receiver: controller_receiver,
-        sender: server_sender,
         client,
         status: robot_status,
     }
