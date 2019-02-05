@@ -54,7 +54,7 @@ mod tests {
     impl GlobalLifeState {
         fn create_dead() -> Self {
             Self {
-                life: Arc::new(AtomicBool::new(false))
+                life: AtomicBool::new(false)
             }
         }
     }

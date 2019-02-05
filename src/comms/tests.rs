@@ -11,20 +11,20 @@ use std::sync::mpsc::channel;
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
     client: Client,
-    status: GlobalLifeState,
+    status: Arc<GlobalRobotState>,
 }
 
 fn setup() -> TestEnvironment {
     let (controller_sender, controller_receiver) = channel();
 
     // Create Robot status
-    let robot_status = GlobalLifeState::new();
+    let robot_status = Arc::new(GlobalRobotState::new());
 
     // Create RobotView
     let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
     // Create server
-    let grasshopper = comms::stage(robot_view);
+    let grasshopper = comms::stage(robot_view, robot_status.clone());
 
     let client = Client::new(grasshopper).unwrap();
 
@@ -58,19 +58,19 @@ fn test_drive_request() {
 #[test]
 fn test_kill() {
     let env = setup();
-    env.status.revive();
+    env.status.get_life().revive();
     let response = env.client.post("/robot/kill").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert!(!env.status.is_alive());
+    assert!(!env.status.get_life().is_alive());
 }
 
 #[test]
 fn test_revive() {
     let env = setup();
-    env.status.kill();
+    env.status.get_life().kill();
     let response = env.client.post("/robot/revive").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert!(env.status.is_alive());
+    assert!(env.status.get_life().is_alive());
 }
 
 #[test]
