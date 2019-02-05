@@ -13,11 +13,11 @@ pub struct GlobalActuatorState {
 }
 
 impl GlobalActuatorState {
-    pub fn new(upper: AtomicBool, lower: AtomicBool, action: AtomicUsize) -> Self {
+    pub fn new() -> Self {
         GlobalActuatorState {
-            upper,
-            lower,
-            action,
+            upper: AtomicBool::new(false),
+            lower: AtomicBool::new(false),
+            action: AtomicUsize::new(ACTUATOR_STOPPED),
         }
     }
 

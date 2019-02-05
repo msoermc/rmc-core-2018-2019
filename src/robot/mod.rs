@@ -1,3 +1,6 @@
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::AtomicUsize;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
@@ -14,9 +17,16 @@ use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
 use crate::mechatronics::material_handling::bucket_ladder::Ladder;
+use crate::mechatronics::material_handling::bucket_ladder::state::actuator::ACTUATOR_STOPPED;
+use crate::mechatronics::material_handling::bucket_ladder::state::actuator::GlobalActuatorState;
+use crate::mechatronics::material_handling::bucket_ladder::state::GlobalIntakeState;
+use crate::mechatronics::material_handling::bucket_ladder::state::ladder::GlobalLadderState;
 use crate::mechatronics::material_handling::dumper::Dumper;
+use crate::mechatronics::material_handling::dumper::state::GlobalDumperState;
 use crate::mechatronics::MechatronicsMessageSender;
+use crate::mechatronics::state::GlobalMecState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeStatus;
 
@@ -99,12 +109,14 @@ impl RobotBuilder {
         // Create server
         let bfr = comms::stage(robot_view);
 
+        let mec_state = GlobalMecState::new();
+
         // Create DriveTrain
-        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone());
+        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone(), mec_state.get_drive());
 
-        let digger = Ladder::new(self.digger, self.rails, robot_status.clone());
+        let digger = Ladder::new(self.digger, self.rails, mec_state.get_intake(), robot_status.clone());
 
-        let dumper = Dumper::new(robot_status.clone(), self.dumper);
+        let dumper = Dumper::new(robot_status.clone(), self.dumper, mec_state.get_dumper());
 
         // Create Robot Controller
         let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, robot_status);

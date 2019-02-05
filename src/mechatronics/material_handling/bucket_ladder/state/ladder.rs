@@ -9,9 +9,9 @@ pub struct GlobalLadderState {
 }
 
 impl GlobalLadderState {
-    pub fn new(action: AtomicUsize) -> Self {
+    pub fn new() -> Self {
         Self {
-            action
+            action: AtomicUsize::new(LADDER_STOPPED)
         }
     }
 

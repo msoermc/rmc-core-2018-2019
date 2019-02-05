@@ -1,70 +1,59 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::mechatronics::GlobalLifeStatus;
 use crate::robot_map::*;
+use crate::status::life::GlobalLifeStatus;
+use crate::mechatronics::material_handling::dumper::state::GlobalDumperState;
+use std::sync::Arc;
 
 #[cfg(test)]
 mod tests;
 
+pub mod state;
+
 pub struct Dumper {
-    is_enabled: bool,
     motors: MotorGroup,
-    state: DumperState,
+    state: Arc<GlobalDumperState>,
     life: GlobalLifeStatus,
 }
 
-enum DumperState {
-    Dumping,
-    Resetting,
-    Stopped,
-}
-
 impl Dumper {
-    pub fn new(life: GlobalLifeStatus, motors: MotorGroup) -> Self {
+    pub fn new(life: GlobalLifeStatus, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
         Self {
-            is_enabled: true,
             motors,
-            state: DumperState::Stopped,
+            state,
             life,
         }
     }
 
     pub fn enable(&mut self) {
-        self.is_enabled = true;
+        self.state.set_enabled(true);
     }
 
     pub fn disable(&mut self) {
-        self.is_enabled = false;
+        self.state.set_enabled(false);
         self.stop();
     }
 
     pub fn dump(&mut self) {
-        if self.is_enabled && self.life.is_alive() {
+        if self.state.get_enabled() && self.life.is_alive() {
             self.motors.set_speed(DUMPING_RATE);
-            self.state = DumperState::Dumping;
         } else {
             self.stop();
         }
     }
 
     pub fn reset(&mut self) {
-        if self.is_enabled && self.life.is_alive() {
+        if self.state.get_enabled() && self.life.is_alive() {
             self.motors.set_speed(DUMPER_RESET_RATE);
-            self.state = DumperState::Resetting;
         } else {
             self.stop();
         }
     }
 
     pub fn stop(&mut self) {
-        self.motors.set_speed(0.0);
-        self.state = DumperState::Stopped;
+        self.motors.stop();
     }
 
     pub fn run_cycle(&mut self) {
-        match self.state {
-            DumperState::Dumping => self.dump(),
-            DumperState::Resetting => self.reset(),
-            DumperState::Stopped => self.stop(),
-        }
+
     }
 }

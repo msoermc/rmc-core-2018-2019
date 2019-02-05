@@ -12,6 +12,8 @@ pub mod drive_train;
 
 pub mod material_handling;
 
+pub mod state;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {
     EnterDriveMode,

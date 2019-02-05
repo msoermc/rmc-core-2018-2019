@@ -98,7 +98,7 @@ fn test_stop_digger() {
     let life = GlobalLifeStatus::new();
     let mut ladder = Ladder::new(digger.motor_group, actuators.motor_group, life);
 
-    ladder.stop_digging();
+    ladder.stop_ladder();
     assert_eq!(0.0, *digger.speed.read().unwrap());
     ladder.run_cycle();
     assert_eq!(0.0, *digger.speed.read().unwrap());

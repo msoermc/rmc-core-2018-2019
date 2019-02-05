@@ -92,7 +92,7 @@ impl RobotController {
                 self.digger.dig()
             },
             MechatronicsCommand::StopDigging => {
-                self.digger.stop_digging();
+                self.digger.stop_ladder();
             },
             MechatronicsCommand::RaiseActuators => {
                 self.digger.raise();

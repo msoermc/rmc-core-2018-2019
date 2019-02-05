@@ -17,13 +17,12 @@ pub struct GlobalIntakeState {
 }
 
 impl GlobalIntakeState {
-    pub fn new(left_actuator: GlobalActuatorState, right_actuator: GlobalActuatorState,
-               ladder: GlobalLadderState, enabled: AtomicBool) -> Self {
+    pub fn new() -> Self {
         Self {
-            left_actuator,
-            right_actuator,
-            ladder,
-            enabled
+            left_actuator: GlobalActuatorState::new(),
+            right_actuator: GlobalActuatorState::new(),
+            ladder: GlobalLadderState::new(),
+            enabled: AtomicBool::new(false)
         }
     }
 
@@ -57,6 +56,7 @@ impl GlobalIntakeState {
     }
 }
 
+#[derive(Serialize)]
 pub struct IntakeStateInstance {
     left_actuator: ActuatorStateInstance,
     right_actuator: ActuatorStateInstance,
