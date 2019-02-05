@@ -30,6 +30,7 @@ impl GlobalLifeState {
     }
 }
 
+#[derive(Serialize)]
 pub struct LifeStateInstance {
     life: bool
 }

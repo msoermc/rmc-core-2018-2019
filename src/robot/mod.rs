@@ -19,7 +19,7 @@ use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
-use crate::status::robot_state::RobotState;
+use crate::status::robot_state::GlobalRobotState;
 use std::sync::Arc;
 
 pub struct RobotBuilder {
@@ -92,10 +92,10 @@ impl RobotBuilder {
     pub fn build(self) -> Robot {
         let (controller_sender, controller_receiver) = channel();
 
-        let robot_state = Arc::new(RobotState::new());
+        let robot_state = Arc::new(GlobalRobotState::new());
 
         let robot_view = MechatronicsMessageSender::new(controller_sender, robot_state.clone());
-        let bfr = comms::stage(robot_view);
+        let bfr = comms::stage(robot_view, robot_state.clone());
 
         let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_state.get_life(), robot_state.get_drive());
 

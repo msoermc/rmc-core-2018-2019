@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::mpsc::Sender;
 
 use crate::status::life::GlobalLifeState;
-use crate::status::robot_state::RobotState;
+use crate::status::robot_state::GlobalRobotState;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -33,11 +33,11 @@ pub enum MechatronicsCommand {
 
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
-    state: Arc<RobotState>,
+    state: Arc<GlobalRobotState>,
 }
 
 impl MechatronicsMessageSender {
-    pub fn new(channel: Sender<MechatronicsCommand>, state: Arc<RobotState>) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, state: Arc<GlobalRobotState>) -> Self {
         Self {
             channel,
             state,

@@ -19,6 +19,10 @@ impl GlobalDriveTrainState {
     pub fn set_enabled(&self, enabled: bool) {
         self.enabled.store(enabled, Ordering::Relaxed)
     }
+
+    pub fn get_current_state(&self) -> DriveTrainStateInstance {
+        DriveTrainStateInstance::new(self.enabled.load(Ordering::Relaxed))
+    }
 }
 
 #[derive(Serialize)]
