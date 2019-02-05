@@ -14,22 +14,19 @@ pub mod material_handling;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {
+    EnterDriveMode,
+    EnterDumpMode,
+    EnterDiggingMode,
     Drive(DriveCommandMessage),
     Brake,
-    EnableDrive,
-    DisableDrive,
-    EnableDumper,
-    DisableDumper,
-    EnableBucketLadder,
-    DisableBucketLadder,
     Dump,
     ResetDumper,
     StopDumper,
     Dig,
     StopDigging,
-    RaiseDigger,
-    LowerDigger,
-    FreezeDiggerHeight,
+    RaiseActuators,
+    LowerActuators,
+    StopActuators,
 }
 
 /// The `RobotView` struct is represents a view into the `RobotController`.
@@ -60,12 +57,12 @@ impl MechatronicsMessageSender {
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
+        self.stop_actuators();
         self.robot_life_status.kill();
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
+        self.stop_actuators();
     }
 
     /// Instructs the drive train to begin moving both sides at the provided speeds.
@@ -84,27 +81,21 @@ impl MechatronicsMessageSender {
         Ok(())
     }
 
+    pub fn switch_to_drive(&self) {
+        self.send_command(MechatronicsCommand::EnterDriveMode)
+    }
+
+    pub fn switch_to_dig(&self) {
+        self.send_command(MechatronicsCommand::EnterDiggingMode)
+    }
+
+    pub fn switch_to_dump(&self) {
+        self.send_command(MechatronicsCommand::EnterDumpMode)
+    }
+
     /// Instructs the drive train to begin braking, halting all motion.
     pub fn brake(&self) {
         self.send_command(MechatronicsCommand::Brake)
-    }
-
-    /// Reenables the drive train, allowing motor control.
-    pub fn enable_drive_train(&self) {
-        self.send_command(MechatronicsCommand::EnableDrive)
-    }
-
-    /// Disables the drive train, preventing motor control and causeing it to brake.
-    pub fn disable_drive_train(&self) {
-        self.send_command(MechatronicsCommand::DisableDrive)
-    }
-
-    pub fn disable_dumper(&self) {
-        self.send_command(MechatronicsCommand::DisableDumper)
-    }
-
-    pub fn enable_dumper(&self) {
-        self.send_command(MechatronicsCommand::EnableDumper)
     }
 
     pub fn dump(&self) {
@@ -119,14 +110,6 @@ impl MechatronicsMessageSender {
         self.send_command(MechatronicsCommand::StopDumper)
     }
 
-    pub fn enable_ladder(&self) {
-        self.send_command(MechatronicsCommand::EnableBucketLadder)
-    }
-
-    pub fn disable_ladder(&self) {
-        self.send_command(MechatronicsCommand::DisableBucketLadder)
-    }
-
     pub fn dig(&self) {
         self.send_command(MechatronicsCommand::Dig)
     }
@@ -136,15 +119,15 @@ impl MechatronicsMessageSender {
     }
 
     pub fn raise_ladder(&self) {
-        self.send_command(MechatronicsCommand::RaiseDigger)
+        self.send_command(MechatronicsCommand::RaiseActuators)
     }
 
     pub fn lower_ladder(&self) {
-        self.send_command(MechatronicsCommand::LowerDigger)
+        self.send_command(MechatronicsCommand::LowerActuators)
     }
 
-    pub fn freeze_ladder_height(&self) {
-        self.send_command(MechatronicsCommand::FreezeDiggerHeight)
+    pub fn stop_actuators(&self) {
+        self.send_command(MechatronicsCommand::StopActuators)
     }
 
     #[inline]

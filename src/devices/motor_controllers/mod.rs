@@ -1,4 +1,3 @@
-use crate::comms::SendableMessage;
 use crate::robot_map::MotorID;
 
 pub mod hover_board;
@@ -52,12 +51,5 @@ impl MotorState {
 
     pub fn get_kind(&self) -> MotorStateKind {
         self.kind.clone()
-    }
-}
-
-impl SendableMessage for MotorState {
-    fn encode(&self) -> String {
-        // TODO Add to protocol
-        unimplemented!()
     }
 }
