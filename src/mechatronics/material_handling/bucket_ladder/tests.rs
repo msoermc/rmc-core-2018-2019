@@ -35,7 +35,7 @@ fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
 fn test_setup() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     assert_eq!(0.0, *actuators.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
@@ -48,7 +48,7 @@ fn test_setup() {
 fn test_raise() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     ladder.raise();
     assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
@@ -60,7 +60,7 @@ fn test_raise() {
 fn test_lower() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     ladder.lower();
     assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
@@ -72,7 +72,7 @@ fn test_lower() {
 fn test_stop_actuators() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     ladder.stop_actuators();
     assert_eq!(0.0, *actuators.speed.read().unwrap());
@@ -84,7 +84,7 @@ fn test_stop_actuators() {
 fn test_dig() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     ladder.dig();
     assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
@@ -96,7 +96,7 @@ fn test_dig() {
 fn test_stop_digger() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
 
     ladder.stop_digging();
     assert_eq!(0.0, *digger.speed.read().unwrap());
@@ -108,7 +108,7 @@ fn test_stop_digger() {
 fn test_disabling() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
     ladder.dig();
     ladder.raise();
     ladder.lower();
@@ -130,7 +130,7 @@ fn test_disabling() {
 fn test_enabling() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life);
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life);
     ladder.disable();
     ladder.enable();
     ladder.dig();
@@ -146,7 +146,7 @@ fn test_enabling() {
 fn test_killing() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life.clone());
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life.clone());
     ladder.dig();
     ladder.raise();
     ladder.lower();
@@ -166,7 +166,7 @@ fn test_killing() {
 fn test_reviving() {
     let (actuators, digger) = create_groups();
     let life = GlobalLifeStatus::new();
-    let mut ladder = BucketLadder::new(digger.motor_group, actuators.motor_group, life.clone());
+    let mut ladder = Digger::new(digger.motor_group, actuators.motor_group, life.clone());
     life.kill();
     life.revive();
     ladder.dig();
