@@ -14,7 +14,7 @@ use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
-use crate::mechatronics::material_handling::bucket_ladder::Digger;
+use crate::mechatronics::material_handling::bucket_ladder::Ladder;
 use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
@@ -102,7 +102,7 @@ impl RobotBuilder {
         // Create DriveTrain
         let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone());
 
-        let digger = Digger::new(self.digger, self.rails, robot_status.clone());
+        let digger = Ladder::new(self.digger, self.rails, robot_status.clone());
 
         let dumper = Dumper::new(robot_status.clone(), self.dumper);
 

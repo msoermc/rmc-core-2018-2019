@@ -2,9 +2,9 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 
-pub const ACTUATOR_RISING: u8 = 2;
-pub const ACTUATOR_LOWERING: u8 = 1;
-pub const ACTUATOR_STOPPED: u8 = 0;
+pub const ACTUATOR_RISING: usize = 2;
+pub const ACTUATOR_LOWERING: usize = 1;
+pub const ACTUATOR_STOPPED: usize = 0;
 
 pub struct GlobalActuatorState {
     upper: AtomicBool,

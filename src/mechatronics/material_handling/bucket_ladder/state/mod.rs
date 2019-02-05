@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::mechatronics::material_handling::bucket_ladder::state::actuator::ActuatorStateInstance;
 use crate::mechatronics::material_handling::bucket_ladder::state::actuator::GlobalActuatorState;
 use crate::mechatronics::material_handling::bucket_ladder::state::ladder::GlobalLadderState;
@@ -15,6 +13,14 @@ pub struct GlobalIntakeState {
 }
 
 impl GlobalIntakeState {
+    pub fn new(left_actuator: GlobalActuatorState, right_actuator: GlobalActuatorState, ladder: GlobalLadderState) -> Self {
+        Self {
+            left_actuator,
+            right_actuator,
+            ladder,
+        }
+    }
+
     pub fn get_current_state(&self) -> IntakeStateInstance {
         IntakeStateInstance::new(
             self.left_actuator.get_current_state(),
