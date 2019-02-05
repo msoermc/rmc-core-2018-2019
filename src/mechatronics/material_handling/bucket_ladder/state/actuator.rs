@@ -9,16 +9,14 @@ pub const ACTUATOR_STOPPED: usize = 0;
 pub struct GlobalActuatorState {
     upper: AtomicBool,
     lower: AtomicBool,
-    enabled: AtomicBool,
     action: AtomicUsize,
 }
 
 impl GlobalActuatorState {
-    pub fn new(upper: AtomicBool, lower: AtomicBool, enabled: AtomicBool, action: AtomicUsize) -> Self {
+    pub fn new(upper: AtomicBool, lower: AtomicBool, action: AtomicUsize) -> Self {
         GlobalActuatorState {
             upper,
             lower,
-            enabled,
             action,
         }
     }
@@ -27,9 +25,32 @@ impl GlobalActuatorState {
         ActuatorStateInstance::new(
             self.upper.load(Ordering::Relaxed),
             self.lower.load(Ordering::Relaxed),
-            self.enabled.load(Ordering::Relaxed),
             self.action.load(Ordering::Relaxed),
         )
+    }
+
+    pub fn set_upper(&self, upper: bool) {
+        self.upper.store(upper, Ordering::Relaxed);
+    }
+
+    pub fn set_lower(&self, lower: bool) {
+        self.lower.store(lower, Ordering::Relaxed);
+    }
+
+    pub fn set_action(&self, action: usize) {
+        self.action.store(action, Ordering::Relaxed);
+    }
+
+    pub fn get_upper(&self) -> bool {
+        self.upper.load(Ordering::Relaxed)
+    }
+
+    pub fn get_lower(&self) -> bool {
+        self.lower.load(Ordering::Relaxed)
+    }
+
+    pub fn get_action(&self) -> usize {
+        self.action.load(Ordering::Relaxed)
     }
 }
 
@@ -37,17 +58,27 @@ impl GlobalActuatorState {
 pub struct ActuatorStateInstance {
     upper: bool,
     lower: bool,
-    enabled: bool,
     action: usize,
 }
 
 impl ActuatorStateInstance {
-    fn new(upper: bool, lower: bool, enabled: bool, action: usize) -> Self {
+    fn new(upper: bool, lower: bool, action: usize) -> Self {
         ActuatorStateInstance {
             upper,
             lower,
-            enabled,
             action,
         }
+    }
+
+    pub fn get_upper(&self) -> bool {
+        self.upper
+    }
+
+    pub fn get_lower(&self) -> bool {
+        self.lower
+    }
+
+    pub fn get_action(&self) -> usize {
+        self.action
     }
 }

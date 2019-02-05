@@ -22,6 +22,10 @@ impl GlobalLadderState {
     pub fn set_action(&self, action: usize) {
         self.action.store(action, Ordering::Relaxed);
     }
+
+    pub fn get_action(&self) -> usize {
+        self.action.load(Ordering::Relaxed)
+    }
 }
 
 #[derive(Serialize)]
@@ -34,5 +38,9 @@ impl LadderStateInstance {
         Self {
             action,
         }
+    }
+
+    pub fn get_action(&self) -> usize {
+        self.action
     }
 }
