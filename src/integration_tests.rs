@@ -61,6 +61,121 @@ fn test_drive() {
     assert_eq!(0.0, *dumper.speed.read().unwrap());
 }
 
+#[test]
+fn test_dig() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/digger/dig").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(DIGGING_RATE, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_raise() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/rails/raise").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_lower() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    client.post("/robot/intake/rails/lower").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(-MH_ACTUATOR_RATE, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_dump() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dump").dispatch();
+    client.post("/robot/dumper/dump").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(DUMPING_RATE, *dumper.speed.read().unwrap());
+}
+
+#[test]
+fn test_reset_dumper() {
+    let (left, right) = create_groups();
+    let (digger, rails) = create_groups();
+    let (_, dumper) = create_groups();
+    let mut builder = RobotBuilder::new();
+
+    builder.use_custom_drive(left.motor_group, right.motor_group);
+    builder.use_custom_intake(digger.motor_group, rails.motor_group);
+    builder.use_custom_dumper(dumper.motor_group);
+    let client = builder.build().launch_tester();
+
+    client.post("/robot/modes/dump").dispatch();
+    client.post("/robot/dumper/reset").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(DUMPER_RESET_RATE, *dumper.speed.read().unwrap());
+}
+
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
     let inverted_0 = Arc::new(RwLock::new(false));
     let inverted_1 = Arc::new(RwLock::new(false));

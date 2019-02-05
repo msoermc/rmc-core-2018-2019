@@ -72,11 +72,29 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rock
                               handle_stop_digger,
                               handle_stop_dumper,
                               handle_stop_rails,
+                              switch_mode,
                               index,
                               files]);
 
 
     (server_sender, rocket)
+}
+
+#[post("/robot/modes/<mode>")]
+fn switch_mode(mode: String,state: State<ServerState>) -> Status {
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            match mode.as_str() {
+                "dig" => controller.switch_to_dig(),
+                "dump" => controller.switch_to_dump(),
+                "drive" => controller.switch_to_drive(),
+                _ => return Status::BadRequest,
+            }
+
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
 }
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
@@ -150,7 +168,7 @@ fn handle_lower_digger(state: State<ServerState>) -> Status {
 fn handle_stop_rails(state: State<ServerState>) -> Status {
     match state.robot_controller.lock() {
         Ok(controller) => {
-            controller.freeze_ladder_height();
+            controller.stop_actuators();
             Status::Ok
         }
         Err(_) => Status::InternalServerError

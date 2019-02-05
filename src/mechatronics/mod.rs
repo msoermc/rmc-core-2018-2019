@@ -57,12 +57,12 @@ impl MechatronicsMessageSender {
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
+        self.stop_actuators();
         self.robot_life_status.kill();
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
+        self.stop_actuators();
     }
 
     /// Instructs the drive train to begin moving both sides at the provided speeds.
@@ -79,6 +79,18 @@ impl MechatronicsMessageSender {
         self.send_command(MechatronicsCommand::Drive(command));
 
         Ok(())
+    }
+
+    pub fn switch_to_drive(&self) {
+        self.send_command(MechatronicsCommand::EnterDriveMode)
+    }
+
+    pub fn switch_to_dig(&self) {
+        self.send_command(MechatronicsCommand::EnterDiggingMode)
+    }
+
+    pub fn switch_to_dump(&self) {
+        self.send_command(MechatronicsCommand::EnterDumpMode)
     }
 
     /// Instructs the drive train to begin braking, halting all motion.
@@ -114,7 +126,7 @@ impl MechatronicsMessageSender {
         self.send_command(MechatronicsCommand::LowerActuators)
     }
 
-    pub fn freeze_ladder_height(&self) {
+    pub fn stop_actuators(&self) {
         self.send_command(MechatronicsCommand::StopActuators)
     }
 
