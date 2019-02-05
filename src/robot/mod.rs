@@ -47,15 +47,15 @@ impl RobotBuilder {
     pub fn use_real_drive(&mut self) {
         enable_pins().expect("Failed to enable pins!");
 
-        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_STRING).expect("Front left pwm"));
-        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_STRING).expect("Front right pwm"));
-        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_STRING).expect("Rear left pwm"));
-        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_STRING).expect("Rear right pwm"));
+        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_DRIVE_STRING).expect("Front left pwm"));
+        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_DRIVE_STRING).expect("Front right pwm"));
+        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_DRIVE_STRING).expect("Rear left pwm"));
+        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_DRIVE_STRING).expect("Rear right pwm"));
 
-        let front_right_direction = Box::new(SysfsPin::new(FRONT_RIGHT_DIRECTION));
-        let front_left_direction = Box::new(SysfsPin::new(FRONT_LEFT_DIRECTION));
-        let rear_right_direction = Box::new(SysfsPin::new(REAR_RIGHT_DIRECTION));
-        let rear_left_direction = Box::new(SysfsPin::new(REAR_LEFT_DIRECTION));
+        let front_right_direction = Box::new(SysfsPin::new(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING));
+        let front_left_direction = Box::new(SysfsPin::new(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING));
+        let rear_right_direction = Box::new(SysfsPin::new(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING));
+        let rear_left_direction = Box::new(SysfsPin::new(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING));
 
         let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight));
         let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft));
