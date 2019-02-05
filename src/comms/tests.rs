@@ -5,6 +5,8 @@ use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeStatus;
 
 use super::*;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::channel;
 
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
@@ -109,6 +111,13 @@ fn test_dig() {
     let response = env.client.post("/robot/intake/digger/dig").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::Dig, env.receiver.try_recv().unwrap());
+}
+
+#[test]
+fn test_bad_switch() {
+    let env = setup();
+    let response = env.client.post("/robot/modes/invalid").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
 }
 
 #[test]

@@ -1,8 +1,5 @@
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
 use std::sync::Mutex;
 
 use rocket::http::Status;
