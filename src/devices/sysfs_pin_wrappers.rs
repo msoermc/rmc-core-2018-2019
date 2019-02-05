@@ -3,6 +3,7 @@ use std::process;
 use sysfs_gpio;
 
 use super::DigitalOutput;
+use std::io;
 
 pub struct SysfsPin {
     pin: sysfs_gpio::Pin
@@ -29,7 +30,7 @@ impl DigitalOutput for SysfsPin {
 }
 
 impl SysfsPin {
-    pub fn new(pin_num: u64, board_location: &str) -> Self {
+    pub fn new(pin_num: u64, board_location: &str) -> io::Result<Self> {
         let config_command = process::Command::new("config-pin")
             .arg(board_location)
             .arg("gpio")
@@ -37,13 +38,14 @@ impl SysfsPin {
 
         if let Err(e) = config_command {
             error!("Failed to configure pin {}! Error:\n{}", board_location, e);
+            return Err(e);
         }
 
         let pin = sysfs_gpio::Pin::new(pin_num);
 
-        Self {
+        Ok(Self {
             pin
-        }
+        })
     }
 }
 
