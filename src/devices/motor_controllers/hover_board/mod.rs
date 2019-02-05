@@ -8,6 +8,9 @@ use crate::robot_map::MotorID;
 
 use super::MotorController;
 
+#[cfg(test)]
+mod tests;
+
 pub struct HoverBoardMotor {
     is_inverted: bool,
     pwm: Box<AnalogOutput>,
