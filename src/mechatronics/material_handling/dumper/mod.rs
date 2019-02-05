@@ -1,6 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::robot_map::*;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 use crate::mechatronics::material_handling::dumper::state::GlobalDumperState;
 use std::sync::Arc;
 
@@ -12,11 +12,11 @@ pub mod state;
 pub struct Dumper {
     motors: MotorGroup,
     state: Arc<GlobalDumperState>,
-    life: GlobalLifeStatus,
+    life: GlobalLifeState,
 }
 
 impl Dumper {
-    pub fn new(life: GlobalLifeStatus, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
+    pub fn new(life: GlobalLifeState, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
         Self {
             motors,
             state,

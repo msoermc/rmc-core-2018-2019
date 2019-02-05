@@ -1,6 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::robot_map::*;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 use std::sync::Arc;
 use crate::mechatronics::material_handling::bucket_ladder::state::GlobalIntakeState;
 use crate::mechatronics::material_handling::bucket_ladder::state::ladder::LADDER_RUNNING;
@@ -16,11 +16,11 @@ pub struct Ladder {
     actuators: MotorGroup,
     ladder: MotorGroup,
     state: Arc<GlobalIntakeState>,
-    life: GlobalLifeStatus,
+    life: GlobalLifeState,
 }
 
 impl Ladder {
-    pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: GlobalLifeStatus) -> Self {
+    pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: GlobalLifeState) -> Self {
         Self {
             actuators,
             ladder,

@@ -5,7 +5,7 @@ use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::material_handling::bucket_ladder::Ladder;
 use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsCommand;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 
 pub enum MechState {
     Digging,
@@ -18,7 +18,7 @@ pub struct RobotController {
     drive_train: DriveTrain,
     dumper: Dumper,
     digger: Ladder,
-    life_status: GlobalLifeStatus,
+    life_status: GlobalLifeState,
     state: MechState,
 }
 
@@ -42,7 +42,7 @@ impl Runnable for RobotController {
 
 impl RobotController {
     pub fn new(command_receiver: Receiver<MechatronicsCommand>,
-               drive_train: DriveTrain, dumper: Dumper, ladder: Ladder, life_status: GlobalLifeStatus) -> Self {
+               drive_train: DriveTrain, dumper: Dumper, ladder: Ladder, life_status: GlobalLifeState) -> Self {
         Self {
             command_receiver,
             drive_train,

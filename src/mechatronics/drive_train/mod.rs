@@ -1,6 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::devices::motor_controllers::MotorState;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
 use std::sync::Arc;
 
@@ -14,11 +14,11 @@ pub struct DriveTrain {
     state: Arc<GlobalDriveTrainState>,
     left: MotorGroup,
     right: MotorGroup,
-    robot_status: GlobalLifeStatus,
+    robot_status: GlobalLifeState,
 }
 
 impl DriveTrain {
-    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: GlobalLifeStatus, state: Arc<GlobalDriveTrainState>) -> DriveTrain {
+    pub fn new(left: MotorGroup, right: MotorGroup, robot_status: GlobalLifeState, state: Arc<GlobalDriveTrainState>) -> DriveTrain {
         DriveTrain {
             state,
             left,

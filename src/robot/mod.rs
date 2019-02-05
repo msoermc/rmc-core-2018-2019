@@ -18,7 +18,7 @@ use crate::mechatronics::material_handling::bucket_ladder::Ladder;
 use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::RobotState;
 
 pub struct RobotBuilder {
@@ -91,23 +91,21 @@ impl RobotBuilder {
     pub fn build(self) -> Robot {
         let (controller_sender, controller_receiver) = channel();
 
-        // Create Robot status
-        let robot_status = GlobalLifeStatus::new();
-
         // Create RobotView
-        let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
         // Create server
         let bfr = comms::stage(robot_view);
 
-        let mec_state = RobotState::new();
+        let robot_state = RobotState::new();
+
+        let robot_view = MechatronicsMessageSender::new(controller_sender);
 
         // Create DriveTrain
-        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone(), mec_state.get_drive());
+        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone(), robot_state.get_drive());
 
-        let digger = Ladder::new(self.digger, self.rails, mec_state.get_intake(), robot_status.clone());
+        let digger = Ladder::new(self.digger, self.rails, robot_state.get_intake(), robot_status.clone());
 
-        let dumper = Dumper::new(robot_status.clone(), self.dumper, mec_state.get_dumper());
+        let dumper = Dumper::new(robot_status.clone(), self.dumper, robot_state.get_dumper());
 
         // Create Robot Controller
         let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, robot_status);

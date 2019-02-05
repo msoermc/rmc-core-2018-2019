@@ -1,35 +1,48 @@
 use std::sync::Arc;
-use std::sync::atomic;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 
-const ALIVE: usize = 0;
-const DEAD: usize = 1;
-
-#[derive(Clone)]
-pub struct GlobalLifeStatus {
-    status: Arc<atomic::AtomicUsize>
+pub struct GlobalLifeState {
+    life: AtomicBool
 }
 
-impl GlobalLifeStatus {
+impl GlobalLifeState {
     pub fn new() -> Self {
         Self {
-            status: Arc::new(atomic::AtomicUsize::new(ALIVE))
+            life: AtomicBool::new(true)
         }
     }
 
     pub fn is_alive(&self) -> bool {
-        ALIVE == self.status.load(atomic::Ordering::Relaxed)
-    }
-
-    pub fn is_dead(&self) -> bool {
-        DEAD == self.status.load(atomic::Ordering::Relaxed)
+        self.life.load(atomic::Ordering::Relaxed)
     }
 
     pub fn kill(&self) {
-        self.status.store(DEAD, atomic::Ordering::SeqCst)
+        self.life.store(false, atomic::Ordering::SeqCst)
     }
 
     pub fn revive(&self) {
-        self.status.store(ALIVE, atomic::Ordering::SeqCst)
+        self.life.store(true, atomic::Ordering::SeqCst)
+    }
+
+    pub fn get_current_state(&self) -> LifeStateInstance {
+        LifeStateInstance::new(self.life.load(Ordering::Relaxed))
+    }
+}
+
+pub struct LifeStateInstance {
+    life: bool
+}
+
+impl LifeStateInstance {
+    fn new(life: bool) -> Self {
+        Self {
+            life
+        }
+    }
+
+    pub fn get_life(&self) -> bool {
+        self.life
     }
 }
 
@@ -37,32 +50,32 @@ impl GlobalLifeStatus {
 mod tests {
     use super::*;
 
-    impl GlobalLifeStatus {
+    impl GlobalLifeState {
         fn create_dead() -> Self {
             Self {
-                status: Arc::new(atomic::AtomicUsize::new(DEAD))
+                life: Arc::new(AtomicBool::new(false))
             }
         }
     }
 
     #[test]
     fn test_constructor() {
-        let status = GlobalLifeStatus::new();
+        let status = GlobalLifeState::new();
         assert!(status.is_alive());
     }
 
     #[test]
     fn test_kill() {
-        let status = GlobalLifeStatus::new();
+        let status = GlobalLifeState::new();
 
         status.kill();
 
-        assert!(status.is_dead());
+        assert!(!status.is_alive());
     }
 
     #[test]
     fn test_revive() {
-        let status = GlobalLifeStatus::create_dead();
+        let status = GlobalLifeState::create_dead();
 
         status.kill();
         status.revive();

@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -34,13 +34,13 @@ pub enum MechatronicsCommand {
 /// It is primarily used for inter thread messaging.
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
-    robot_life_status: GlobalLifeStatus,
+    robot_life_status: GlobalLifeState,
 }
 
 impl MechatronicsMessageSender {
     /// Constructs a view, using a supplied `Sender` to send messages to the `RobotController`.
     /// The other end of the channel should be owned by the `RobotController`.
-    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: GlobalLifeStatus) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: GlobalLifeState) -> Self {
         Self {
             channel,
             robot_life_status,

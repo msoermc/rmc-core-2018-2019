@@ -2,7 +2,7 @@ use rocket::local::Client;
 
 use crate::comms;
 use crate::mechatronics::MechatronicsCommand;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
 
 use super::*;
 use std::sync::mpsc::Receiver;
@@ -11,14 +11,14 @@ use std::sync::mpsc::channel;
 struct TestEnvironment {
     receiver: Receiver<MechatronicsCommand>,
     client: Client,
-    status: GlobalLifeStatus,
+    status: GlobalLifeState,
 }
 
 fn setup() -> TestEnvironment {
     let (controller_sender, controller_receiver) = channel();
 
     // Create Robot status
-    let robot_status = GlobalLifeStatus::new();
+    let robot_status = GlobalLifeState::new();
 
     // Create RobotView
     let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
@@ -61,7 +61,7 @@ fn test_kill() {
     env.status.revive();
     let response = env.client.post("/robot/kill").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert!(env.status.is_dead());
+    assert!(!env.status.is_alive());
 }
 
 #[test]
