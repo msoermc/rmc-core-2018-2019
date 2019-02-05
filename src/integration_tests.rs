@@ -53,7 +53,23 @@ fn test_drive() {
 
     client.post("/robot/drive_train/drive/1/1").dispatch();
     sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(1.0, *left.speed.read().unwrap());
+    assert_eq!(1.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
 
+    client.post("/robot/modes/dig").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+    assert_eq!(0.0, *digger.speed.read().unwrap());
+    assert_eq!(0.0, *rails.speed.read().unwrap());
+    assert_eq!(0.0, *dumper.speed.read().unwrap());
+
+    client.post("/robot/modes/drive").dispatch();
+    client.post("/robot/drive_train/drive/1/1").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
     assert_eq!(1.0, *left.speed.read().unwrap());
     assert_eq!(1.0, *right.speed.read().unwrap());
     assert_eq!(0.0, *digger.speed.read().unwrap());
