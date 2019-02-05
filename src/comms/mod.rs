@@ -61,17 +61,11 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rock
         .manage(state)
         .mount("/",
                routes![handle_drive,
-                              handle_enable_drive,
-                              handle_disable_drive,
                               handle_kill,
                               handle_revive,
                               handle_brake,
                               handle_dig,
                               handle_dump,
-                              handle_enable_digger,
-                              handle_disable_digger,
-                              handle_enable_dumper,
-                              handle_disable_dumper,
                               handle_lower_digger,
                               handle_raise_digger,
                               handle_reset_dumper,
@@ -91,50 +85,6 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
         Ok(controller) => if controller.drive(left, right).is_err() {
             Status::BadRequest
         } else {
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/drive_train/enable")]
-fn handle_enable_drive(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/drive_train/disable")]
-fn handle_disable_drive(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/enable")]
-fn handle_enable_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/disable")]
-fn handle_disable_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_dumper();
             Status::Ok
         }
         Err(_) => Status::InternalServerError
@@ -168,28 +118,6 @@ fn handle_stop_dumper(state: State<ServerState>) -> Status {
     match state.robot_controller.lock() {
         Ok(controller) => {
             controller.stop_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/intake/enable")]
-fn handle_enable_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/intake/disable")]
-fn handle_disable_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_ladder();
             Status::Ok
         }
         Err(_) => Status::InternalServerError

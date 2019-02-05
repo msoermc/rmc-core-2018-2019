@@ -8,18 +8,29 @@ use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeStatus;
 
+pub enum MechState {
+    Digging,
+    Driving,
+    Dumping
+}
+
 pub struct RobotController {
     driver_station_view: ServerSender,
     command_receiver: Receiver<MechatronicsCommand>,
     drive_train: DriveTrain,
     dumper: Dumper,
-    ladder: BucketLadder,
+    digger: BucketLadder,
     life_status: GlobalLifeStatus,
+    state: MechState,
 }
 
 impl Runnable for RobotController {
     fn init(&mut self) {
         info!("Initializing controller!");
+        self.state = MechState::Driving;
+        self.drive_train.enable();
+        self.dumper.disable();
+        self.digger.disable();
     }
 
     fn run(&mut self) {
@@ -40,61 +51,62 @@ impl RobotController {
             command_receiver,
             drive_train,
             dumper,
-            ladder,
+            digger: ladder,
             life_status,
+            state: MechState::Driving
         }
     }
 
     fn handle_message(&mut self, message: MechatronicsCommand) {
         match message {
-            MechatronicsCommand::Drive(drive_command) => {
-                self.drive_train.drive(drive_command.left_speed, drive_command.right_speed);
-            }
+            MechatronicsCommand::EnterDriveMode => {
+                self.state = MechState::Driving;
+                self.drive_train.enable();
+                self.dumper.disable();
+                self.digger.disable();
+            },
+            MechatronicsCommand::EnterDumpMode => {
+                self.state = MechState::Dumping;
+                self.dumper.enable();
+                self.digger.disable();
+                self.drive_train.disable();
+            },
+            MechatronicsCommand::EnterDiggingMode => {
+                self.state = MechState::Digging;
+                self.digger.enable();
+                self.dumper.disable();
+                self.drive_train.disable();
+            },
+            MechatronicsCommand::Drive(command) => {
+                self.drive_train.drive(command.left_speed, command.right_speed);
+            },
             MechatronicsCommand::Brake => {
                 self.drive_train.brake();
-            }
-            MechatronicsCommand::EnableDrive => {
-                self.drive_train.enable();
-            }
-            MechatronicsCommand::DisableDrive => {
-                self.drive_train.disable();
-            }
-            MechatronicsCommand::EnableDumper => {
-                self.dumper.enable();
-            }
-            MechatronicsCommand::DisableDumper => {
-                self.dumper.disable();
-            }
-            MechatronicsCommand::EnableBucketLadder => {
-                self.ladder.enable();
-            }
-            MechatronicsCommand::DisableBucketLadder => {
-                self.ladder.disable();
-            }
+            },
             MechatronicsCommand::Dump => {
                 self.dumper.dump();
-            }
+            },
             MechatronicsCommand::ResetDumper => {
                 self.dumper.reset();
-            }
+            },
             MechatronicsCommand::StopDumper => {
                 self.dumper.stop();
-            }
+            },
             MechatronicsCommand::Dig => {
-                self.ladder.dig();
-            }
+                self.digger.dig()
+            },
             MechatronicsCommand::StopDigging => {
-                self.ladder.stop_digging();
-            }
-            MechatronicsCommand::RaiseDigger => {
-                self.ladder.raise();
-            }
-            MechatronicsCommand::LowerDigger => {
-                self.ladder.lower();
-            }
-            MechatronicsCommand::FreezeDiggerHeight => {
-                self.ladder.stop_actuators();
-            }
+                self.digger.stop_digging();
+            },
+            MechatronicsCommand::RaiseActuators => {
+                self.digger.raise();
+            },
+            MechatronicsCommand::LowerActuators => {
+                self.digger.lower();
+            },
+            MechatronicsCommand::StopActuators => {
+                self.digger.stop_actuators();
+            },
         }
     }
 

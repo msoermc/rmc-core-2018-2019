@@ -74,43 +74,11 @@ fn test_revive() {
 }
 
 #[test]
-fn test_enable_drive() {
-    let env = setup();
-    let response = env.client.post("/robot/drive_train/enable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::EnableDrive, env.receiver.try_recv().unwrap());
-}
-
-#[test]
-fn test_disable_drive() {
-    let env = setup();
-    let response = env.client.post("/robot/drive_train/disable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::DisableDrive, env.receiver.try_recv().unwrap());
-}
-
-#[test]
 fn test_brake() {
     let env = setup();
     let response = env.client.post("/robot/drive_train/brake").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert_eq!(MechatronicsCommand::Brake, env.receiver.try_recv().unwrap());
-}
-
-#[test]
-fn test_enable_dumper() {
-    let env = setup();
-    let response = env.client.post("/robot/dumper/enable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::EnableDumper, env.receiver.try_recv().unwrap());
-}
-
-#[test]
-fn test_disable_dumper() {
-    let env = setup();
-    let response = env.client.post("/robot/dumper/disable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::DisableDumper, env.receiver.try_recv().unwrap());
 }
 
 #[test]
@@ -138,22 +106,6 @@ fn test_stop_dumper() {
 }
 
 #[test]
-fn test_enable_digger() {
-    let env = setup();
-    let response = env.client.post("/robot/intake/enable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::EnableBucketLadder, env.receiver.try_recv().unwrap());
-}
-
-#[test]
-fn test_disable_digger() {
-    let env = setup();
-    let response = env.client.post("/robot/intake/disable").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::DisableBucketLadder, env.receiver.try_recv().unwrap());
-}
-
-#[test]
 fn test_dig() {
     let env = setup();
     let response = env.client.post("/robot/intake/digger/dig").dispatch();
@@ -170,27 +122,11 @@ fn test_stop_digger() {
 }
 
 #[test]
-fn test_raise_digger() {
-    let env = setup();
-    let response = env.client.post("/robot/intake/rails/raise").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::RaiseDigger, env.receiver.try_recv().unwrap());
-}
-
-#[test]
-fn test_lower_digger() {
-    let env = setup();
-    let response = env.client.post("/robot/intake/rails/lower").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::LowerDigger, env.receiver.try_recv().unwrap());
-}
-
-#[test]
 fn test_stop_rails() {
     let env = setup();
     let response = env.client.post("/robot/intake/rails/stop").dispatch();
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(MechatronicsCommand::FreezeDiggerHeight, env.receiver.try_recv().unwrap());
+    assert_eq!(MechatronicsCommand::StopActuators, env.receiver.try_recv().unwrap());
 }
 
 #[test]
