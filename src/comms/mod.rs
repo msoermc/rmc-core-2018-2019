@@ -1,8 +1,5 @@
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
 use std::sync::Mutex;
 
 use rocket::http::Status;
@@ -14,75 +11,52 @@ use crate::mechatronics::MechatronicsMessageSender;
 #[cfg(test)]
 mod tests;
 
-/// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
-pub trait SendableMessage: Send {
-    fn encode(&self) -> String;
-}
-
-/// The `ServerSender` is a view into a `RobotCommunicator` that other threads/objects
-/// can use to request that messages be sent.
-#[derive(Clone, Debug)]
-pub struct ServerSender {
-    channel: Sender<Box<SendableMessage>>,
-}
-
-impl ServerSender {
-    /// Sends a message to the remote receiver and returns `Err(LogData)` if the channel hangs up.
-    pub fn send_message(&self, message: Box<SendableMessage>) {
-        self.channel.send(message).expect("Failed to send message!");
-    }
-
-    /// Constructs a new `ServerSender`
-    fn new(channel: Sender<Box<SendableMessage>>) -> Self {
-        Self {
-            channel
-        }
-    }
-}
-
 struct ServerState {
-    receiver: Mutex<Receiver<Box<SendableMessage>>>,
     robot_controller: Mutex<MechatronicsMessageSender>,
 }
 
 struct Drive {}
 
 /// Launches the server
-pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rocket) {
-    let (send, recv) = channel();
-
-    let server_sender = ServerSender::new(send);
-
+pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
     let state = ServerState {
-        receiver: Mutex::new(recv),
         robot_controller: Mutex::new(robot_controller),
     };
-    let rocket = rocket::ignite()
+    rocket::ignite()
         .manage(state)
         .mount("/",
                routes![handle_drive,
-                              handle_enable_drive,
-                              handle_disable_drive,
                               handle_kill,
                               handle_revive,
                               handle_brake,
                               handle_dig,
                               handle_dump,
-                              handle_enable_digger,
-                              handle_disable_digger,
-                              handle_enable_dumper,
-                              handle_disable_dumper,
                               handle_lower_digger,
                               handle_raise_digger,
                               handle_reset_dumper,
                               handle_stop_digger,
                               handle_stop_dumper,
                               handle_stop_rails,
+                              switch_mode,
                               index,
-                              files]);
+                              files])
+}
 
+#[post("/robot/modes/<mode>")]
+fn switch_mode(mode: String,state: State<ServerState>) -> Status {
+    match state.robot_controller.lock() {
+        Ok(controller) => {
+            match mode.as_str() {
+                "dig" => controller.switch_to_dig(),
+                "dump" => controller.switch_to_dump(),
+                "drive" => controller.switch_to_drive(),
+                _ => return Status::BadRequest,
+            }
 
-    (server_sender, rocket)
+            Status::Ok
+        }
+        Err(_) => Status::InternalServerError
+    }
 }
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
@@ -91,50 +65,6 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
         Ok(controller) => if controller.drive(left, right).is_err() {
             Status::BadRequest
         } else {
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/drive_train/enable")]
-fn handle_enable_drive(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/drive_train/disable")]
-fn handle_disable_drive(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/enable")]
-fn handle_enable_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/disable")]
-fn handle_disable_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_dumper();
             Status::Ok
         }
         Err(_) => Status::InternalServerError
@@ -174,28 +104,6 @@ fn handle_stop_dumper(state: State<ServerState>) -> Status {
     }
 }
 
-#[post("/robot/intake/enable")]
-fn handle_enable_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/intake/disable")]
-fn handle_disable_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
 #[post("/robot/intake/rails/raise")]
 fn handle_raise_digger(state: State<ServerState>) -> Status {
     match state.robot_controller.lock() {
@@ -222,7 +130,7 @@ fn handle_lower_digger(state: State<ServerState>) -> Status {
 fn handle_stop_rails(state: State<ServerState>) -> Status {
     match state.robot_controller.lock() {
         Ok(controller) => {
-            controller.freeze_ladder_height();
+            controller.stop_actuators();
             Status::Ok
         }
         Err(_) => Status::InternalServerError

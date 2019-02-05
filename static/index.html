@@ -10,16 +10,23 @@
     <script type="text/javascript" src="/static/gamepad.js"></script>
 </head>
 <body>
+<h1>Mission Control</h1>
 <!--<audio autoplay>-->
 <!--    <source src="soviet-anthem.mp3" type="audio/mpeg">-->
 <!--    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.-->
 <!--</audio>-->
-<h1>Mission Control</h1>
-<script>
-    init();
-</script>
+<img id= "media-view" width="640" height="480" type="image/jpeg">
 <div>
     <table>
+        <tr>
+            <td>
+                Video
+                <input type="text" id="video-selector" name="textField">
+            </td>
+            <td>
+                <button onclick="set_video()">Set Media</button>
+            </td>
+        </tr>
         <tr>
             <td>
                 Left Speed
@@ -30,7 +37,7 @@
                 <input type="text" id="right-drive" name="textField">
             </td>
             <td>
-                <button onclick="post_drive()">Drive</button>
+                <button onclick="post_drive_from_gui()">Drive</button>
             </td>
         </tr>
         <tr>
