@@ -20,6 +20,10 @@ pub fn enable_pins() -> Result<(), ()> {
     }
 }
 
+pub trait DigitalInput {
+    fn get_value(&self) -> Option<bool>;
+}
+
 pub trait DigitalOutput: Send {
     fn set_value(&mut self, val: bool) -> Result<(), String>;
 }

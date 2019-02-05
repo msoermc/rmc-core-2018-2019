@@ -1,9 +1,11 @@
+use std::io;
 use std::process;
 
 use sysfs_gpio;
 
+use crate::devices::DigitalInput;
+
 use super::DigitalOutput;
-use std::io;
 
 pub struct SysfsPin {
     pin: sysfs_gpio::Pin
@@ -29,8 +31,26 @@ impl DigitalOutput for SysfsPin {
     }
 }
 
+impl DigitalInput for SysfsPin {
+    fn get_value(&self) -> Option<bool> {
+        match self.pin.get_value() {
+            Ok(val) => Some(val > 0),
+            Err(err) => {
+                error!("Could not get digital read from pin {}!\nError:\n{}\nTrying reexport!",
+                       self.pin.get_pin_num(), err);
+                if let Err(exp_err) = self.pin.export() {
+                    error!("Could not reexport pin {}!\nError:\n{}",
+                           self.pin.get_pin_num(), exp_err);
+                }
+
+                None
+            }
+        }
+    }
+}
+
 impl SysfsPin {
-    pub fn new(pin_num: u64, board_location: &str) -> io::Result<Self> {
+    pub fn create(pin_num: u64, board_location: &str) -> Option<Self> {
         let config_command = process::Command::new("config-pin")
             .arg(board_location)
             .arg("gpio")
@@ -38,12 +58,12 @@ impl SysfsPin {
 
         if let Err(e) = config_command {
             error!("Failed to configure pin {}! Error:\n{}", board_location, e);
-            return Err(e);
+            return None;
         }
 
         let pin = sysfs_gpio::Pin::new(pin_num);
 
-        Ok(Self {
+        Some(Self {
             pin
         })
     }
