@@ -2,8 +2,6 @@ use crate::devices::AnalogOutput;
 use crate::devices::DigitalOutput;
 use crate::devices::motor_controllers::MotorState;
 use crate::devices::motor_controllers::MotorStateKind;
-use crate::devices::sysfs_pin_wrappers::SysfsPin;
-use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::MotorID;
 
 use super::MotorController;

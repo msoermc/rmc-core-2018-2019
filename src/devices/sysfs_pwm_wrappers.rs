@@ -1,4 +1,3 @@
-use std::io;
 use std::process;
 
 use sysfs_pwm;
@@ -22,13 +21,11 @@ impl AnalogOutput for SysfsPwm {
             if let Err(e) = self.pwm.export() {
                 warn!("Failed to reexport sysfs pwm <{},{}>!", self.chip, self.number);
                 Err(e.to_string())
+            } else if let Err(e) = self.pwm.set_period_ns(PERIOD_NS) {
+                warn!("Failed to export sysfs pwm <{},{}>!", self.chip, self.number);
+                Err(e.to_string())
             } else {
-                if let Err(e) = self.pwm.set_period_ns(PERIOD_NS) {
-                    warn!("Failed to export sysfs pwm <{},{}>!", self.chip, self.number);
-                    Err(e.to_string())
-                } else {
-                    Ok(())
-                }
+                Ok(())
             }
         } else {
             Ok(())

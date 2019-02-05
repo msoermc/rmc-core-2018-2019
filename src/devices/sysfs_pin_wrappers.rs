@@ -35,6 +35,10 @@ impl SysfsPin {
             .arg("gpio")
             .output();
 
+        if let Err(e) = config_command {
+            error!("Failed to configure pin {}! Error:\n{}", board_location, e);
+        }
+
         let pin = sysfs_gpio::Pin::new(pin_num);
 
         Self {

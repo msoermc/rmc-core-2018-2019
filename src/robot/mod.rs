@@ -3,7 +3,6 @@ use std::thread::spawn;
 
 use rocket::local::Client;
 use rocket::Rocket;
-use sysfs_gpio::Pin;
 
 use crate::comms;
 use crate::devices::enable_pins;
