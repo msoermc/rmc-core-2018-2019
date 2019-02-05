@@ -1,6 +1,6 @@
 use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::mechatronics::GlobalLifeStatus;
 use crate::robot_map::*;
+use crate::status::life::GlobalLifeStatus;
 
 #[cfg(test)]
 mod tests;

@@ -98,7 +98,7 @@ impl RobotBuilder {
         let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
 
         // Create server
-        let (server_sender, bfr) = comms::stage(robot_view);
+        let bfr = comms::stage(robot_view);
 
         // Create DriveTrain
         let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone());
@@ -108,7 +108,7 @@ impl RobotBuilder {
         let dumper = Dumper::new(robot_status.clone(), self.dumper);
 
         // Create Robot Controller
-        let robot_controller = RobotController::new(server_sender.clone(), controller_receiver, drive_train, dumper, digger, robot_status);
+        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, robot_status);
 
         Robot::new(robot_controller, bfr)
     }
