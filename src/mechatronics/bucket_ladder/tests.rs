@@ -2,10 +2,10 @@ use std::sync::Arc;
 use std::sync::RwLock;
 
 use crate::devices::motor_controllers::test_motor::TestMotor;
+use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::robot_map::*;
 
 use super::*;
-use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,

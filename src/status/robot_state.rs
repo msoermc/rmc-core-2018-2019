@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
+use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
+use crate::mechatronics::bucket_ladder::state::IntakeStateInstance;
 use crate::mechatronics::drive_train::state::DriveTrainStateInstance;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
+use crate::mechatronics::dumper::state::DumperStateInstance;
+use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::status::life::GlobalLifeState;
 use crate::status::life::LifeStateInstance;
-use crate::mechatronics::dumper::state::GlobalDumperState;
-use crate::mechatronics::bucket_ladder::state::IntakeStateInstance;
-use crate::mechatronics::dumper::state::DumperStateInstance;
-use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 
 pub struct GlobalRobotState {
     life: Arc<GlobalLifeState>,
@@ -47,7 +47,7 @@ impl GlobalRobotState {
             self.life.get_current_state(),
             self.drive.get_current_state(),
             self.dumper.get_current_state(),
-            self.intake.get_current_state()
+            self.intake.get_current_state(),
         )
     }
 }

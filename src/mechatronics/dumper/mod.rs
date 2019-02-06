@@ -1,8 +1,9 @@
+use std::sync::Arc;
+
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
-use std::sync::Arc;
-use crate::mechatronics::dumper::state::GlobalDumperState;
 
 #[cfg(test)]
 mod tests;

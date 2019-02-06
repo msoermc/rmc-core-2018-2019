@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
-use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 
 #[cfg(test)]
 mod tests;

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
@@ -12,15 +13,14 @@ use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::devices::sysfs_pin_wrappers::SysfsPin;
 use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
+use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
-use std::sync::Arc;
-use crate::mechatronics::bucket_ladder::Intake;
-use crate::mechatronics::dumper::Dumper;
 
 pub struct RobotBuilder {
     left_drive: MotorGroup,

@@ -1,17 +1,17 @@
+use std::sync::Arc;
 use std::sync::mpsc::Receiver;
 
 use crate::framework::Runnable;
+use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::drive_train::DriveTrain;
+use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeState;
-use std::sync::Arc;
-use crate::mechatronics::dumper::Dumper;
-use crate::mechatronics::bucket_ladder::Intake;
 
 pub enum MechState {
     Digging,
     Driving,
-    Dumping
+    Dumping,
 }
 
 pub struct RobotController {
@@ -50,7 +50,7 @@ impl RobotController {
             dumper,
             digger: ladder,
             life_status,
-            state: MechState::Driving
+            state: MechState::Driving,
         }
     }
 
@@ -61,49 +61,49 @@ impl RobotController {
                 self.drive_train.enable();
                 self.dumper.disable();
                 self.digger.disable();
-            },
+            }
             MechatronicsCommand::EnterDumpMode => {
                 self.state = MechState::Dumping;
                 self.dumper.enable();
                 self.digger.disable();
                 self.drive_train.disable();
-            },
+            }
             MechatronicsCommand::EnterDiggingMode => {
                 self.state = MechState::Digging;
                 self.digger.enable();
                 self.dumper.disable();
                 self.drive_train.disable();
-            },
+            }
             MechatronicsCommand::Drive(command) => {
                 self.drive_train.drive(command.left_speed, command.right_speed);
-            },
+            }
             MechatronicsCommand::Brake => {
                 self.drive_train.brake();
-            },
+            }
             MechatronicsCommand::Dump => {
                 self.dumper.dump();
-            },
+            }
             MechatronicsCommand::ResetDumper => {
                 self.dumper.reset();
-            },
+            }
             MechatronicsCommand::StopDumper => {
                 self.dumper.stop();
-            },
+            }
             MechatronicsCommand::Dig => {
                 self.digger.dig()
-            },
+            }
             MechatronicsCommand::StopDigging => {
                 self.digger.stop_ladder();
-            },
+            }
             MechatronicsCommand::RaiseActuators => {
                 self.digger.raise();
-            },
+            }
             MechatronicsCommand::LowerActuators => {
                 self.digger.lower();
-            },
+            }
             MechatronicsCommand::StopActuators => {
                 self.digger.stop_actuators();
-            },
+            }
         }
     }
 
