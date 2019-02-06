@@ -1,25 +1,23 @@
+use std::sync::Arc;
+
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::mechatronics::material_handling::bucket_ladder::state::GlobalIntakeState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
-use std::sync::Arc;
-use crate::mechatronics::material_handling::bucket_ladder::state::GlobalIntakeState;
-use crate::mechatronics::material_handling::bucket_ladder::state::ladder::LADDER_RUNNING;
-use crate::mechatronics::material_handling::bucket_ladder::state::ladder::LADDER_STOPPED;
-use crate::mechatronics::material_handling::bucket_ladder::state::actuator::ACTUATOR_RISING;
 
 #[cfg(test)]
 mod tests;
 
 pub mod state;
 
-pub struct Ladder {
+pub struct Intake {
     actuators: MotorGroup,
     ladder: MotorGroup,
     state: Arc<GlobalIntakeState>,
     life: Arc<GlobalLifeState>,
 }
 
-impl Ladder {
+impl Intake {
     pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
         Self {
             actuators,
@@ -72,6 +70,12 @@ impl Ladder {
     }
 
     pub fn run_cycle(&mut self) {
-
+        if self.life.is_alive() && self.state.get_enabled() {
+            self.actuators.maintain_last();
+            self.ladder.maintain_last();
+        } else {
+            self.stop_ladder();
+            self.stop_actuators();
+        }
     }
 }
