@@ -88,3 +88,26 @@ fn test_drive() {
     assert_eq!(0.0, *left.speed.read().unwrap());
     assert_eq!(0.0, *right.speed.read().unwrap());
 }
+
+#[test]
+fn test_brake() {
+    let (left, right) = create_groups();
+    let lm = left.motor_group;
+    let rm = right.motor_group;
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalDriveTrainState::new());
+    let mut drive = DriveTrain::new(lm, rm, life.clone(), state.clone());
+
+    state.set_enabled(true);
+
+    drive.drive(1.0, -1.0);
+
+    drive.brake();
+
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+
+    drive.run_cycle();
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
+}
