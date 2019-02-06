@@ -61,4 +61,65 @@ fn test_raise() {
     intake.raise();
 
     assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    intake.run_cycle();
+
+    assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    intake.disable();
+
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+
+    intake.enable();
+
+    intake.raise();
+
+    assert_eq!(MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    life.kill();
+
+    intake.run_cycle();
+
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    intake.raise();
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+}
+
+#[test]
+fn test_lower() {
+    let (actuators, ladder) = create_groups();
+    let actuators_m = actuators.motor_group;
+    let ladder_m = ladder.motor_group;
+
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalIntakeState::new());
+    let mut intake = Intake::new(ladder_m, actuators_m, state.clone(), life.clone());
+
+    state.set_enabled(true);
+
+    intake.lower();
+
+    assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    intake.run_cycle();
+
+    assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    intake.disable();
+
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+
+    intake.enable();
+
+    intake.lower();
+
+    assert_eq!(-MH_ACTUATOR_RATE, *actuators.speed.read().unwrap());
+
+    life.kill();
+
+    intake.run_cycle();
+
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    intake.lower();
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
 }
