@@ -51,4 +51,12 @@ impl ActuatorStateInstance {
             lower,
         }
     }
+
+    pub fn get_upper(&self) -> bool {
+        self.upper
+    }
+
+    pub fn get_lower(&self) -> bool {
+        self.lower
+    }
 }
