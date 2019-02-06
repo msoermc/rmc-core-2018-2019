@@ -30,3 +30,18 @@ fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
 
     (test_unit_0, test_unit_1)
 }
+
+#[test]
+fn test_setup() {
+    let (actuators, ladder) = create_groups();
+    let actuators_m = actuators.motor_group;
+    let ladder_m = ladder.motor_group;
+
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalIntakeState::new());
+    let intake = Ladder::new(ladder_m, actuators_m, state.clone(), life.clone());
+
+    assert_eq!(false, state.get_enabled());
+    assert_eq!(0.0, *actuators.speed.read().unwrap());
+    assert_eq!(0.0, *ladder.speed.read().unwrap());
+}
