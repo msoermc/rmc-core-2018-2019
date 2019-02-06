@@ -24,20 +24,20 @@ pub trait MotorController: Send {
 }
 
 pub struct GlobalMotorState {
-    value: Atomic<f32>,
+    speed: Atomic<f32>,
     inverted: AtomicBool,
 }
 
 impl GlobalMotorState {
     pub fn new() -> Self {
         GlobalMotorState {
-            value: Atomic::new(0.0),
+            speed: Atomic::new(0.0),
             inverted: AtomicBool::new(false)
         }
     }
 
     pub fn get_current_state(&self) -> MotorStateInstance {
-        MotorStateInstance::new(self.get_value(), self.get_inverted())
+        MotorStateInstance::new(self.get_speed(), self.get_inverted())
     }
 
     pub fn get_inverted(&self) -> bool {
@@ -48,12 +48,12 @@ impl GlobalMotorState {
         self.inverted.store(inverted, Ordering::Relaxed)
     }
 
-    pub fn get_value(&self) -> f32 {
-        self.value.load(AtOrd::Relaxed)
+    pub fn get_speed(&self) -> f32 {
+        self.speed.load(AtOrd::Relaxed)
     }
 
-    pub fn set_value(&self, value: f32) {
-        self.value.store(value, AtOrd::Relaxed);
+    pub fn set_speed(&self, value: f32) {
+        self.speed.store(value, AtOrd::Relaxed);
     }
 }
 
