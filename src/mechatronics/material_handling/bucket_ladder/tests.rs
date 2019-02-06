@@ -47,6 +47,21 @@ fn test_setup() {
 }
 
 #[test]
+fn test_enabling() {
+    let (actuators, ladder) = create_groups();
+    let actuators_m = actuators.motor_group;
+    let ladder_m = ladder.motor_group;
+
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalIntakeState::new());
+    let mut intake = Intake::new(ladder_m, actuators_m, state.clone(), life.clone());
+
+    intake.enable();
+
+    assert_eq!(true, state.get_enabled());
+}
+
+#[test]
 fn test_raise() {
     let (actuators, ladder) = create_groups();
     let actuators_m = actuators.motor_group;
