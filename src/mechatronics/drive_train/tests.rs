@@ -40,5 +40,7 @@ fn test_setup() {
     let state = Arc::new(GlobalDriveTrainState::new());
     let drive = DriveTrain::new(lm, rm, life.clone(), state.clone());
 
-
+    assert_eq!(false, state.get_enabled());
+    assert_eq!(0.0, *left.speed.read().unwrap());
+    assert_eq!(0.0, *right.speed.read().unwrap());
 }
