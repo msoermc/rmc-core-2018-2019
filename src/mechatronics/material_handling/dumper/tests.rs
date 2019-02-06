@@ -28,9 +28,14 @@ fn test_setup() {
 
     let motor = group.motor_group;
 
-    let dumper = Dumper::new(life.clone(), motor, state.clone());
+    let mut dumper = Dumper::new(life.clone(), motor, state.clone());
 
     life.revive();
+
+    assert_eq!(false, state.get_enabled());
+    assert_eq!(0.0, *group.speed.read().unwrap());
+
+    dumper.run_cycle();
 
     assert_eq!(false, state.get_enabled());
     assert_eq!(0.0, *group.speed.read().unwrap());
@@ -52,6 +57,8 @@ fn test_dumping() {
     dumper.dump();
 
     assert_eq!(DUMPING_RATE, *group.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(DUMPING_RATE, *group.speed.read().unwrap());
 }
 
 #[test]
@@ -68,6 +75,8 @@ fn test_reset() {
     life.revive();
 
     dumper.reset();
+    assert_eq!(DUMPER_RESET_RATE, *group.speed.read().unwrap());
+    dumper.run_cycle();
     assert_eq!(DUMPER_RESET_RATE, *group.speed.read().unwrap());
 }
 
@@ -86,4 +95,20 @@ fn test_stop() {
 
     dumper.stop();
     assert_eq!(0.0, *group.speed.read().unwrap());
+    dumper.run_cycle();
+    assert_eq!(0.0, *group.speed.read().unwrap());
+}
+
+#[test]
+fn test_enabling() {
+    let group = create_group();
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalDumperState::new());
+
+    let motor = group.motor_group;
+
+    let mut dumper = Dumper::new(life.clone(), motor, state.clone());
+
+    state.set_enabled(true);
+    life.revive();
 }
