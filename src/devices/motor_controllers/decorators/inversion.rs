@@ -3,7 +3,6 @@ use crate::devices::motor_controllers::GlobalMotorState;
 
 pub struct InvertedMotor<T: MotorController> {
     motor: T,
-    inverted: bool
 }
 
 impl<T: MotorController> MotorController for InvertedMotor<T> {
@@ -24,7 +23,6 @@ impl<T: MotorController> InvertedMotor<T> {
     pub fn new(motor: T) -> Self {
         Self {
             motor,
-            inverted: false,
         }
     }
 }
