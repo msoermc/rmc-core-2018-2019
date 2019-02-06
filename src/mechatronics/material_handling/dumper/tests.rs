@@ -42,6 +42,27 @@ fn test_setup() {
 }
 
 #[test]
+fn test_enabled() {
+    let group = create_group();
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalDumperState::new());
+
+    let motor = group.motor_group;
+
+    let mut dumper = Dumper::new(life.clone(), motor, state.clone());
+
+    life.revive();
+
+    dumper.enable();
+
+    assert_eq!(true, state.get_enabled());
+
+    dumper.disable();
+
+    assert_eq!(false, state.get_enabled());
+}
+
+#[test]
 fn test_dumping() {
     let group = create_group();
     let life = Arc::new(GlobalLifeState::new());
