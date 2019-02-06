@@ -12,7 +12,9 @@ pub mod controller;
 /// That structure is used to manage the physical drive train and perform operations on it.
 pub mod drive_train;
 
-pub mod material_handling;
+pub mod dumper;
+
+pub mod bucket_ladder;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {

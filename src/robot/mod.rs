@@ -14,13 +14,13 @@ use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
-use crate::mechatronics::material_handling::bucket_ladder::Intake;
-use crate::mechatronics::material_handling::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 use std::sync::Arc;
+use crate::mechatronics::bucket_ladder::Intake;
+use crate::mechatronics::dumper::Dumper;
 
 pub struct RobotBuilder {
     left_drive: MotorGroup,

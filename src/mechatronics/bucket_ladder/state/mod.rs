@@ -1,10 +1,10 @@
 use std::sync::atomic::AtomicBool;
-
-use crate::mechatronics::material_handling::bucket_ladder::state::actuator::ActuatorStateInstance;
-use crate::mechatronics::material_handling::bucket_ladder::state::actuator::GlobalActuatorState;
-use crate::mechatronics::material_handling::bucket_ladder::state::ladder::GlobalLadderState;
-use crate::mechatronics::material_handling::bucket_ladder::state::ladder::LadderStateInstance;
 use std::sync::atomic::Ordering;
+
+use crate::mechatronics::bucket_ladder::state::actuator::ActuatorStateInstance;
+use crate::mechatronics::bucket_ladder::state::actuator::GlobalActuatorState;
+use crate::mechatronics::bucket_ladder::state::ladder::GlobalLadderState;
+use crate::mechatronics::bucket_ladder::state::ladder::LadderStateInstance;
 
 pub mod actuator;
 pub mod ladder;
@@ -22,7 +22,7 @@ impl GlobalIntakeState {
             left_actuator: GlobalActuatorState::new(),
             right_actuator: GlobalActuatorState::new(),
             ladder: GlobalLadderState::new(),
-            enabled: AtomicBool::new(false)
+            enabled: AtomicBool::new(false),
         }
     }
 

@@ -5,6 +5,7 @@ use crate::devices::motor_controllers::test_motor::TestMotor;
 use crate::robot_map::*;
 
 use super::*;
+use crate::mechatronics::dumper::state::GlobalDumperState;
 
 struct TestMotorGroup {
     pub inverted: Arc<RwLock<bool>>,
