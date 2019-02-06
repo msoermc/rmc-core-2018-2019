@@ -1,7 +1,6 @@
 use crate::devices::AnalogOutput;
 use crate::devices::DigitalOutput;
-use crate::devices::motor_controllers::MotorState;
-use crate::devices::motor_controllers::MotorStateKind;
+use crate::devices::motor_controllers::GlobalMotorState;
 use crate::robot_map::MotorID;
 
 use super::MotorController;
@@ -13,7 +12,7 @@ pub struct HoverBoardMotor {
     is_inverted: bool,
     pwm: Box<AnalogOutput>,
     direction: Box<DigitalOutput>,
-    state: MotorState,
+    state: GlobalMotorState,
 }
 
 impl MotorController for HoverBoardMotor {
@@ -31,18 +30,18 @@ impl MotorController for HoverBoardMotor {
         self.is_inverted = !self.is_inverted;
     }
 
-    fn get_motor_state(&self) -> MotorState {
-        self.state.clone()
+    fn get_motor_state(&self) -> &GlobalMotorState {
+        &self.state
     }
 }
 
 impl HoverBoardMotor {
-    pub fn new(pwm: Box<AnalogOutput>, direction: Box<DigitalOutput>, id: MotorID) -> Self {
+    pub fn new(pwm: Box<AnalogOutput>, direction: Box<DigitalOutput>) -> Self {
         HoverBoardMotor {
             is_inverted: false,
             pwm,
             direction,
-            state: MotorState::new(id, MotorStateKind::Ok),
+            state: GlobalMotorState::new(),
         }
     }
 }

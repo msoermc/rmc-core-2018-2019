@@ -1,5 +1,8 @@
 use crate::devices::motor_controllers::MotorController;
-use crate::devices::motor_controllers::MotorState;
+use crate::devices::motor_controllers::GlobalMotorState;
+use crate::devices::motor_controllers::motor_group::state::GlobalMotorGroupState;
+
+pub mod state;
 
 #[cfg(test)]
 mod tests;
@@ -36,8 +39,12 @@ impl MotorGroup {
         self.set_speed(self.old_speed)
     }
 
-    pub fn get_states(&self) -> Vec<MotorState> {
-        self.motors.iter().map(|motor| motor.get_motor_state()).collect()
+    pub fn get_states(&self) -> GlobalMotorGroupState {
+        let states = self.motors
+            .iter()
+            .map(|m| m.get_motor_state())
+            .collect();
+        GlobalMotorGroupState::new(states)
     }
 
     fn run_operation<T: Fn(&mut Box<MotorController>)>(&mut self, operation: T) {

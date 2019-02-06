@@ -5,6 +5,7 @@ const FLOAT_ERROR: f32 = 0.05;
 pub struct PrintMotor {
     name: String,
     inverted: bool,
+    state: GlobalMotorState,
     last: f32,
     is_stopped: bool,
 }
@@ -31,8 +32,8 @@ impl MotorController for PrintMotor {
         self.inverted = !self.inverted;
     }
 
-    fn get_motor_state(&self) -> MotorState {
-        unimplemented!()
+    fn get_motor_state(&self) -> &GlobalMotorState {
+        &self.state
     }
 }
 
@@ -41,6 +42,7 @@ impl PrintMotor {
         PrintMotor {
             name: name.to_string(),
             inverted: false,
+            state: GlobalMotorState::new(),
             last: -10.0,
             is_stopped: false,
         }

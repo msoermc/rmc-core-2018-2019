@@ -58,10 +58,10 @@ impl RobotBuilder {
         let rear_right_direction = Box::new(SysfsPin::create(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
         let rear_left_direction = Box::new(SysfsPin::create(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
 
-        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight));
-        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft));
-        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight));
-        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft));
+        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
+        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
+        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction));
+        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction));
 
         self.left_drive = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
         self.right_drive = MotorGroup::new(vec![front_right_motor, rear_right_motor]);
