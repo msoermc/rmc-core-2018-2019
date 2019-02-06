@@ -8,6 +8,7 @@ pub mod hover_board;
 pub mod test_motor;
 pub mod motor_group;
 pub mod print_motor;
+pub mod decorators;
 
 pub trait MotorController: Send {
     /// Sets the current speed of the motor controller.
@@ -17,9 +18,6 @@ pub trait MotorController: Send {
 
     /// Sets the current speed of the motor controller to zero.
     fn stop(&mut self);
-
-    /// Inverts the directionality of the motor controller.
-    fn invert(&mut self);
 
     /// Returns the current motor state
     fn get_motor_state(&self) -> &GlobalMotorState;

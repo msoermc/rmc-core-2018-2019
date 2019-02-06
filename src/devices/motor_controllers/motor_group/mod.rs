@@ -30,11 +30,6 @@ impl MotorGroup {
         self.run_operation(|motor| motor.stop())
     }
 
-    pub fn invert(&mut self) {
-        self.old_speed = -self.old_speed;
-        self.run_operation(|motor| motor.invert())
-    }
-
     pub fn maintain_last(&mut self) {
         self.set_speed(self.old_speed)
     }

@@ -27,11 +27,6 @@ impl MotorController for PrintMotor {
         }
     }
 
-    fn invert(&mut self) {
-        info!("{}: INVERT", self.name);
-        self.inverted = !self.inverted;
-    }
-
     fn get_motor_state(&self) -> &GlobalMotorState {
         &self.state
     }

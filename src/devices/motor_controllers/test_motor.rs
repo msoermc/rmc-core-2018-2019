@@ -23,12 +23,6 @@ impl MotorController for TestMotor {
         self.set_speed(0.0)
     }
 
-    fn invert(&mut self) {
-        let inverted = *self.inverted.read().unwrap();
-        *self.inverted.write().unwrap() = !inverted;
-        self.stop()
-    }
-
     fn get_motor_state(&self) -> &GlobalMotorState {
         &self.state
     }

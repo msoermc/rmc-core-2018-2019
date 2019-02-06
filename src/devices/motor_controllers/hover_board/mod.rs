@@ -26,10 +26,6 @@ impl MotorController for HoverBoardMotor {
         self.pwm.set_value(0.0);
     }
 
-    fn invert(&mut self) {
-        self.is_inverted = !self.is_inverted;
-    }
-
     fn get_motor_state(&self) -> &GlobalMotorState {
         &self.state
     }
