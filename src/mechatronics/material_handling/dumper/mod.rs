@@ -54,6 +54,10 @@ impl Dumper {
     }
 
     pub fn run_cycle(&mut self) {
-        self.motors.maintain_last();
+        if self.life.is_alive() {
+            self.motors.maintain_last();
+        } else {
+            self.stop();
+        }
     }
 }
