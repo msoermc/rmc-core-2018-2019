@@ -74,20 +74,4 @@ impl IntakeStateInstance {
             enabled,
         }
     }
-
-    pub fn get_left_actuator(&self) -> &ActuatorStateInstance {
-        &self.left_actuator
-    }
-
-    pub fn get_right_actuator(&self) -> &ActuatorStateInstance {
-        &self.right_actuator
-    }
-
-    pub fn get_ladder(&self) -> &LadderStateInstance {
-        &self.ladder
-    }
-
-    pub fn get_enabled(&self) -> bool {
-        self.enabled
-    }
 }

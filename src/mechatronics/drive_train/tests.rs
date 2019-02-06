@@ -30,3 +30,15 @@ fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
 
     (test_unit_0, test_unit_1)
 }
+
+#[test]
+fn test_setup() {
+    let (left, right) = create_groups();
+    let lm = left.motor_group;
+    let rm = right.motor_group;
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalDriveTrainState::new());
+    let drive = DriveTrain::new(lm, rm, life.clone(), state.clone());
+
+
+}
