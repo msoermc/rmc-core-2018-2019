@@ -71,8 +71,7 @@ fn switch_mode(mode: String, state: State<ServerState>) -> Status {
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
-    let controller = state.messager.lock().unwrap();
-    if controller.drive(left, right).is_err() {
+    if state.messager.lock().unwrap().drive(left, right).is_err() {
         Status::BadRequest
     } else {
         Status::Ok
@@ -82,50 +81,42 @@ fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
 
 #[post("/robot/dumper/dump")]
 fn handle_dump(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.dump();
+    state.messager.lock().unwrap().dump();
 }
 
 #[post("/robot/dumper/reset")]
 fn handle_reset_dumper(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.reset_dumper();
+    state.messager.lock().unwrap().reset_dumper();
 }
 
 #[post("/robot/dumper/stop")]
 fn handle_stop_dumper(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.stop_dumper();
+    state.messager.lock().unwrap().stop_dumper();
 }
 
 #[post("/robot/intake/rails/raise")]
 fn handle_raise_digger(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.raise_ladder();
+    state.messager.lock().unwrap().raise_ladder();
 }
 
 #[post("/robot/intake/rails/lower")]
 fn handle_lower_digger(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.lower_ladder();
+    state.messager.lock().unwrap().lower_ladder();
 }
 
 #[post("/robot/intake/rails/stop")]
 fn handle_stop_rails(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.stop_actuators();
+    state.messager.lock().unwrap().stop_actuators();
 }
 
 #[post("/robot/intake/digger/dig")]
 fn handle_dig(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.dig();
+    state.messager.lock().unwrap().dig();
 }
 
 #[post("/robot/intake/digger/stop")]
 fn handle_stop_digger(state: State<ServerState>) {
-    let controller = state.messager.lock().unwrap();
-    controller.stop_digger();
+    state.messager.lock().unwrap().stop_digger();
 }
 
 #[post("/robot/kill")]
