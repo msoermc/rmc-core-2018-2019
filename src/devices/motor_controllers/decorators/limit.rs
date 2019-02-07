@@ -4,12 +4,12 @@ use std::sync::atomic::Ordering;
 use crate::devices::motor_controllers::GlobalMotorState;
 use crate::devices::motor_controllers::MotorController;
 
-pub struct FlagMotor<M: MotorController> {
-    motor: M,
+pub struct FlagMotor {
+    motor: Box<MotorController>,
     disabled: AtomicBool,
 }
 
-impl<M: MotorController> MotorController for FlagMotor<M> {
+impl MotorController for FlagMotor {
     fn set_speed(&mut self, new_speed: f32) {
         if self.disabled.load(Ordering::SeqCst) {
             self.motor.stop();
@@ -27,8 +27,8 @@ impl<M: MotorController> MotorController for FlagMotor<M> {
     }
 }
 
-impl<M: MotorController> FlagMotor<M> {
-    pub fn new(motor: M, disabled: AtomicBool) -> Self {
+impl FlagMotor {
+    pub fn new(motor: Box<MotorController>, disabled: AtomicBool) -> Self {
         Self {
             motor,
             disabled,

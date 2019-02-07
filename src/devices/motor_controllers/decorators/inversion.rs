@@ -1,11 +1,11 @@
 use crate::devices::motor_controllers::MotorController;
 use crate::devices::motor_controllers::GlobalMotorState;
 
-pub struct InvertedMotor<T: MotorController> {
-    motor: T,
+pub struct InvertedMotor {
+    motor: Box<MotorController>,
 }
 
-impl<T: MotorController> MotorController for InvertedMotor<T> {
+impl MotorController for InvertedMotor {
     fn set_speed(&mut self, new_speed: f32) {
         self.motor.set_speed(-new_speed);
     }
@@ -19,8 +19,8 @@ impl<T: MotorController> MotorController for InvertedMotor<T> {
     }
 }
 
-impl<T: MotorController> InvertedMotor<T> {
-    pub fn new(motor: T) -> Self {
+impl InvertedMotor {
+    pub fn new(motor: Box<MotorController>) -> Self {
         Self {
             motor,
         }

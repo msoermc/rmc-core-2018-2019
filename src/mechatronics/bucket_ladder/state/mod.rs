@@ -1,10 +1,12 @@
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
+use crate::devices::motor_controllers::GlobalMotorState;
 use crate::mechatronics::bucket_ladder::state::actuator::ActuatorStateInstance;
 use crate::mechatronics::bucket_ladder::state::actuator::GlobalActuatorState;
 use crate::mechatronics::bucket_ladder::state::ladder::GlobalLadderState;
 use crate::mechatronics::bucket_ladder::state::ladder::LadderStateInstance;
+use std::sync::Arc;
 
 pub mod actuator;
 pub mod ladder;

@@ -1,9 +1,13 @@
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+use crate::devices::motor_controllers::GlobalMotorState;
+use std::sync::Arc;
+use crate::devices::motor_controllers::MotorStateInstance;
 
 pub struct GlobalActuatorState {
     upper: AtomicBool,
     lower: AtomicBool,
+    motor: Arc<GlobalMotorState>
 }
 
 impl GlobalActuatorState {
@@ -11,6 +15,7 @@ impl GlobalActuatorState {
         GlobalActuatorState {
             upper: AtomicBool::new(false),
             lower: AtomicBool::new(false),
+            motor: Arc::new(GlobalMotorState::new()),
         }
     }
 
@@ -18,6 +23,7 @@ impl GlobalActuatorState {
         ActuatorStateInstance::new(
             self.upper.load(Ordering::Relaxed),
             self.lower.load(Ordering::Relaxed),
+            self.motor.get_current_state(),
         )
     }
 
@@ -36,19 +42,25 @@ impl GlobalActuatorState {
     pub fn get_lower(&self) -> bool {
         self.lower.load(Ordering::Relaxed)
     }
+
+    pub fn get_motor(&self) -> Arc<GlobalMotorState> {
+        self.motor.clone()
+    }
 }
 
 #[derive(Serialize)]
 pub struct ActuatorStateInstance {
     upper: bool,
     lower: bool,
+    motor: MotorStateInstance,
 }
 
 impl ActuatorStateInstance {
-    fn new(upper: bool, lower: bool) -> Self {
+    fn new(upper: bool, lower: bool, motor: MotorStateInstance) -> Self {
         ActuatorStateInstance {
             upper,
             lower,
+            motor
         }
     }
 

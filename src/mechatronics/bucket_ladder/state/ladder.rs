@@ -1,20 +1,37 @@
-pub struct GlobalLadderState {}
+use std::sync::Arc;
+
+use crate::devices::motor_controllers::GlobalMotorState;
+use crate::devices::motor_controllers::MotorStateInstance;
+
+pub struct GlobalLadderState {
+    motor: Arc<GlobalMotorState>,
+}
 
 impl GlobalLadderState {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            motor: Arc::new(GlobalMotorState::new()),
+        }
+    }
+
+    pub fn get_motor(&self) -> Arc<GlobalMotorState> {
+        self.motor.clone()
     }
 
     pub fn get_current_state(&self) -> LadderStateInstance {
-        LadderStateInstance::new()
+        LadderStateInstance::new(self.motor.get_current_state())
     }
 }
 
 #[derive(Serialize)]
-pub struct LadderStateInstance {}
+pub struct LadderStateInstance {
+    motor: MotorStateInstance,
+}
 
 impl LadderStateInstance {
-    fn new() -> Self {
-        Self {}
+    fn new(motor: MotorStateInstance) -> Self {
+        Self {
+            motor
+        }
     }
 }
