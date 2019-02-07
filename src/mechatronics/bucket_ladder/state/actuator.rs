@@ -1,13 +1,14 @@
+use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+
 use crate::devices::motor_controllers::GlobalMotorState;
-use std::sync::Arc;
 use crate::devices::motor_controllers::MotorStateInstance;
 
 pub struct GlobalActuatorState {
     upper: AtomicBool,
     lower: AtomicBool,
-    motor: Arc<GlobalMotorState>
+    motor: Arc<GlobalMotorState>,
 }
 
 impl GlobalActuatorState {
@@ -60,7 +61,7 @@ impl ActuatorStateInstance {
         ActuatorStateInstance {
             upper,
             lower,
-            motor
+            motor,
         }
     }
 

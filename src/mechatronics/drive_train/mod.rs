@@ -63,6 +63,4 @@ impl DriveTrain {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-
 }
