@@ -3,12 +3,6 @@ dist: xenial
 rust:
   - nightly
 
-#script:
-#  - cargo test --verbose --all -- --test-threads=2
-#  - cargo kcov
-#  - bash <(curl -s https://codecov.io/bash)
-#  - echo "Uploaded code coverage"
-
 jobs:
   include:
     - stage: "Tests"
