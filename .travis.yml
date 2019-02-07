@@ -10,9 +10,9 @@ before_cache:
   - rm -rf /home/travis/.cargo/registry
 
 cache:
+  - cargo
   - directories:
       - ${HOME}/kcov/
-      - /home/travis/.cargo
 
 env:
   global:
