@@ -48,6 +48,26 @@ fn test_get_state() {
 }
 
 #[test]
+fn test_lower() {
+    let env = setup();
+
+    let response = env.client.post("/robot/intake/rails/lower").dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MechatronicsCommand::LowerActuators, env.receiver.try_recv().unwrap());
+}
+
+#[test]
+fn test_raise() {
+    let env = setup();
+
+    let response = env.client.post("/robot/intake/rails/raise").dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MechatronicsCommand::RaiseActuators, env.receiver.try_recv().unwrap());
+}
+
+#[test]
 fn test_drive_request() {
     let env = setup();
 
