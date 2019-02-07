@@ -153,6 +153,30 @@ fn test_bad_switch() {
 }
 
 #[test]
+fn test_drive_switch() {
+    let env = setup();
+    let response = env.client.post("/robot/modes/drive").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MechatronicsCommand::EnterDriveMode, env.receiver.try_recv().unwrap());
+}
+
+#[test]
+fn test_dig_switch() {
+    let env = setup();
+    let response = env.client.post("/robot/modes/dig").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MechatronicsCommand::EnterDiggingMode, env.receiver.try_recv().unwrap());
+}
+
+#[test]
+fn test_dump_switch() {
+    let env = setup();
+    let response = env.client.post("/robot/modes/dump").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MechatronicsCommand::EnterDumpMode, env.receiver.try_recv().unwrap());
+}
+
+#[test]
 fn test_stop_digger() {
     let env = setup();
     let response = env.client.post("/robot/intake/digger/stop").dispatch();
