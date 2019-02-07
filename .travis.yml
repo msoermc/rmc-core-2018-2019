@@ -5,13 +5,10 @@ rust:
   - stable
   - beta
 
-matrix:
+jobs:
   allow_failures:
     - rust: stable
     - rust: beta
-  fast_finish: true
-
-jobs:
   include:
     - stage: "Tests"
       script: cargo test --verbose --all -- --test-threads=2
