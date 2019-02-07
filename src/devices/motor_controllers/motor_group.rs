@@ -25,7 +25,7 @@ impl MotorController for MotorGroup {
     }
 
     fn get_motor_state(&self) -> &GlobalMotorState {
-        unimplemented!()
+        &self.state
     }
 }
 
