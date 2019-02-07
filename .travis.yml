@@ -3,7 +3,6 @@ dist: xenial
 rust:
   - nightly
 
-
 jobs:
   include:
     - stage: "Tests"
