@@ -1,5 +1,5 @@
-use crate::devices::motor_controllers::MotorController;
 use crate::devices::motor_controllers::GlobalMotorState;
+use crate::devices::motor_controllers::MotorController;
 
 pub struct InvertedMotor {
     motor: Box<MotorController>,
@@ -24,5 +24,33 @@ impl InvertedMotor {
         Self {
             motor,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use crate::devices::motor_controllers::GlobalMotorState;
+    use crate::devices::motor_controllers::test_motor::TestMotor;
+
+    use super::*;
+
+    #[test]
+    fn test_inversion() {
+        let state = Arc::new(GlobalMotorState::new());
+        let motor = Box::new(TestMotor::new(state.clone()));
+        let mut motor = InvertedMotor::new(motor);
+
+        assert_eq!(0.0, motor.get_motor_state().get_speed());
+
+        motor.set_speed(1.0);
+        assert_eq!(-1.0, motor.get_motor_state().get_speed());
+
+        motor.set_speed(-1.0);
+        assert_eq!(1.0, motor.get_motor_state().get_speed());
+
+        motor.stop();
+        assert_eq!(0.0, motor.get_motor_state().get_speed());
     }
 }
