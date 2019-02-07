@@ -314,3 +314,4 @@ fabric.properties
 /RMC_Logs/
 RMC_Logs/
 /rmc.log
+!/Cargo.lock
