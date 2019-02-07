@@ -75,12 +75,12 @@ impl RobotBuilder {
 
     pub fn new() -> Self {
         let state = GlobalRobotState::new();
-        let left_motor = Box::new(PrintMotor::new("Left"));
-        let right_motor = Box::new(PrintMotor::new("Right"));
-        let digger_motor = Box::new(PrintMotor::new("Digger"));
-        let left_actuator = Box::new(PrintMotor::new("LA"));
-        let right_actuator = Box::new(PrintMotor::new("RA"));
-        let dumper_motor = Box::new(PrintMotor::new("Dumper"));
+        let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
+        let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));
+        let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder().get_motor()));
+        let left_actuator = Box::new(PrintMotor::new("LA", state.get_intake().get_left_actuator().get_motor()));
+        let right_actuator = Box::new(PrintMotor::new("RA", state.get_intake().get_right_actuator().get_motor()));
+        let dumper_motor = Box::new(PrintMotor::new("Dumper", state.get_dumper().get_motor()));
 
         let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
         let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
