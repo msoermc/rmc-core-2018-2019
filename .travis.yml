@@ -6,22 +6,27 @@ rust:
   - beta
 
 matrix:
+  include:
+    - script: cargo test --verbose --all -- --test-threads=2
+    - script:
+        - cargo kcov
+        - bash <(curl -s https://codecov.io/bash)
+        - echo "Uploaded code coverage"
+    - script: cargo test --release --verbose --all -- --test-threads=2
   allow_failures:
     - rust: stable
     - rust: beta
   fast_finish: true
 
-jobs:
-  include:
-    - stage: "Tests"
-      script: cargo test --verbose --all -- --test-threads=2
-    - script:
-        - cargo kcov
-        - bash <(curl -s https://codecov.io/bash)
-        - echo "Uploaded code coverage"
-    - script: "Release"
-      - cargo test --release --verbose --all -- --test-threads=2
-
+#jobs:
+#  include:
+#    - stage: "Tests"
+#      script: cargo test --verbose --all -- --test-threads=2
+#    - script:
+#        - cargo kcov
+#        - bash <(curl -s https://codecov.io/bash)
+#        - echo "Uploaded code coverage"
+#    - script: cargo test --release --verbose --all -- --test-threads=2
 
 
 before_cache:
