@@ -13,7 +13,6 @@ jobs:
   include:
     - stage: "Tests"
       script: cargo test --verbose --all -- --test-threads=2
-    - stage: "Coverage"
       script:
         - cargo kcov
         - bash <(curl -s https://codecov.io/bash)
