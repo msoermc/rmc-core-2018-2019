@@ -57,14 +57,19 @@ mod tests {
 
         motor.set_speed(1.0);
         assert_eq!(1.0, motor.get_motor_state().get_speed());
+        assert_eq!(1.0, motor.get_motor_state().get_current_state().get_speed());
 
         motor.set_speed(-1.0);
         assert_eq!(-1.0, motor.get_motor_state().get_speed());
+        assert_eq!(-1.0, motor.get_motor_state().get_current_state().get_speed());
 
         motor.stop();
         assert_eq!(0.0, motor.get_motor_state().get_speed());
+        assert_eq!(0.0, motor.get_motor_state().get_current_state().get_speed());
 
         motor.set_speed(1.0);
         assert_eq!(1.0, motor.get_motor_state().get_speed());
+        assert_eq!(1.0, motor.get_motor_state().get_current_state().get_speed());
+
     }
 }

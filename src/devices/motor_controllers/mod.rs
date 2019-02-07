@@ -46,17 +46,17 @@ impl GlobalMotorState {
 
 #[derive(Serialize)]
 pub struct MotorStateInstance {
-    value: f32,
+    speed: f32,
 }
 
 impl MotorStateInstance {
-    pub fn new(value: f32) -> Self {
+    pub fn new(speed: f32) -> Self {
         Self {
-            value,
+            speed,
         }
     }
 
-    pub fn get_value(&self) -> f32 {
-        self.value
+    pub fn get_speed(&self) -> f32 {
+        self.speed
     }
 }
