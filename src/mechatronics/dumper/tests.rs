@@ -5,10 +5,11 @@ use crate::mechatronics::dumper::state::GlobalDumperState;
 
 use super::*;
 use crate::devices::motor_controllers::GlobalMotorState;
+use crate::devices::motor_controllers::motor_group::MotorGroup;
 
 struct TestMotorGroup {
     pub state: Arc<GlobalMotorState>,
-    pub motor_group: MotorGroup,
+    pub motor_group: Box<MotorController>,
 }
 
 fn create_group() -> TestMotorGroup {
@@ -16,7 +17,7 @@ fn create_group() -> TestMotorGroup {
 
     let test_motor = TestMotor::new(state.clone());
 
-    let test_group = MotorGroup::new(vec![Box::new(test_motor)]);
+    let test_group = Box::new(test_motor);
 
     TestMotorGroup { state, motor_group: test_group }
 }

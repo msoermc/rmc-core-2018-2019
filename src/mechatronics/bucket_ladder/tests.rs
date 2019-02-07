@@ -10,21 +10,18 @@ use super::*;
 
 struct TestMotorGroup {
     pub state: Arc<GlobalMotorState>,
-    pub motor_group: MotorGroup,
+    pub motor_group: Box<TestMotor>,
 }
 
 fn create_groups() -> (TestMotorGroup, TestMotorGroup) {
     let state_0 = Arc::new(GlobalMotorState::new());
     let state_1 = Arc::new(GlobalMotorState::new());
 
-    let test_motor_0 = TestMotor::new(state_0.clone());
-    let test_motor_1 = TestMotor::new(state_1.clone());
+    let test_motor_0 = Box::new(TestMotor::new(state_0.clone()));
+    let test_motor_1 = Box::new(TestMotor::new(state_1.clone()));
 
-    let test_group_0 = MotorGroup::new(vec![Box::new(test_motor_0)]);
-    let test_group_1 = MotorGroup::new(vec![Box::new(test_motor_1)]);
-
-    let test_unit_0 = TestMotorGroup { state: state_0, motor_group: test_group_0 };
-    let test_unit_1 = TestMotorGroup { state: state_1, motor_group: test_group_1 };
+    let test_unit_0 = TestMotorGroup { state: state_0, motor_group: test_motor_0 };
+    let test_unit_1 = TestMotorGroup { state: state_1, motor_group: test_motor_1 };
 
     (test_unit_0, test_unit_1)
 }
