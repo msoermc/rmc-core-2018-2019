@@ -8,7 +8,6 @@ use super::MotorController;
 mod tests;
 
 pub struct HoverBoardMotor {
-    is_inverted: bool,
     pwm: Box<AnalogOutput>,
     direction: Box<DigitalOutput>,
     state: GlobalMotorState,
@@ -18,7 +17,7 @@ impl MotorController for HoverBoardMotor {
     fn set_speed(&mut self, new_speed: f32) {
         self.pwm.set_value(new_speed);
         let is_reverse = new_speed < 0.0;
-        self.direction.set_value(is_reverse ^ self.is_inverted);
+        self.direction.set_value(is_reverse);
     }
 
     fn stop(&mut self) {
@@ -33,7 +32,6 @@ impl MotorController for HoverBoardMotor {
 impl HoverBoardMotor {
     pub fn new(pwm: Box<AnalogOutput>, direction: Box<DigitalOutput>) -> Self {
         HoverBoardMotor {
-            is_inverted: false,
             pwm,
             direction,
             state: GlobalMotorState::new(),
