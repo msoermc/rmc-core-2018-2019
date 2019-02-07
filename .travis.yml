@@ -3,8 +3,23 @@ dist: xenial
 rust:
   - nightly
 
-script:
-  - cargo test --verbose --all -- --test-threads=2
+#script:
+#  - cargo test --verbose --all -- --test-threads=2
+#  - cargo kcov
+#  - bash <(curl -s https://codecov.io/bash)
+#  - echo "Uploaded code coverage"
+
+jobs:
+  include:
+    - stage: "Tests"
+      script: cargo test --verbose --all -- --test-threads=2
+    - stage: "Coverage"
+      script:
+        - cargo kcov
+        - bash <(curl -s https://codecov.io/bash)
+        - echo "Uploaded code coverage"
+
+
 
 before_cache:
   - rm -rf /home/travis/.cargo/registry
@@ -45,7 +60,3 @@ addons:
       - libiberty-dev
       - ninja-build
 
-after_success:
-  - cargo kcov
-  - bash <(curl -s https://codecov.io/bash)
-  - echo "Uploaded code coverage"
