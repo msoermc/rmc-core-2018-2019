@@ -1,9 +1,6 @@
 language: rust
 dist: xenial
-rust:
-  - nightly
-  - stable
-  - beta
+
 
 matrix:
   allow_failures:
@@ -14,6 +11,10 @@ matrix:
 jobs:
   include:
     - stage: "Debug"
+      rust:
+        - nightly
+        - stable
+        - beta
       script: cargo test --verbose --all -- --test-threads=2
     - script:
         - cargo kcov
