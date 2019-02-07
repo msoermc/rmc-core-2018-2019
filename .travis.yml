@@ -12,7 +12,6 @@ jobs:
         - bash <(curl -s https://codecov.io/bash)
         - echo "Uploaded code coverage"
 
-
 before_cache:
   - rm -rf /home/travis/.cargo/registry
 
