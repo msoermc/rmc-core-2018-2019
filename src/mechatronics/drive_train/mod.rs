@@ -4,9 +4,6 @@ use crate::devices::motor_controllers::MotorController;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
 use crate::status::life::GlobalLifeState;
 
-#[cfg(test)]
-mod tests;
-
 pub mod state;
 
 /// Manages and controls the drive train.
@@ -61,4 +58,11 @@ impl DriveTrain {
         self.state.set_enabled(false);
         self.brake();
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
 }
