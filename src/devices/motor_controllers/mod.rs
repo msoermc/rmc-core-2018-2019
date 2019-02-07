@@ -55,4 +55,8 @@ impl MotorStateInstance {
             value,
         }
     }
+
+    pub fn get_value(&self) -> f32 {
+        self.value
+    }
 }
