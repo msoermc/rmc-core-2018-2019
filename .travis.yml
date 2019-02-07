@@ -4,10 +4,9 @@ dist: xenial
 
 matrix:
   include:
-    - rust:
-      - nightly
-      - stable
-      - beta
+    - rust: stable
+    - rust: nightly
+    - rust: beta
     - script: cargo test --verbose --all -- --test-threads=2
     - script:
         - cargo kcov
