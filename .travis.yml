@@ -13,13 +13,15 @@ matrix:
 
 jobs:
   include:
-    - stage: "Tests"
+    - stage: "Debug"
       script: cargo test --verbose --all -- --test-threads=2
-    - script: cargo test --release --verbose --all -- --test-threads=2
     - script:
         - cargo kcov
         - bash <(curl -s https://codecov.io/bash)
         - echo "Uploaded code coverage"
+    - stage: "Release"
+      script: cargo test --release --verbose --all -- --test-threads=2
+
 
 
 
