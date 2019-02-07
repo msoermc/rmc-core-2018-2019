@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
+use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::devices::motor_controllers::MotorController;
 
 #[cfg(test)]
 mod tests;
@@ -11,14 +12,14 @@ mod tests;
 pub mod state;
 
 pub struct Intake {
-    actuators: MotorGroup,
-    ladder: MotorGroup,
+    actuators: Box<MotorController>,
+    ladder: Box<MotorController>,
     state: Arc<GlobalIntakeState>,
     life: Arc<GlobalLifeState>,
 }
 
 impl Intake {
-    pub fn new(ladder: MotorGroup, actuators: MotorGroup, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
+    pub fn new(ladder: Box<MotorController>, actuators: Box<MotorController>, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
         Self {
             actuators,
             ladder,
@@ -71,8 +72,7 @@ impl Intake {
 
     pub fn run_cycle(&mut self) {
         if self.life.is_alive() && self.state.get_enabled() {
-            self.actuators.maintain_last();
-            self.ladder.maintain_last();
+            // TODO
         } else {
             self.stop_ladder();
             self.stop_actuators();

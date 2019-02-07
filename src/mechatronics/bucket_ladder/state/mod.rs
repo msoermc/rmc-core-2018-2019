@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
@@ -6,24 +7,23 @@ use crate::mechatronics::bucket_ladder::state::actuator::ActuatorStateInstance;
 use crate::mechatronics::bucket_ladder::state::actuator::GlobalActuatorState;
 use crate::mechatronics::bucket_ladder::state::ladder::GlobalLadderState;
 use crate::mechatronics::bucket_ladder::state::ladder::LadderStateInstance;
-use std::sync::Arc;
 
 pub mod actuator;
 pub mod ladder;
 
 pub struct GlobalIntakeState {
-    left_actuator: GlobalActuatorState,
-    right_actuator: GlobalActuatorState,
-    ladder: GlobalLadderState,
+    left_actuator: Arc<GlobalActuatorState>,
+    right_actuator: Arc<GlobalActuatorState>,
+    ladder: Arc<GlobalLadderState>,
     enabled: AtomicBool,
 }
 
 impl GlobalIntakeState {
     pub fn new() -> Self {
         Self {
-            left_actuator: GlobalActuatorState::new(),
-            right_actuator: GlobalActuatorState::new(),
-            ladder: GlobalLadderState::new(),
+            left_actuator: Arc::new(GlobalActuatorState::new()),
+            right_actuator: Arc::new(GlobalActuatorState::new()),
+            ladder: Arc::new(GlobalLadderState::new()),
             enabled: AtomicBool::new(false),
         }
     }

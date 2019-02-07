@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::motor_group::MotorGroup;
 use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
+use crate::devices::motor_controllers::MotorController;
 
 #[cfg(test)]
 mod tests;
@@ -11,13 +11,13 @@ mod tests;
 pub mod state;
 
 pub struct Dumper {
-    motors: MotorGroup,
+    motors: Box<MotorController>,
     state: Arc<GlobalDumperState>,
     life: Arc<GlobalLifeState>,
 }
 
 impl Dumper {
-    pub fn new(life: Arc<GlobalLifeState>, motors: MotorGroup, state: Arc<GlobalDumperState>) -> Self {
+    pub fn new(life: Arc<GlobalLifeState>, motors: Box<MotorController>, state: Arc<GlobalDumperState>) -> Self {
         Self {
             motors,
             state,
@@ -56,7 +56,7 @@ impl Dumper {
 
     pub fn run_cycle(&mut self) {
         if self.life.is_alive() {
-            self.motors.maintain_last();
+            // TODO;
         } else {
             self.stop();
         }

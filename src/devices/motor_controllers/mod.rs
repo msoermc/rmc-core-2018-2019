@@ -1,8 +1,5 @@
-use crate::robot_map::MotorID;
 use atomic::Atomic;
 use atomic::Ordering as AtOrd;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
 
 pub mod hover_board;
 pub mod test_motor;
@@ -25,27 +22,17 @@ pub trait MotorController: Send {
 
 pub struct GlobalMotorState {
     speed: Atomic<f32>,
-    inverted: AtomicBool,
 }
 
 impl GlobalMotorState {
     pub fn new() -> Self {
         GlobalMotorState {
             speed: Atomic::new(0.0),
-            inverted: AtomicBool::new(false)
         }
     }
 
     pub fn get_current_state(&self) -> MotorStateInstance {
-        MotorStateInstance::new(self.get_speed(), self.get_inverted())
-    }
-
-    pub fn get_inverted(&self) -> bool {
-        self.inverted.load(Ordering::Relaxed)
-    }
-
-    pub fn set_inverted(&self, inverted: bool) {
-        self.inverted.store(inverted, Ordering::Relaxed)
+        MotorStateInstance::new(self.get_speed())
     }
 
     pub fn get_speed(&self) -> f32 {
@@ -60,14 +47,12 @@ impl GlobalMotorState {
 #[derive(Serialize)]
 pub struct MotorStateInstance {
     value: f32,
-    inverted: bool,
 }
 
 impl MotorStateInstance {
-    pub fn new(value: f32, inverted: bool) -> Self {
+    pub fn new(value: f32) -> Self {
         Self {
             value,
-            inverted
         }
     }
 

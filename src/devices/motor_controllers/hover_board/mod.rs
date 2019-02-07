@@ -1,7 +1,6 @@
 use crate::devices::AnalogOutput;
 use crate::devices::DigitalOutput;
 use crate::devices::motor_controllers::GlobalMotorState;
-use crate::robot_map::MotorID;
 
 use super::MotorController;
 

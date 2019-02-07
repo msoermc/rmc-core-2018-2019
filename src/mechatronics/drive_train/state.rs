@@ -32,11 +32,11 @@ impl GlobalDriveTrainState {
         self.enabled.store(enabled, Ordering::Relaxed)
     }
 
-    pub fn get_front_left(&self) -> Arc<GlobalMotorState> {
+    pub fn get_left(&self) -> Arc<GlobalMotorState> {
         self.front_left.clone()
     }
 
-    pub fn get_front_right(&self) -> Arc<GlobalMotorState> {
+    pub fn get_right(&self) -> Arc<GlobalMotorState> {
         self.front_right.clone()
     }
 

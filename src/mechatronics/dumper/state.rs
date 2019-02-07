@@ -25,6 +25,10 @@ impl GlobalDumperState {
         )
     }
 
+    pub fn get_motor(&self) -> Arc<GlobalMotorState> {
+        self.motor.clone()
+    }
+
     pub fn set_enabled(&self, enabled: bool) {
         self.enabled.store(enabled, Ordering::Relaxed)
     }

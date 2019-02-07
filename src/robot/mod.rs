@@ -9,6 +9,7 @@ use crate::comms;
 use crate::devices::enable_pins;
 use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
 use crate::devices::motor_controllers::motor_group::MotorGroup;
+use crate::devices::motor_controllers::MotorController;
 use crate::devices::motor_controllers::print_motor::PrintMotor;
 use crate::devices::sysfs_pin_wrappers::SysfsPin;
 use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
@@ -23,25 +24,30 @@ use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 
 pub struct RobotBuilder {
-    left_drive: MotorGroup,
-    right_drive: MotorGroup,
-    digger: MotorGroup,
-    rails: MotorGroup,
-    dumper: MotorGroup,
+    left_drive: Box<MotorController>,
+    right_drive: Box<MotorController>,
+    digger: Box<MotorController>,
+    left_actuator: Box<MotorController>,
+    right_actuator: Box<MotorController>,
+    dumper: Box<MotorController>,
+    state: GlobalRobotState,
 }
 
 impl RobotBuilder {
-    pub fn use_custom_drive(&mut self, left: MotorGroup, right: MotorGroup) {
+    pub fn use_custom_drive(&mut self, left: Box<MotorController>, right: Box<MotorController>) {
         self.left_drive = left;
         self.right_drive = right;
     }
 
-    pub fn use_custom_intake(&mut self, digger: MotorGroup, rails: MotorGroup) {
+    pub fn use_custom_intake(&mut self, digger: Box<MotorController>,
+                             left_actuator: Box<MotorController>,
+                             right_actuator: Box<MotorController>) {
         self.digger = digger;
-        self.rails = rails;
+        self.left_actuator = left_actuator;
+        self.right_actuator = right_actuator
     }
 
-    pub fn use_custom_dumper(&mut self, dumper: MotorGroup) {
+    pub fn use_custom_dumper(&mut self, dumper: Box<MotorController>) {
         self.dumper = dumper;
     }
 
@@ -63,29 +69,32 @@ impl RobotBuilder {
         let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction));
         let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction));
 
-        self.left_drive = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
-        self.right_drive = MotorGroup::new(vec![front_right_motor, rear_right_motor]);
+        self.left_drive = Box::new(MotorGroup::new(vec![front_left_motor, rear_left_motor], self.state.get_drive().get_left()));
+        self.right_drive = Box::new(MotorGroup::new(vec![front_right_motor, rear_right_motor], self.state.get_drive().get_right()));
     }
 
     pub fn new() -> Self {
+        let state = GlobalRobotState::new();
         let left_motor = Box::new(PrintMotor::new("Left"));
         let right_motor = Box::new(PrintMotor::new("Right"));
         let digger_motor = Box::new(PrintMotor::new("Digger"));
-        let rails_motor = Box::new(PrintMotor::new("Rails"));
+        let left_actuator = Box::new(PrintMotor::new("LA"));
+        let right_actuator = Box::new(PrintMotor::new("RA"));
         let dumper_motor = Box::new(PrintMotor::new("Dumper"));
 
-        let left_group = MotorGroup::new(vec![left_motor]);
-        let right_group = MotorGroup::new(vec![right_motor]);
-        let digger_group = MotorGroup::new(vec![digger_motor]);
-        let dumper_group = MotorGroup::new(vec![dumper_motor]);
-        let rails_group = MotorGroup::new(vec![rails_motor]);
+        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
+        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
 
         Self {
             left_drive: left_group,
             right_drive: right_group,
             digger: digger_group,
-            rails: rails_group,
+            left_actuator,
+            right_actuator,
             dumper: dumper_group,
+            state,
         }
     }
 
@@ -97,9 +106,9 @@ impl RobotBuilder {
         let robot_view = MechatronicsMessageSender::new(controller_sender, robot_state.clone());
         let bfr = comms::stage(robot_view, robot_state.clone());
 
-        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_state.get_life(), robot_state.get_drive());
+        let drive_train = DriveTrain::new(robot_state.get_drive(), self.left_drive, self.right_drive, robot_state.get_life());
 
-        let digger = Intake::new(self.digger, self.rails, robot_state.get_intake(), robot_state.get_life());
+        let digger = Intake::new(self.digger, self.left_actuator, robot_state.get_intake(), robot_state.get_life());
 
         let dumper = Dumper::new(robot_state.get_life().clone(), self.dumper, robot_state.get_dumper());
 
