@@ -2,13 +2,8 @@ language: rust
 dist: xenial
 rust:
   - nightly
-  - stable
-  - beta
 
 jobs:
-  allow_failures:
-    - rust: stable
-    - rust: beta
   include:
     - stage: "Tests"
       script: cargo test --verbose --all -- --test-threads=2
