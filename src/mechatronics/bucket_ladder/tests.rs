@@ -165,6 +165,54 @@ fn test_lower_actuators() {
 }
 
 #[test]
+fn test_raise_limits() {
+    let mut environment = create_environment();
+    environment.intake.enable();
+
+    environment.state.get_right_actuator().set_upper(true);
+    environment.state.get_left_actuator().set_upper(true);
+    environment.intake.raise();
+
+    assert_eq!(0.0, environment.state.get_current_state().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_current_state().get_right_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_right_actuator().get_motor().get_speed());
+
+    environment.intake.lower();
+    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_motor().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_motor().get_speed());
+}
+
+#[test]
+fn test_lower_limits() {
+    let mut environment = create_environment();
+    environment.intake.enable();
+
+    environment.state.get_right_actuator().set_lower(true);
+    environment.state.get_left_actuator().set_lower(true);
+    environment.intake.lower();
+
+    assert_eq!(0.0, environment.state.get_current_state().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_current_state().get_right_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_right_actuator().get_motor().get_speed());
+
+    environment.intake.raise();
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_left_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_right_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_motor().get_speed());
+}
+
+#[test]
 fn test_stop_actuators() {
     let mut environment = create_environment();
     environment.intake.enable();
