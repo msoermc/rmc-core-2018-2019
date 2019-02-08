@@ -144,6 +144,7 @@ mod tests {
         assert_eq!(MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_motor().get_speed());
 
         environment.intake.disable();
+        environment.intake.raise();
         assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
         assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
         assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
@@ -182,6 +183,7 @@ mod tests {
         assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_motor().get_speed());
 
         environment.intake.disable();
+        environment.intake.lower();
         assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
         assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
         assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
