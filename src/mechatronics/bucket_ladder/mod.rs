@@ -127,6 +127,45 @@ mod tests {
     }
 
     #[test]
+    fn test_dig_actuators() {
+        let mut environment = create_environment();
+        environment.intake.enable();
+
+        environment.intake.dig();
+        assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_motor().get_speed());
+
+        environment.intake.run_cycle();
+        assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_motor().get_speed());
+
+        environment.intake.disable();
+        environment.intake.dig();
+        assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
+        environment.intake.run_cycle();
+        assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
+
+        environment.intake.enable();
+        environment.intake.dig();
+        environment.life.kill();
+        environment.intake.run_cycle();
+        assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
+    }
+
+    #[test]
+    fn test_stop_digger() {
+        let mut environment = create_environment();
+        environment.intake.enable();
+        environment.intake.dig();
+        environment.intake.stop_ladder();
+        assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
+    }
+
+    #[test]
     fn test_raise_actuators() {
         let mut environment = create_environment();
         environment.intake.enable();
