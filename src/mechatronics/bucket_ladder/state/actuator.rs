@@ -6,16 +6,16 @@ use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorStateInstance;
 
 pub struct GlobalActuatorState {
-    upper: AtomicBool,
-    lower: AtomicBool,
+    upper: Arc<AtomicBool>,
+    lower: Arc<AtomicBool>,
     motor: Arc<GlobalMotorState>,
 }
 
 impl GlobalActuatorState {
     pub fn new() -> Self {
         GlobalActuatorState {
-            upper: AtomicBool::new(false),
-            lower: AtomicBool::new(false),
+            upper: Arc::new(AtomicBool::new(false)),
+            lower: Arc::new(AtomicBool::new(false)),
             motor: Arc::new(GlobalMotorState::new()),
         }
     }
@@ -36,12 +36,12 @@ impl GlobalActuatorState {
         self.lower.store(lower, Ordering::Relaxed);
     }
 
-    pub fn get_upper(&self) -> bool {
-        self.upper.load(Ordering::Relaxed)
+    pub fn get_upper(&self) -> Arc<AtomicBool> {
+        self.upper.clone()
     }
 
-    pub fn get_lower(&self) -> bool {
-        self.lower.load(Ordering::Relaxed)
+    pub fn get_lower(&self) -> Arc<AtomicBool> {
+        self.lower.clone()
     }
 
     pub fn get_motor(&self) -> Arc<GlobalMotorState> {

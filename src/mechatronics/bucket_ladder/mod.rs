@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
+use crate::motor_controllers::decorators::dual_limit::DualLimitMotor;
 use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
@@ -22,6 +23,12 @@ impl Intake {
     pub fn new(ladder: Box<MotorController>, left_actuator: Box<MotorController>,
                right_actuator: Box<MotorController>, state: Arc<GlobalIntakeState>,
                life: Arc<GlobalLifeState>) -> Self {
+        let left_actuator = DualLimitMotor::new(left_actuator, state.get_left_actuator().get_upper(), state.get_left_actuator().get_upper());
+        let right_actuator = DualLimitMotor::new(right_actuator, state.get_right_actuator().get_upper(), state.get_right_actuator().get_upper());
+
+        let left_actuator = Box::new(left_actuator);
+        let right_actuator = Box::new(right_actuator);
+
         Self {
             left_actuator,
             right_actuator,
