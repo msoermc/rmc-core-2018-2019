@@ -23,8 +23,8 @@ impl Intake {
     pub fn new(ladder: Box<MotorController>, left_actuator: Box<MotorController>,
                right_actuator: Box<MotorController>, state: Arc<GlobalIntakeState>,
                life: Arc<GlobalLifeState>) -> Self {
-        let left_actuator = DualLimitMotor::new(left_actuator, state.get_left_actuator().get_upper(), state.get_left_actuator().get_upper());
-        let right_actuator = DualLimitMotor::new(right_actuator, state.get_right_actuator().get_upper(), state.get_right_actuator().get_upper());
+        let left_actuator = DualLimitMotor::new(left_actuator, state.get_left_actuator().get_upper(), state.get_left_actuator().get_lower());
+        let right_actuator = DualLimitMotor::new(right_actuator, state.get_right_actuator().get_upper(), state.get_right_actuator().get_lower());
 
         let left_actuator = Box::new(left_actuator);
         let right_actuator = Box::new(right_actuator);
