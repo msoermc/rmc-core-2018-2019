@@ -45,18 +45,22 @@ fn test_dig_actuators() {
     environment.intake.enable();
 
     environment.intake.dig();
+    assert_eq!(DIGGING_RATE, environment.state.get_current_state().get_ladder().get_motor().get_speed());
     assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_motor().get_speed());
     assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_motor().get_speed());
 
     environment.intake.run_cycle();
+    assert_eq!(DIGGING_RATE, environment.state.get_current_state().get_ladder().get_motor().get_speed());
     assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_motor().get_speed());
     assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_motor().get_speed());
 
     environment.intake.disable();
     environment.intake.dig();
+    assert_eq!(0.0, environment.state.get_current_state().get_ladder().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
     environment.intake.run_cycle();
+    assert_eq!(0.0, environment.state.get_current_state().get_ladder().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
 
@@ -84,6 +88,8 @@ fn test_raise_actuators() {
     environment.intake.enable();
 
     environment.intake.raise();
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_left_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_right_actuator().get_motor().get_speed());
     assert_eq!(MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
     assert_eq!(MH_ACTUATOR_RATE, environment.state.get_left_actuator().get_motor().get_speed());
     assert_eq!(MH_ACTUATOR_RATE, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
@@ -97,6 +103,8 @@ fn test_raise_actuators() {
 
     environment.intake.disable();
     environment.intake.raise();
+    assert_eq!(0.0, environment.state.get_current_state().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, environment.state.get_current_state().get_right_actuator().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
     assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
