@@ -18,8 +18,8 @@ pub struct RobotController {
     command_receiver: Receiver<MechatronicsCommand>,
     drive_train: DriveTrain,
     dumper: Dumper,
-    digger: Intake,
-    life_status: Arc<GlobalLifeState>,
+    intake: Intake,
+    life: Arc<GlobalLifeState>,
     state: MechState,
 }
 
@@ -29,7 +29,7 @@ impl Runnable for RobotController {
         self.state = MechState::Driving;
         self.drive_train.enable();
         self.dumper.disable();
-        self.digger.disable();
+        self.intake.disable();
     }
 
     fn run(&mut self) {
@@ -37,19 +37,21 @@ impl Runnable for RobotController {
             self.handle_message(message);
         }
 
-        self.process_states();
+        self.drive_train.run_cycle();
+        self.dumper.run_cycle();
+        self.intake.run_cycle();
     }
 }
 
 impl RobotController {
     pub fn new(command_receiver: Receiver<MechatronicsCommand>,
-               drive_train: DriveTrain, dumper: Dumper, ladder: Intake, life_status: Arc<GlobalLifeState>) -> Self {
+               drive_train: DriveTrain, dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>) -> Self {
         Self {
             command_receiver,
             drive_train,
             dumper,
-            digger: ladder,
-            life_status,
+            intake,
+            life,
             state: MechState::Driving,
         }
     }
@@ -60,17 +62,17 @@ impl RobotController {
                 self.state = MechState::Driving;
                 self.drive_train.enable();
                 self.dumper.disable();
-                self.digger.disable();
+                self.intake.disable();
             }
             MechatronicsCommand::EnterDumpMode => {
                 self.state = MechState::Dumping;
                 self.dumper.enable();
-                self.digger.disable();
+                self.intake.disable();
                 self.drive_train.disable();
             }
             MechatronicsCommand::EnterDiggingMode => {
                 self.state = MechState::Digging;
-                self.digger.enable();
+                self.intake.enable();
                 self.dumper.disable();
                 self.drive_train.disable();
             }
@@ -90,24 +92,20 @@ impl RobotController {
                 self.dumper.stop();
             }
             MechatronicsCommand::Dig => {
-                self.digger.dig()
+                self.intake.dig()
             }
             MechatronicsCommand::StopDigging => {
-                self.digger.stop_ladder();
+                self.intake.stop_ladder();
             }
             MechatronicsCommand::RaiseActuators => {
-                self.digger.raise();
+                self.intake.raise();
             }
             MechatronicsCommand::LowerActuators => {
-                self.digger.lower();
+                self.intake.lower();
             }
             MechatronicsCommand::StopActuators => {
-                self.digger.stop_actuators();
+                self.intake.stop_actuators();
             }
         }
-    }
-
-    fn process_states(&mut self) {
-        // TODO implement
     }
 }
