@@ -59,3 +59,52 @@ impl Dumper {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+    use crate::motor_controllers::test_motor::TestMotor;
+
+    #[test]
+    fn test_setup() {
+        let life = Arc::new(GlobalLifeState::new());
+        let state = Arc::new(GlobalDumperState::new());
+        let motor = Box::new(TestMotor::new(state.get_motor()));
+
+        let _dumper = Dumper::new(life.clone(), motor, state.clone());
+
+        assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(false, state.get_enabled());
+    }
+
+    #[test]
+    fn test_dump() {
+        let life = Arc::new(GlobalLifeState::new());
+        let state = Arc::new(GlobalDumperState::new());
+        let motor = Box::new(TestMotor::new(state.get_motor()));
+
+        let mut dumper = Dumper::new(life.clone(), motor, state.clone());
+        state.set_enabled(true);
+
+        dumper.dump();
+        assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+        dumper.run_cycle();
+        assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+    }
+
+    #[test]
+    fn test_reset() {
+        let life = Arc::new(GlobalLifeState::new());
+        let state = Arc::new(GlobalDumperState::new());
+        let motor = Box::new(TestMotor::new(state.get_motor()));
+
+        let mut dumper = Dumper::new(life.clone(), motor, state.clone());
+        state.set_enabled(true);
+
+        dumper.reset();
+        assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+        dumper.run_cycle();
+        assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+    }
+}
