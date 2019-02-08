@@ -63,4 +63,19 @@ impl DriveTrain {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
+    use crate::motor_controllers::test_motor::TestMotor;
+
+    #[test]
+    fn test_setup() {
+        let state = Arc::new(GlobalDriveTrainState::new());
+        let life = Arc::new(GlobalLifeState::new());
+        let left = Box::new(TestMotor::new(state.get_left()));
+        let right = Box::new(TestMotor::new(state.get_right()));
+        let _drive_train = DriveTrain::new(state.clone(), left, right, life.clone());
+
+        assert_eq!(false, state.get_enabled());
+        assert_eq!(0.0, state.get_left().get_speed());
+        assert_eq!(0.0, state.get_right().get_speed());
+    }
 }
