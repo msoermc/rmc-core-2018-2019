@@ -125,4 +125,15 @@ mod tests {
         assert_eq!(false, environment.state.get_enabled());
         assert_eq!(false, environment.state.get_current_state().get_enabled());
     }
+
+    #[test]
+    fn test_enabling() {
+        let mut environment = create_environment();
+        environment.intake.enable();
+        assert_eq!(true, environment.state.get_enabled());
+        assert_eq!(true, environment.state.get_current_state().get_enabled());
+        environment.intake.disable();
+        assert_eq!(false, environment.state.get_enabled());
+        assert_eq!(false, environment.state.get_current_state().get_enabled());
+    }
 }
