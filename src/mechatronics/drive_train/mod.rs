@@ -109,6 +109,11 @@ mod tests {
         assert_eq!(0.0, state.get_current_state().get_left().get_speed());
         assert_eq!(0.0, state.get_right().get_speed());
         assert_eq!(0.0, state.get_current_state().get_right().get_speed());
+        drive_train.drive(1.0, -1.0);
+        assert_eq!(0.0, state.get_left().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_left().get_speed());
+        assert_eq!(0.0, state.get_right().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_right().get_speed());
 
         drive_train.enable();
         drive_train.drive(1.0, -1.0);
