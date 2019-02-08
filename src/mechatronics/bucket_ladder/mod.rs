@@ -41,6 +41,7 @@ impl Intake {
     pub fn raise(&mut self) {
         if self.state.get_enabled() && self.life.is_alive() {
             self.left_actuator.set_speed(MH_ACTUATOR_RATE);
+            self.right_actuator.set_speed(MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators()
         }
@@ -49,6 +50,7 @@ impl Intake {
     pub fn lower(&mut self) {
         if self.state.get_enabled() && self.life.is_alive() {
             self.left_actuator.set_speed(-MH_ACTUATOR_RATE);
+            self.right_actuator.set_speed(-MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators();
         }
@@ -56,6 +58,7 @@ impl Intake {
 
     pub fn stop_actuators(&mut self) {
         self.left_actuator.stop();
+        self.right_actuator.stop();
     }
 
     pub fn dig(&mut self) {
@@ -121,6 +124,5 @@ mod tests {
         assert_eq!(0.0, environment.state.get_right_actuator().get_motor().get_speed());
         assert_eq!(false, environment.state.get_enabled());
         assert_eq!(false, environment.state.get_current_state().get_enabled());
-
     }
 }
