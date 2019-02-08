@@ -64,4 +64,12 @@ impl DriveTrainStateInstance {
     pub fn get_enabled(&self) -> bool {
         self.enabled
     }
+
+    pub fn get_left(&self) -> &MotorStateInstance {
+        &self.left
+    }
+
+    pub fn get_right(&self) -> &MotorStateInstance {
+        &self.right
+    }
 }
