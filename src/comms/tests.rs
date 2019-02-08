@@ -74,12 +74,9 @@ fn test_drive_request() {
     let response = env.client.post("/robot/drive_train/drive/1.0/1.0").dispatch();
     assert_eq!(Status::Ok, response.status());
 
-    if let MechatronicsCommand::Drive(result) = env.receiver.recv().unwrap() {
-        assert_eq!(1.0, result.get_left_speed());
-        assert_eq!(1.0, result.get_right_speed());
-    } else {
-        panic!("Expected drive command, got {:?}!", )
-    }
+    let result = env.receiver.recv().unwrap().get_drive().unwrap();
+    assert_eq!(1.0, result.get_left_speed());
+    assert_eq!(1.0, result.get_right_speed());
 
     // bad request
     let response = env.client.post("/robot/drive_train/drive/1.0/1.1").dispatch();

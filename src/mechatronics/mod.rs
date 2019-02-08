@@ -33,6 +33,16 @@ pub enum MechatronicsCommand {
     StopActuators,
 }
 
+impl MechatronicsCommand {
+    pub fn get_drive(self) -> Option<DriveCommandMessage> {
+        if let MechatronicsCommand::Drive(command) = self {
+            Some(command)
+        } else {
+            None
+        }
+    }
+}
+
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
     state: Arc<GlobalRobotState>,
