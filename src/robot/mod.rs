@@ -107,7 +107,7 @@ impl RobotBuilder {
 
         let drive_train = DriveTrain::new(robot_state.get_drive(), self.left_drive, self.right_drive, robot_state.get_life());
 
-        let digger = Intake::new(self.digger, self.left_actuator, robot_state.get_intake(), robot_state.get_life());
+        let digger = Intake::new(self.digger, self.left_actuator, self.right_actuator, robot_state.get_intake(), robot_state.get_life());
 
         let dumper = Dumper::new(robot_state.get_life().clone(), self.dumper, robot_state.get_dumper());
 

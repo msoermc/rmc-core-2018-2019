@@ -40,16 +40,16 @@ impl GlobalIntakeState {
         self.enabled.store(enabled, Ordering::Relaxed);
     }
 
-    pub fn get_left_actuator(&self) -> &GlobalActuatorState {
-        &self.left_actuator
+    pub fn get_left_actuator(&self) -> Arc<GlobalActuatorState> {
+        self.left_actuator.clone()
     }
 
-    pub fn get_right_actuator(&self) -> &GlobalActuatorState {
-        &self.right_actuator
+    pub fn get_right_actuator(&self) -> Arc<GlobalActuatorState> {
+        self.right_actuator.clone()
     }
 
-    pub fn get_ladder(&self) -> &GlobalLadderState {
-        &self.ladder
+    pub fn get_ladder(&self) -> Arc<GlobalLadderState> {
+        self.ladder.clone()
     }
 
     pub fn get_enabled(&self) -> bool {

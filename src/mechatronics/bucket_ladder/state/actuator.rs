@@ -72,4 +72,8 @@ impl ActuatorStateInstance {
     pub fn get_lower(&self) -> bool {
         self.lower
     }
+
+    pub fn get_motor(&self) -> &MotorStateInstance {
+        &self.motor
+    }
 }

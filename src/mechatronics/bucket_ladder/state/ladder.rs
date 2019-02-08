@@ -34,4 +34,8 @@ impl LadderStateInstance {
             motor
         }
     }
+
+    pub fn get_motor(&self) -> &MotorStateInstance {
+        &self.motor
+    }
 }

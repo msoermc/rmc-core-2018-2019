@@ -8,16 +8,20 @@ use crate::status::life::GlobalLifeState;
 pub mod state;
 
 pub struct Intake {
-    actuators: Box<MotorController>,
+    left_actuator: Box<MotorController>,
+    right_actuator: Box<MotorController>,
     ladder: Box<MotorController>,
     state: Arc<GlobalIntakeState>,
     life: Arc<GlobalLifeState>,
 }
 
 impl Intake {
-    pub fn new(ladder: Box<MotorController>, actuators: Box<MotorController>, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
+    pub fn new(ladder: Box<MotorController>, left_actuator: Box<MotorController>,
+               right_actuator: Box<MotorController>, state: Arc<GlobalIntakeState>,
+               life: Arc<GlobalLifeState>) -> Self {
         Self {
-            actuators,
+            left_actuator,
+            right_actuator,
             ladder,
             state,
             life,
@@ -36,7 +40,7 @@ impl Intake {
 
     pub fn raise(&mut self) {
         if self.state.get_enabled() && self.life.is_alive() {
-            self.actuators.set_speed(MH_ACTUATOR_RATE);
+            self.left_actuator.set_speed(MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators()
         }
@@ -44,14 +48,14 @@ impl Intake {
 
     pub fn lower(&mut self) {
         if self.state.get_enabled() && self.life.is_alive() {
-            self.actuators.set_speed(-MH_ACTUATOR_RATE);
+            self.left_actuator.set_speed(-MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators();
         }
     }
 
     pub fn stop_actuators(&mut self) {
-        self.actuators.stop();
+        self.left_actuator.stop();
     }
 
     pub fn dig(&mut self) {
@@ -73,5 +77,50 @@ impl Intake {
             self.stop_ladder();
             self.stop_actuators();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use crate::motor_controllers::test_motor::TestMotor;
+
+    use super::*;
+
+    struct IntakeEnvironment {
+        pub state: Arc<GlobalIntakeState>,
+        pub life: Arc<GlobalLifeState>,
+        pub intake: Intake,
+    }
+
+    fn create_environment() -> IntakeEnvironment {
+        let state = Arc::new(GlobalIntakeState::new());
+        let left = Box::new(TestMotor::new(state.get_left_actuator().get_motor()));
+        let right = Box::new(TestMotor::new(state.get_right_actuator().get_motor()));
+        let ladder = Box::new(TestMotor::new(state.get_ladder().get_motor()));
+        let life = Arc::new(GlobalLifeState::new());
+        let intake = Intake::new(ladder, left, right, state.clone(), life.clone());
+
+        IntakeEnvironment {
+            state,
+            life,
+            intake,
+        }
+    }
+
+    #[test]
+    fn test_setup() {
+        let environment = create_environment();
+
+        assert_eq!(0.0, environment.state.get_ladder().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_left_actuator().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_left_actuator().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_right_actuator().get_current_state().get_motor().get_speed());
+        assert_eq!(0.0, environment.state.get_right_actuator().get_motor().get_speed());
+        assert_eq!(false, environment.state.get_enabled());
+        assert_eq!(false, environment.state.get_current_state().get_enabled());
+
     }
 }
