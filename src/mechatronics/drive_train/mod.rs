@@ -75,7 +75,10 @@ mod tests {
         let _drive_train = DriveTrain::new(state.clone(), left, right, life.clone());
 
         assert_eq!(false, state.get_enabled());
+        assert_eq!(false, state.get_current_state().get_enabled());
         assert_eq!(0.0, state.get_left().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_left().get_speed());
         assert_eq!(0.0, state.get_right().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_right().get_speed());
     }
 }
