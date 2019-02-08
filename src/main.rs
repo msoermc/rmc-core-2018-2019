@@ -21,9 +21,11 @@ extern crate slog_term;
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
 
-/// The devices module contains code for interfacing with various peripheral devices employed by the robot.
-/// This category includes sensors and motor controllers.
-pub mod devices;
+pub mod pinouts;
+
+pub mod motor_controllers;
+
+pub mod sensors;
 
 /// The comms module contains the code for running the HTTP server
 pub mod comms;

@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::MotorStateInstance;
+use crate::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::MotorStateInstance;
 
 pub struct GlobalDriveTrainState {
     enabled: AtomicBool,

@@ -1,5 +1,5 @@
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::MotorController;
+use crate::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::MotorController;
 
 pub struct InvertedMotor {
     motor: Box<MotorController>,
@@ -31,8 +31,7 @@ impl InvertedMotor {
 mod tests {
     use std::sync::Arc;
 
-    use crate::devices::motor_controllers::GlobalMotorState;
-    use crate::devices::motor_controllers::test_motor::TestMotor;
+    use crate::motor_controllers::test_motor::TestMotor;
 
     use super::*;
 

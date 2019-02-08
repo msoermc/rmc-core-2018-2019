@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::MotorStateInstance;
+use crate::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::MotorStateInstance;
 
 pub struct GlobalLadderState {
     motor: Arc<GlobalMotorState>,

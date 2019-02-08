@@ -48,8 +48,6 @@ impl PrintMotor {
 mod tests {
     use std::sync::Arc;
 
-    use crate::devices::motor_controllers::GlobalMotorState;
-
     use super::*;
 
     #[test]

@@ -3,7 +3,7 @@ use std::process;
 
 use sysfs_gpio;
 
-use crate::devices::DigitalInput;
+use crate::pinouts::DigitalInput;
 
 use super::DigitalOutput;
 

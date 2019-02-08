@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::MotorController;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
+use crate::motor_controllers::MotorController;
 use crate::status::life::GlobalLifeState;
 
 pub mod state;

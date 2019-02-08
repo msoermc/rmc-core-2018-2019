@@ -1,6 +1,6 @@
-use crate::devices::AnalogOutput;
-use crate::devices::DigitalOutput;
-use crate::devices::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::GlobalMotorState;
+use crate::pinouts::AnalogOutput;
+use crate::pinouts::DigitalOutput;
 
 use super::MotorController;
 
@@ -55,8 +55,8 @@ mod tests {
     use atomic::Atomic;
     use atomic::Ordering as ExtOrd;
 
-    use crate::devices::TestPin;
-    use crate::devices::TestPwm;
+    use crate::pinouts::TestPin;
+    use crate::pinouts::TestPwm;
 
     use super::*;
 

@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::MotorController;
+use crate::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::MotorController;
 
 pub struct FlagMotor {
     motor: Box<MotorController>,
@@ -42,7 +42,7 @@ mod tests {
     use std::sync::Arc;
     use std::sync::atomic::AtomicBool;
 
-    use crate::devices::motor_controllers::test_motor::TestMotor;
+    use crate::motor_controllers::test_motor::TestMotor;
 
     use super::*;
 

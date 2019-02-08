@@ -5,9 +5,6 @@ use std::time::Duration;
 
 use rocket::http::Status;
 
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::test_motor::TestMotor;
 use crate::robot::RobotBuilder;
 use crate::robot_map::*;
 

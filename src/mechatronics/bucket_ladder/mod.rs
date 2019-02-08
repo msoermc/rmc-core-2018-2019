@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::MotorController;
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
+use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
 

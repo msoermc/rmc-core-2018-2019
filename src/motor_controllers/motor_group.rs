@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::GlobalMotorState;
-use crate::devices::motor_controllers::MotorController;
+use crate::motor_controllers::GlobalMotorState;
+use crate::motor_controllers::MotorController;
 
 pub struct MotorGroup {
     motors: Vec<Box<MotorController>>,
@@ -43,8 +43,7 @@ impl MotorGroup {
 mod tests {
     use std::sync::Arc;
 
-    use crate::devices::motor_controllers::GlobalMotorState;
-    use crate::devices::motor_controllers::test_motor::TestMotor;
+    use crate::motor_controllers::test_motor::TestMotor;
 
     use super::*;
 

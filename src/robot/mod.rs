@@ -6,21 +6,20 @@ use rocket::local::Client;
 use rocket::Rocket;
 
 use crate::comms;
-use crate::devices::enable_pins;
-use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::MotorController;
-use crate::devices::motor_controllers::print_motor::PrintMotor;
-use crate::devices::sysfs_pin_wrappers::SysfsPin;
-use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
+use crate::motor_controllers::hover_board::HoverBoardMotor;
+use crate::motor_controllers::motor_group::MotorGroup;
+use crate::motor_controllers::MotorController;
+use crate::motor_controllers::print_motor::PrintMotor;
+use crate::pinouts::enable_pins;
+use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
+use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
-use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 
 pub struct RobotBuilder {

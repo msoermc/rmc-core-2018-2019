@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::devices::motor_controllers::MotorController;
 use crate::mechatronics::dumper::state::GlobalDumperState;
+use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
 
