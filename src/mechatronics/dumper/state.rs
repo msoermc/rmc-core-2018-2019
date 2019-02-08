@@ -55,4 +55,8 @@ impl DumperStateInstance {
     pub fn get_enabled(&self) -> bool {
         self.enabled
     }
+
+    pub fn get_motor(&self) -> &MotorStateInstance {
+        &self.motor
+    }
 }

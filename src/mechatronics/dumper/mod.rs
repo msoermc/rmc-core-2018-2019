@@ -129,32 +129,48 @@ mod tests {
 
         dumper.reset();
         assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+        assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_motor().get_speed());
         dumper.run_cycle();
         assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+        assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_motor().get_speed());
 
         life.kill();
         dumper.run_cycle();
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
+
         dumper.reset();
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
         state.get_motor().set_speed(1.0);
         dumper.run_cycle();
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
 
         life.revive();
         dumper.reset();
         assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+        assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_motor().get_speed());
 
         dumper.disable();
+        assert_eq!(false, state.get_enabled());
+        assert_eq!(false, state.get_current_state().get_enabled());
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
+
         dumper.reset();
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
         state.get_motor().set_speed(1.0);
         dumper.run_cycle();
         assert_eq!(0.0, state.get_motor().get_speed());
+        assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
 
         dumper.enable();
+        assert_eq!(true, state.get_enabled());
+        assert_eq!(true, state.get_current_state().get_enabled());
         dumper.reset();
         assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+        assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_motor().get_speed());
     }
 }
