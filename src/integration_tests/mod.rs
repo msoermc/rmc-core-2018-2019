@@ -14,3 +14,6 @@ const TIMEOUT: u64 = 100;
 
 #[cfg(test)]
 mod initialization;
+
+#[cfg(test)]
+mod mechatronics;
