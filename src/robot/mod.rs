@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
@@ -5,42 +6,58 @@ use rocket::local::Client;
 use rocket::Rocket;
 
 use crate::comms;
-use crate::devices::enable_pins;
-use crate::devices::motor_controllers::hover_board::HoverBoardMotor;
-use crate::devices::motor_controllers::motor_group::MotorGroup;
-use crate::devices::motor_controllers::print_motor::PrintMotor;
-use crate::devices::sysfs_pin_wrappers::SysfsPin;
-use crate::devices::sysfs_pwm_wrappers::SysfsPwm;
 use crate::framework::Runnable;
+use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
-use crate::mechatronics::material_handling::bucket_ladder::BucketLadder;
-use crate::mechatronics::material_handling::dumper::Dumper;
+use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::MechatronicsMessageSender;
+use crate::motor_controllers::hover_board::HoverBoardMotor;
+use crate::motor_controllers::motor_group::MotorGroup;
+use crate::motor_controllers::MotorController;
+use crate::motor_controllers::print_motor::PrintMotor;
+use crate::motor_controllers::test_motor::TestMotor;
+use crate::pinouts::enable_pins;
+use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
+use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
-use crate::status::life::GlobalLifeStatus;
+use crate::status::robot_state::GlobalRobotState;
 
 pub struct RobotBuilder {
-    left_drive: MotorGroup,
-    right_drive: MotorGroup,
-    digger: MotorGroup,
-    rails: MotorGroup,
-    dumper: MotorGroup,
+    left_drive: Box<MotorController>,
+    right_drive: Box<MotorController>,
+    digger: Box<MotorController>,
+    left_actuator: Box<MotorController>,
+    right_actuator: Box<MotorController>,
+    dumper: Box<MotorController>,
+    state: Arc<GlobalRobotState>,
 }
 
 impl RobotBuilder {
-    pub fn use_custom_drive(&mut self, left: MotorGroup, right: MotorGroup) {
-        self.left_drive = left;
-        self.right_drive = right;
+    pub fn get_state(&self) -> Arc<GlobalRobotState> {
+        self.state.clone()
     }
 
-    pub fn use_custom_intake(&mut self, digger: MotorGroup, rails: MotorGroup) {
-        self.digger = digger;
-        self.rails = rails;
-    }
+    pub fn with_test(&mut self) {
+        let state = &self.state;
+        let left_motor = Box::new(TestMotor::new(state.get_drive().get_left()));
+        let right_motor = Box::new(TestMotor::new(state.get_drive().get_right()));
+        let digger_motor = Box::new(TestMotor::new(state.get_intake().get_ladder().get_motor()));
+        let left_actuator = Box::new(TestMotor::new(state.get_intake().get_left_actuator().get_motor()));
+        let right_actuator = Box::new(TestMotor::new(state.get_intake().get_right_actuator().get_motor()));
+        let dumper_motor = Box::new(TestMotor::new(state.get_dumper().get_motor()));
 
-    pub fn use_custom_dumper(&mut self, dumper: MotorGroup) {
-        self.dumper = dumper;
+        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
+        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
+
+        self.left_actuator = left_actuator;
+        self.right_actuator = right_actuator;
+        self.left_drive = left_group;
+        self.right_drive = right_group;
+        self.digger = digger_group;
+        self.dumper = dumper_group;
     }
 
     pub fn use_real_drive(&mut self) {
@@ -51,63 +68,58 @@ impl RobotBuilder {
         let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_DRIVE_STRING).expect("Rear left pwm"));
         let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_DRIVE_STRING).expect("Rear right pwm"));
 
-        let front_right_direction = Box::new(SysfsPin::new(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING).expect("Front right direction"));
-        let front_left_direction = Box::new(SysfsPin::new(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING).expect("Front left direction"));
-        let rear_right_direction = Box::new(SysfsPin::new(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
-        let rear_left_direction = Box::new(SysfsPin::new(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
+        let front_right_direction = Box::new(SysfsPin::create(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING).expect("Front right direction"));
+        let front_left_direction = Box::new(SysfsPin::create(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING).expect("Front left direction"));
+        let rear_right_direction = Box::new(SysfsPin::create(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
+        let rear_left_direction = Box::new(SysfsPin::create(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
 
-        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction, MotorID::DriveTrainFrontRight));
-        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction, MotorID::DriveTrainFrontLeft));
-        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction, MotorID::DriveTrainRearRight));
-        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction, MotorID::DriveTrainRearLeft));
+        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
+        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
+        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction));
+        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction));
 
-        self.left_drive = MotorGroup::new(vec![front_left_motor, rear_left_motor]);
-        self.right_drive = MotorGroup::new(vec![front_right_motor, rear_right_motor]);
+        self.left_drive = Box::new(MotorGroup::new(vec![front_left_motor, rear_left_motor], self.state.get_drive().get_left()));
+        self.right_drive = Box::new(MotorGroup::new(vec![front_right_motor, rear_right_motor], self.state.get_drive().get_right()));
     }
 
     pub fn new() -> Self {
-        let left_motor = Box::new(PrintMotor::new("Left"));
-        let right_motor = Box::new(PrintMotor::new("Right"));
-        let digger_motor = Box::new(PrintMotor::new("Digger"));
-        let rails_motor = Box::new(PrintMotor::new("Rails"));
-        let dumper_motor = Box::new(PrintMotor::new("Dumper"));
+        let state = Arc::new(GlobalRobotState::new());
+        let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
+        let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));
+        let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder().get_motor()));
+        let left_actuator = Box::new(PrintMotor::new("LA", state.get_intake().get_left_actuator().get_motor()));
+        let right_actuator = Box::new(PrintMotor::new("RA", state.get_intake().get_right_actuator().get_motor()));
+        let dumper_motor = Box::new(PrintMotor::new("Dumper", state.get_dumper().get_motor()));
 
-        let left_group = MotorGroup::new(vec![left_motor]);
-        let right_group = MotorGroup::new(vec![right_motor]);
-        let digger_group = MotorGroup::new(vec![digger_motor]);
-        let dumper_group = MotorGroup::new(vec![dumper_motor]);
-        let rails_group = MotorGroup::new(vec![rails_motor]);
+        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
+        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
 
         Self {
             left_drive: left_group,
             right_drive: right_group,
             digger: digger_group,
-            rails: rails_group,
+            left_actuator,
+            right_actuator,
             dumper: dumper_group,
+            state,
         }
     }
 
     pub fn build(self) -> Robot {
         let (controller_sender, controller_receiver) = channel();
 
-        // Create Robot status
-        let robot_status = GlobalLifeStatus::new();
+        let robot_view = MechatronicsMessageSender::new(controller_sender, self.state.clone());
+        let bfr = comms::stage(robot_view, self.state.clone());
 
-        // Create RobotView
-        let robot_view = MechatronicsMessageSender::new(controller_sender, robot_status.clone());
+        let drive_train = DriveTrain::new(self.state.get_drive(), self.left_drive, self.right_drive, self.state.get_life());
 
-        // Create server
-        let bfr = comms::stage(robot_view);
+        let digger = Intake::new(self.digger, self.left_actuator, self.right_actuator, self.state.get_intake(), self.state.get_life());
 
-        // Create DriveTrain
-        let drive_train = DriveTrain::new(self.left_drive, self.right_drive, robot_status.clone());
+        let dumper = Dumper::new(self.state.get_life().clone(), self.dumper, self.state.get_dumper());
 
-        let digger = BucketLadder::new(self.digger, self.rails, robot_status.clone());
-
-        let dumper = Dumper::new(robot_status.clone(), self.dumper);
-
-        // Create Robot Controller
-        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, robot_status);
+        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, self.state.get_life());
 
         Robot::new(robot_controller, bfr)
     }

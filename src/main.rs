@@ -1,25 +1,31 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
 
+extern crate atomic;
 #[macro_use]
 extern crate log;
 #[macro_use]
 extern crate rocket;
+extern crate rocket_contrib;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_scope;
 extern crate slog_stdlog;
 extern crate slog_term;
-extern crate atomic;
 
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
 
-/// The devices module contains code for interfacing with various peripheral devices employed by the robot.
-/// This category includes sensors and motor controllers.
-pub mod devices;
+pub mod pinouts;
+
+pub mod motor_controllers;
+
+pub mod sensors;
 
 /// The comms module contains the code for running the HTTP server
 pub mod comms;

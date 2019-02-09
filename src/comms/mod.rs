@@ -1,31 +1,39 @@
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
+use rocket_contrib::json::Json;
+
 use crate::mechatronics::MechatronicsMessageSender;
+use crate::status::robot_state::GlobalRobotState;
+use crate::status::robot_state::RobotStateInstance;
 
 #[cfg(test)]
 mod tests;
 
 struct ServerState {
-    robot_controller: Mutex<MechatronicsMessageSender>,
+    messager: Mutex<MechatronicsMessageSender>,
+    state: Arc<GlobalRobotState>,
 }
 
 struct Drive {}
 
 /// Launches the server
-pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
+pub fn stage(messager: MechatronicsMessageSender, state: Arc<GlobalRobotState>) -> Rocket {
     let state = ServerState {
-        robot_controller: Mutex::new(robot_controller),
+        messager: Mutex::new(messager),
+        state,
     };
     rocket::ignite()
         .manage(state)
         .mount("/",
                routes![handle_drive,
+                              get_state,
                               handle_kill,
                               handle_revive,
                               handle_brake,
@@ -42,140 +50,88 @@ pub fn stage(robot_controller: MechatronicsMessageSender) -> Rocket {
                               files])
 }
 
-#[post("/robot/modes/<mode>")]
-fn switch_mode(mode: String,state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            match mode.as_str() {
-                "dig" => controller.switch_to_dig(),
-                "dump" => controller.switch_to_dump(),
-                "drive" => controller.switch_to_drive(),
-                _ => return Status::BadRequest,
-            }
+#[get("/robot/state")]
+fn get_state(state: State<ServerState>) -> Json<RobotStateInstance> {
+    Json(state.state.get_current_state())
+}
 
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
+
+#[post("/robot/modes/<mode>")]
+fn switch_mode(mode: String, state: State<ServerState>) -> Status {
+    let controller = state.messager.lock().unwrap();
+    match mode.as_str() {
+        "dig" => controller.switch_to_dig(),
+        "dump" => controller.switch_to_dump(),
+        "drive" => controller.switch_to_drive(),
+        _ => return Status::BadRequest,
     }
+
+    Status::Ok
 }
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => if controller.drive(left, right).is_err() {
-            Status::BadRequest
-        } else {
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
+    if state.messager.lock().unwrap().drive(left, right).is_err() {
+        Status::BadRequest
+    } else {
+        Status::Ok
     }
 }
 
+
 #[post("/robot/dumper/dump")]
-fn handle_dump(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.dump();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_dump(state: State<ServerState>) {
+    state.messager.lock().unwrap().dump();
 }
 
 #[post("/robot/dumper/reset")]
-fn handle_reset_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.reset_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_reset_dumper(state: State<ServerState>) {
+    state.messager.lock().unwrap().reset_dumper();
 }
 
 #[post("/robot/dumper/stop")]
-fn handle_stop_dumper(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.stop_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_dumper(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_dumper();
 }
 
 #[post("/robot/intake/rails/raise")]
-fn handle_raise_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.raise_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_raise_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().raise_ladder();
 }
 
 #[post("/robot/intake/rails/lower")]
-fn handle_lower_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.lower_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_lower_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().lower_ladder();
 }
 
 #[post("/robot/intake/rails/stop")]
-fn handle_stop_rails(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.stop_actuators();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_rails(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_actuators();
 }
 
 #[post("/robot/intake/digger/dig")]
-fn handle_dig(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.dig();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_dig(state: State<ServerState>) {
+    state.messager.lock().unwrap().dig();
 }
 
 #[post("/robot/intake/digger/stop")]
-fn handle_stop_digger(state: State<ServerState>) -> Status {
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.stop_digger();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_digger();
 }
 
 #[post("/robot/kill")]
-fn handle_kill(state: State<ServerState>) -> Status {
-    state.robot_controller.lock().unwrap().kill();
-    Status::Ok
-
+fn handle_kill(state: State<ServerState>) {
+    state.messager.lock().unwrap().kill();
 }
 
 #[post("/robot/drive_train/brake")]
-fn handle_brake(state: State<ServerState>) -> Status {
-    state.robot_controller.lock().unwrap().brake();
-    Status::Ok
+fn handle_brake(state: State<ServerState>) {
+    state.messager.lock().unwrap().brake();
 }
 
 #[post("/robot/revive")]
-fn handle_revive(state: State<ServerState>) -> Status {
-    state.robot_controller.lock().unwrap().revive();
-    Status::Ok
+fn handle_revive(state: State<ServerState>) {
+    state.messager.lock().unwrap().revive();
 }
 
 #[get("/")]
