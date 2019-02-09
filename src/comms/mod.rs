@@ -52,6 +52,51 @@ pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>) ->
                               files])
 }
 
+/// Responds with the current state of the robot, as a JSON object.
+/// ```javascript
+/// {
+///     "life": {
+///         "life": true
+///     },
+///     "drive": {
+///         "enabled": false,
+///         "left": {
+///             "speed": 0
+///         },
+///         "right": {
+///             "speed": 0
+///         }
+///     },
+///     "dumper": {
+///         "enabled": false,
+///         "motor": {
+///             "speed": 0
+///         }
+///     },
+///     "intake": {
+///         "left_actuator": {
+///             "upper": false,
+///             "lower": false,
+///             "motor": {
+///                 "speed": 0
+///             }
+///         },
+///         "right_actuator": {
+///             "upper": false,
+///             "lower": false,
+///             "motor": {
+///                 "speed": 0
+///             }
+///         },
+///         "ladder": {
+///             "motor": {
+///                 "speed": 0
+///             }
+///         },
+///         "enabled": false
+///     }
+/// }
+/// ```
 #[get("/robot/state")]
 fn get_state(state: State<ServerState>) -> Json<RobotStateInstance> {
     Json(state.state.get_current_state())
