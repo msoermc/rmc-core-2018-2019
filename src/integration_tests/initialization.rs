@@ -8,7 +8,7 @@ fn life() {
     let robot = builder.build();
     let _client = robot.launch_tester();
 
-    assert_eq!(true, state.get_life().get_current_state().get_life());
+    assert_eq!(true, state.get_current_state().get_life().get_life());
 }
 
 #[test]
