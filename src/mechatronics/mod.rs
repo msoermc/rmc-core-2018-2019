@@ -1,6 +1,8 @@
 use std::sync::Arc;
 use std::sync::mpsc::Sender;
-use std::sync::RwLock;
+
+use crate::status::life::GlobalLifeState;
+use crate::status::robot_state::GlobalRobotState;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -10,103 +12,64 @@ pub mod controller;
 /// That structure is used to manage the physical drive train and perform operations on it.
 pub mod drive_train;
 
-pub mod material_handling;
+pub mod dumper;
 
-/// Represents the current status of the robot.
-/// Many subsystems will check this before determining if it is safe to perform an operation.
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum RobotLifeStatus {
-    /// Indicates that the robot is in a normal operating state.
-    Alive,
-
-    /// Indicates that the robot has been disabled by the operators and that it is not
-    /// safe to perform many operations.
-    Dead,
-}
-
-#[derive(Clone)]
-pub struct GlobalLifeStatus {
-    status: Arc<RwLock<RobotLifeStatus>>
-}
-
-impl GlobalLifeStatus {
-    pub fn new() -> Self {
-        Self {
-            status: Arc::new(RwLock::new(RobotLifeStatus::Alive))
-        }
-    }
-
-    pub fn get_status(&self) -> RobotLifeStatus {
-        *self.status.read().unwrap()
-    }
-
-    pub fn is_alive(&self) -> bool {
-        self.get_status() == RobotLifeStatus::Alive
-    }
-
-    pub fn kill(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Dead;
-    }
-
-    pub fn revive(&self) {
-        *self.status.write().unwrap() = RobotLifeStatus::Alive;
-    }
-}
+pub mod bucket_ladder;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {
+    EnterDriveMode,
+    EnterDumpMode,
+    EnterDiggingMode,
     Drive(DriveCommandMessage),
     Brake,
-    EnableDrive,
-    DisableDrive,
-    EnableDumper,
-    DisableDumper,
-    EnableBucketLadder,
-    DisableBucketLadder,
     Dump,
     ResetDumper,
     StopDumper,
     Dig,
     StopDigging,
-    RaiseDigger,
-    LowerDigger,
-    FreezeDiggerHeight,
+    RaiseActuators,
+    LowerActuators,
+    StopActuators,
 }
 
-/// The `RobotView` struct is represents a view into the `RobotController`.
-/// It is used to send requests to the controller to perform operations.
-/// It is primarily used for inter thread messaging.
+impl MechatronicsCommand {
+    pub fn get_drive(self) -> Option<DriveCommandMessage> {
+        if let MechatronicsCommand::Drive(command) = self {
+            Some(command)
+        } else {
+            None
+        }
+    }
+}
+
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
-    robot_life_status: GlobalLifeStatus,
+    state: Arc<GlobalRobotState>,
 }
 
 impl MechatronicsMessageSender {
-    /// Constructs a view, using a supplied `Sender` to send messages to the `RobotController`.
-    /// The other end of the channel should be owned by the `RobotController`.
-    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: GlobalLifeStatus) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, state: Arc<GlobalRobotState>) -> Self {
         Self {
             channel,
-            robot_life_status,
+            state,
         }
     }
 
-    /// Reenables the robot, allowing motor control.
     pub fn revive(&self) {
-        self.robot_life_status.revive();
+        self.state.get_life().revive();
     }
 
-    /// Disables the robot, preventing motor control.
     pub fn kill(&self) {
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
-        self.robot_life_status.kill();
+        self.stop_actuators();
+        self.state.get_life().kill();
         self.brake();
         self.stop_digger();
         self.stop_dumper();
-        self.freeze_ladder_height();
+        self.stop_actuators();
     }
 
     /// Instructs the drive train to begin moving both sides at the provided speeds.
@@ -125,27 +88,21 @@ impl MechatronicsMessageSender {
         Ok(())
     }
 
+    pub fn switch_to_drive(&self) {
+        self.send_command(MechatronicsCommand::EnterDriveMode)
+    }
+
+    pub fn switch_to_dig(&self) {
+        self.send_command(MechatronicsCommand::EnterDiggingMode)
+    }
+
+    pub fn switch_to_dump(&self) {
+        self.send_command(MechatronicsCommand::EnterDumpMode)
+    }
+
     /// Instructs the drive train to begin braking, halting all motion.
     pub fn brake(&self) {
         self.send_command(MechatronicsCommand::Brake)
-    }
-
-    /// Reenables the drive train, allowing motor control.
-    pub fn enable_drive_train(&self) {
-        self.send_command(MechatronicsCommand::EnableDrive)
-    }
-
-    /// Disables the drive train, preventing motor control and causeing it to brake.
-    pub fn disable_drive_train(&self)  {
-        self.send_command(MechatronicsCommand::DisableDrive)
-    }
-
-    pub fn disable_dumper(&self) {
-        self.send_command(MechatronicsCommand::DisableDumper)
-    }
-
-    pub fn enable_dumper(&self) {
-        self.send_command(MechatronicsCommand::EnableDumper)
     }
 
     pub fn dump(&self) {
@@ -160,14 +117,6 @@ impl MechatronicsMessageSender {
         self.send_command(MechatronicsCommand::StopDumper)
     }
 
-    pub fn enable_ladder(&self) {
-        self.send_command(MechatronicsCommand::EnableBucketLadder)
-    }
-
-    pub fn disable_ladder(&self) {
-        self.send_command(MechatronicsCommand::DisableBucketLadder)
-    }
-
     pub fn dig(&self) {
         self.send_command(MechatronicsCommand::Dig)
     }
@@ -177,15 +126,15 @@ impl MechatronicsMessageSender {
     }
 
     pub fn raise_ladder(&self) {
-        self.send_command(MechatronicsCommand::RaiseDigger)
+        self.send_command(MechatronicsCommand::RaiseActuators)
     }
 
     pub fn lower_ladder(&self) {
-        self.send_command(MechatronicsCommand::LowerDigger)
+        self.send_command(MechatronicsCommand::LowerActuators)
     }
 
-    pub fn freeze_ladder_height(&self) {
-        self.send_command(MechatronicsCommand::FreezeDiggerHeight)
+    pub fn stop_actuators(&self) {
+        self.send_command(MechatronicsCommand::StopActuators)
     }
 
     #[inline]

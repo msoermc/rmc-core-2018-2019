@@ -45,6 +45,7 @@ input, button {
     fill: white;
     stroke: white;
 }
+
 .simple-print svg {
     height: 100%;
 }

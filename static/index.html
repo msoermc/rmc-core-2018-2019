@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Mission Control</title>
-    <link rel="stylesheet" href="/static/dark.css">
+    <link href="/static/dark.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/style.js"></script>
-    <script type="text/javascript" src="/static/requests.js"></script>
-    <script type="text/javascript" src="/static/gamepad.js"></script>
+    <script src="/static/style.js" type="text/javascript"></script>
+    <script src="/static/requests.js" type="text/javascript"></script>
+    <script src="/static/gamepad.js" type="text/javascript"></script>
 </head>
 <body>
+<h1>Mission Control</h1>
 <!--<audio autoplay>-->
 <!--    <source src="soviet-anthem.mp3" type="audio/mpeg">-->
 <!--    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.-->
 <!--</audio>-->
-<h1>Mission Control</h1>
-<script>
-    init();
-</script>
+<img height="480" id="media-view" type="image/jpeg" width="640">
 <div>
     <table>
         <tr>
             <td>
+                Video
+                <input id="video-selector" name="textField" type="text">
+            </td>
+            <td>
+                <button onclick="set_video()">Set Media</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 Left Speed
-                <input type="text" id="left-drive" name="textField">
+                <input id="left-drive" name="textField" type="text">
             </td>
             <td>
                 Right Speed
-                <input type="text" id="right-drive" name="textField">
+                <input id="right-drive" name="textField" type="text">
             </td>
             <td>
-                <button onclick="post_drive()">Drive</button>
+                <button onclick="post_drive_from_gui()">Drive</button>
             </td>
         </tr>
         <tr>

@@ -1,19 +1,45 @@
 language: rust
-
+dist: xenial
 rust:
-#  - stable
-#  - beta
   - nightly
+
+jobs:
+  include:
+    - stage: "Tests"
+      script: cargo test --verbose --all -- --test-threads=2
+    - script:
+        - cargo kcov
+        - bash <(curl -s https://codecov.io/bash)
+        - echo "Uploaded code coverage"
+
+
+
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
 
 cache:
   - cargo
-  - ccache
+  - directories:
+      - ${HOME}/kcov/
 
-#matrix:
-#  allow_failures:
-#    - rust:
-#        - stable
-#        - beta
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+    - PATH=$PATH:${HOME}/kcov/bin
+
+before_install:
+  - if [ ! -d "${HOME}/kcov/bin" ]; then wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz;
+    tar xzf master.tar.gz;
+    cd kcov-master;
+    mkdir build;
+    cd build;
+    cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov -GNinja ..;
+    ninja;
+    ninja install;
+    cd ../..;
+    rm -rf kcov-master;
+    fi
+  - if [ ! -f "${HOME}/.cargo/bin/cargo-kcov" ]; then cargo +nightly install --force cargo-kcov; fi
 
 addons:
   apt:
@@ -26,20 +52,3 @@ addons:
       - binutils-dev
       - libiberty-dev
       - ninja-build
-
-after_success: |
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz &&
-  cd kcov-master &&
-  mkdir build &&
-  cd build &&
-  cmake .. -GNinja &&
-  ninja -j4 &&
-  sudo ninja install &&
-  cd ../.. &&
-  rm -rf kcov-master &&
-  cargo install cargo-kcov &&
-  cargo clean &&
-  cargo kcov &&
-  bash <(curl -s https://codecov.io/bash) &&
-  echo "Uploaded code coverage"
