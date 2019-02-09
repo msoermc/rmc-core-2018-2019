@@ -10,7 +10,7 @@ use crate::robot_map::*;
 
 use super::*;
 
-const TIMEOUT: u64 = 100;
+const TIMEOUT_MILLIS: u64 = 500;
 
 #[cfg(test)]
 mod initialization;
