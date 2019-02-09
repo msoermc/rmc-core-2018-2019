@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["enable_pins","Runs a bash script which will enable the PWM drivers and configure the pins used by the program."]],"mod":[["motor_controllers",""],["sensors",""]]});

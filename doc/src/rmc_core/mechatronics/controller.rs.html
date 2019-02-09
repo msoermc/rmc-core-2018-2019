@@ -102,29 +102,46 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">Receiver</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">comms</span>::<span class="ident">ServerSender</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">framework</span>::<span class="ident">Runnable</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">bucket_ladder</span>::<span class="ident">Intake</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">drive_train</span>::<span class="ident">DriveTrain</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">GlobalLifeStatus</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">material_handling</span>::<span class="ident">bucket_ladder</span>::<span class="ident">BucketLadder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">material_handling</span>::<span class="ident">dumper</span>::<span class="ident">Dumper</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">dumper</span>::<span class="ident">Dumper</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">mechatronics</span>::<span class="ident">MechatronicsCommand</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">status</span>::<span class="ident">life</span>::<span class="ident">GlobalLifeState</span>;
+
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MechState</span> {
+    <span class="ident">Digging</span>,
+    <span class="ident">Driving</span>,
+    <span class="ident">Dumping</span>,
+}
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RobotController</span> {
-    <span class="ident">driver_station_view</span>: <span class="ident">ServerSender</span>,
     <span class="ident">command_receiver</span>: <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">MechatronicsCommand</span><span class="op">&gt;</span>,
     <span class="ident">drive_train</span>: <span class="ident">DriveTrain</span>,
     <span class="ident">dumper</span>: <span class="ident">Dumper</span>,
-    <span class="ident">ladder</span>: <span class="ident">BucketLadder</span>,
-    <span class="ident">life_status</span>: <span class="ident">GlobalLifeStatus</span>,
+    <span class="ident">intake</span>: <span class="ident">Intake</span>,
+    <span class="ident">life</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">GlobalLifeState</span><span class="op">&gt;</span>,
+    <span class="ident">state</span>: <span class="ident">MechState</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Runnable</span> <span class="kw">for</span> <span class="ident">RobotController</span> {
     <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Initializing controller!&quot;</span>);
+        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">MechState</span>::<span class="ident">Driving</span>;
+        <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">disable</span>();
+        <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">disable</span>();
+        <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">disable</span>();
     }
 
     <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
@@ -132,49 +149,50 @@
             <span class="self">self</span>.<span class="ident">handle_message</span>(<span class="ident">message</span>);
         }
 
-        <span class="self">self</span>.<span class="ident">process_states</span>();
+        <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">run_cycle</span>();
+        <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">run_cycle</span>();
+        <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">run_cycle</span>();
     }
 }
 
 <span class="kw">impl</span> <span class="ident">RobotController</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">driver_station_view</span>: <span class="ident">ServerSender</span>,
-               <span class="ident">command_receiver</span>: <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">MechatronicsCommand</span><span class="op">&gt;</span>,
-               <span class="ident">drive_train</span>: <span class="ident">DriveTrain</span>, <span class="ident">dumper</span>: <span class="ident">Dumper</span>, <span class="ident">ladder</span>: <span class="ident">BucketLadder</span>, <span class="ident">life_status</span>: <span class="ident">GlobalLifeStatus</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">command_receiver</span>: <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">MechatronicsCommand</span><span class="op">&gt;</span>,
+               <span class="ident">drive_train</span>: <span class="ident">DriveTrain</span>, <span class="ident">dumper</span>: <span class="ident">Dumper</span>, <span class="ident">intake</span>: <span class="ident">Intake</span>, <span class="ident">life</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">GlobalLifeState</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">driver_station_view</span>,
             <span class="ident">command_receiver</span>,
             <span class="ident">drive_train</span>,
             <span class="ident">dumper</span>,
-            <span class="ident">ladder</span>,
-            <span class="ident">life_status</span>,
+            <span class="ident">intake</span>,
+            <span class="ident">life</span>,
+            <span class="ident">state</span>: <span class="ident">MechState</span>::<span class="ident">Driving</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">handle_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="ident">MechatronicsCommand</span>) {
         <span class="kw">match</span> <span class="ident">message</span> {
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">Drive</span>(<span class="ident">drive_command</span>) <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">drive</span>(<span class="ident">drive_command</span>.<span class="ident">left_speed</span>, <span class="ident">drive_command</span>.<span class="ident">right_speed</span>);
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnterDriveMode</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">MechState</span>::<span class="ident">Driving</span>;
+                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">enable</span>();
+                <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">disable</span>();
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">disable</span>();
+            }
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnterDumpMode</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">MechState</span>::<span class="ident">Dumping</span>;
+                <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">enable</span>();
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">disable</span>();
+                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">disable</span>();
+            }
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnterDiggingMode</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">MechState</span>::<span class="ident">Digging</span>;
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">enable</span>();
+                <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">disable</span>();
+                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">disable</span>();
+            }
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">Drive</span>(<span class="ident">command</span>) <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">drive</span>(<span class="ident">command</span>.<span class="ident">left_speed</span>, <span class="ident">command</span>.<span class="ident">right_speed</span>);
             }
             <span class="ident">MechatronicsCommand</span>::<span class="ident">Brake</span> <span class="op">=&gt;</span> {
                 <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">brake</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnableDrive</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">enable</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">DisableDrive</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">drive_train</span>.<span class="ident">disable</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnableDumper</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">enable</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">DisableDumper</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">disable</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">EnableBucketLadder</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">enable</span>();
-            }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">DisableBucketLadder</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">disable</span>();
             }
             <span class="ident">MechatronicsCommand</span>::<span class="ident">Dump</span> <span class="op">=&gt;</span> {
                 <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">dump</span>();
@@ -186,25 +204,21 @@
                 <span class="self">self</span>.<span class="ident">dumper</span>.<span class="ident">stop</span>();
             }
             <span class="ident">MechatronicsCommand</span>::<span class="ident">Dig</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">dig</span>();
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">dig</span>()
             }
             <span class="ident">MechatronicsCommand</span>::<span class="ident">StopDigging</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">stop_digging</span>();
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">stop_ladder</span>();
             }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">RaiseDigger</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">raise</span>();
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">RaiseActuators</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">raise</span>();
             }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">LowerDigger</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">lower</span>();
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">LowerActuators</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">lower</span>();
             }
-            <span class="ident">MechatronicsCommand</span>::<span class="ident">FreezeDiggerHeight</span> <span class="op">=&gt;</span> {
-                <span class="self">self</span>.<span class="ident">ladder</span>.<span class="ident">stop_actuators</span>();
+            <span class="ident">MechatronicsCommand</span>::<span class="ident">StopActuators</span> <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">intake</span>.<span class="ident">stop_actuators</span>();
             }
         }
-    }
-
-    <span class="kw">fn</span> <span class="ident">process_states</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="comment">// TODO implement</span>
     }
 }
 </pre></div>

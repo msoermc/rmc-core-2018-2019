@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["MotorStateKind",""]],"mod":[["hover_board",""],["motor_group",""],["print_motor",""],["test_motor",""]],"struct":[["MotorState",""]],"trait":[["MotorController",""]]});

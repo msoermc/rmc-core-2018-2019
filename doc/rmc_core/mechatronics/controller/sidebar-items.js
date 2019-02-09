@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RobotController",""]]});
+initSidebarItems({"enum":[["MechState",""]],"struct":[["RobotController",""]]});
