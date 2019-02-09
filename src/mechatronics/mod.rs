@@ -34,7 +34,7 @@ pub enum MechatronicsCommand {
 }
 
 impl MechatronicsCommand {
-    pub fn get_drive(self) -> Option<DriveCommandMessage> {
+    pub fn drive(self) -> Option<DriveCommandMessage> {
         if let MechatronicsCommand::Drive(command) = self {
             Some(command)
         } else {
@@ -173,4 +173,22 @@ impl DriveCommandMessage {
 
 fn check_speed(speed: f32) -> bool {
     speed <= 1.0 && speed >= -1.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_drive_command() {
+        let wrong_command =  MechatronicsCommand::EnterDumpMode;
+        assert_eq!(None, wrong_command.drive());
+
+        let invalid = DriveCommandMessage::create(2.0, 2.0);
+        assert!(invalid.is_err());
+
+        let drive = DriveCommandMessage::create(1.0, 1.0).unwrap();
+        let valid = MechatronicsCommand::Drive(drive.clone());
+        assert_eq!(drive, valid.drive().unwrap());
+    }
 }
