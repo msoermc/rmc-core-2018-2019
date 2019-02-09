@@ -1,301 +1,145 @@
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
+use rocket_contrib::json::Json;
+
 use crate::mechatronics::MechatronicsMessageSender;
+use crate::status::robot_state::GlobalRobotState;
+use crate::status::robot_state::RobotStateInstance;
 
 #[cfg(test)]
 mod tests;
 
-/// A `SendableMessage` is an object that can be encoded as a message and sent off to another device.
-pub trait SendableMessage: Send {
-    fn encode(&self) -> String;
-}
-
-/// The `ServerSender` is a view into a `RobotCommunicator` that other threads/objects
-/// can use to request that messages be sent.
-#[derive(Clone, Debug)]
-pub struct ServerSender {
-    channel: Sender<Box<SendableMessage>>,
-}
-
-impl ServerSender {
-    /// Sends a message to the remote receiver and returns `Err(LogData)` if the channel hangs up.
-    pub fn send_message(&self, message: Box<SendableMessage>) {
-        self.channel.send(message).expect("Failed to send message!");
-    }
-
-    /// Constructs a new `ServerSender`
-    fn new(channel: Sender<Box<SendableMessage>>) -> Self {
-        Self {
-            channel
-        }
-    }
-}
-
 struct ServerState {
-    receiver: Mutex<Receiver<Box<SendableMessage>>>,
-    robot_controller: Mutex<MechatronicsMessageSender>,
+    messager: Mutex<MechatronicsMessageSender>,
+    state: Arc<GlobalRobotState>,
 }
 
 struct Drive {}
 
 /// Launches the server
-pub fn stage(robot_controller: MechatronicsMessageSender) -> (ServerSender, Rocket) {
-    let (send, recv) = channel();
-
-    let server_sender = ServerSender::new(send);
-
+pub fn stage(messager: MechatronicsMessageSender, state: Arc<GlobalRobotState>) -> Rocket {
     let state = ServerState {
-        receiver: Mutex::new(recv),
-        robot_controller: Mutex::new(robot_controller),
+        messager: Mutex::new(messager),
+        state,
     };
-    let rocket = rocket::ignite()
+    rocket::ignite()
         .manage(state)
         .mount("/",
                routes![handle_drive,
-                              handle_enable_drive,
-                              handle_disable_drive,
+                              get_state,
                               handle_kill,
                               handle_revive,
                               handle_brake,
                               handle_dig,
                               handle_dump,
-                              handle_enable_digger,
-                              handle_disable_digger,
-                              handle_enable_dumper,
-                              handle_disable_dumper,
                               handle_lower_digger,
                               handle_raise_digger,
                               handle_reset_dumper,
                               handle_stop_digger,
                               handle_stop_dumper,
                               handle_stop_rails,
+                              switch_mode,
                               index,
-                              files]);
+                              files])
+}
+
+#[get("/robot/state")]
+fn get_state(state: State<ServerState>) -> Json<RobotStateInstance> {
+    Json(state.state.get_current_state())
+}
 
 
-    (server_sender, rocket)
+#[post("/robot/modes/<mode>")]
+fn switch_mode(mode: String, state: State<ServerState>) -> Status {
+    let controller = state.messager.lock().unwrap();
+    match mode.as_str() {
+        "dig" => controller.switch_to_dig(),
+        "dump" => controller.switch_to_dump(),
+        "drive" => controller.switch_to_drive(),
+        _ => return Status::BadRequest,
+    }
+
+    Status::Ok
 }
 
 #[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
-    info!("Received drive message: [{}, {}]", left, right);
-    match state.robot_controller.lock() {
-        Ok(controller) => if controller.drive(left, right).is_err() {
-            Status::BadRequest
-        } else {
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
+    if state.messager.lock().unwrap().drive(left, right).is_err() {
+        Status::BadRequest
+    } else {
+        Status::Ok
     }
 }
 
-#[post("/robot/drive_train/enable")]
-fn handle_enable_drive(state: State<ServerState>) -> Status {
-    info!("Received enable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/drive_train/disable")]
-fn handle_disable_drive(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_drive_train();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/enable")]
-fn handle_enable_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/dumper/disable")]
-fn handle_disable_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
 
 #[post("/robot/dumper/dump")]
-fn handle_dump(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.dump();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_dump(state: State<ServerState>) {
+    state.messager.lock().unwrap().dump();
 }
 
 #[post("/robot/dumper/reset")]
-fn handle_reset_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.reset_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_reset_dumper(state: State<ServerState>) {
+    state.messager.lock().unwrap().reset_dumper();
 }
 
 #[post("/robot/dumper/stop")]
-fn handle_stop_dumper(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.stop_dumper();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/intake/enable")]
-fn handle_enable_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.enable_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
-}
-
-#[post("/robot/intake/disable")]
-fn handle_disable_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.disable_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_dumper(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_dumper();
 }
 
 #[post("/robot/intake/rails/raise")]
-fn handle_raise_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.raise_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_raise_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().raise_ladder();
 }
 
 #[post("/robot/intake/rails/lower")]
-fn handle_lower_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.lower_ladder();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_lower_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().lower_ladder();
 }
 
 #[post("/robot/intake/rails/stop")]
-fn handle_stop_rails(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.freeze_ladder_height();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_rails(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_actuators();
 }
 
 #[post("/robot/intake/digger/dig")]
-fn handle_dig(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.dig();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_dig(state: State<ServerState>) {
+    state.messager.lock().unwrap().dig();
 }
 
 #[post("/robot/intake/digger/stop")]
-fn handle_stop_digger(state: State<ServerState>) -> Status {
-    info!("Received disable drive message");
-    match state.robot_controller.lock() {
-        Ok(controller) => {
-            controller.stop_digger();
-            Status::Ok
-        }
-        Err(_) => Status::InternalServerError
-    }
+fn handle_stop_digger(state: State<ServerState>) {
+    state.messager.lock().unwrap().stop_digger();
 }
 
 #[post("/robot/kill")]
-fn handle_kill(state: State<ServerState>) -> Status {
-    info!("Received kill message");
-    state.robot_controller.lock().unwrap().kill();
-    Status::Ok
-
+fn handle_kill(state: State<ServerState>) {
+    state.messager.lock().unwrap().kill();
 }
 
 #[post("/robot/drive_train/brake")]
-fn handle_brake(state: State<ServerState>) -> Status {
-    info!("Received brake message");
-    state.robot_controller.lock().unwrap().brake();
-    Status::Ok
+fn handle_brake(state: State<ServerState>) {
+    state.messager.lock().unwrap().brake();
 }
 
 #[post("/robot/revive")]
-fn handle_revive(state: State<ServerState>) -> Status {
-    info!("Received revive message");
-    state.robot_controller.lock().unwrap().revive();
-    Status::Ok
+fn handle_revive(state: State<ServerState>) {
+    state.messager.lock().unwrap().revive();
 }
 
 #[get("/")]
 fn index() -> Option<NamedFile> {
-    info!("Received static request for index!");
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
 #[get("/static/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
-    info!("Received static request: {:?}", file);
     NamedFile::open(Path::new("static/").join(file)).ok()
 }

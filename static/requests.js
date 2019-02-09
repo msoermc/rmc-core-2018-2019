@@ -1,8 +1,7 @@
-function post_drive() {
+function post_drive_from_gui() {
     let left = $("#left-drive").val();
     let right = $("#right-drive").val();
-    let url = "/robot/drive_train/drive/" + left + "/" + right;
-    post_command(url);
+    post_drive(left, right)
 }
 
 function post_kill() {
@@ -27,6 +26,11 @@ function post_disable_drive_train() {
 
 function post_brake() {
     let url = "/robot/drive_train/brake";
+    post_command(url);
+}
+
+function post_drive(left, right) {
+    let url = "/robot/drive_train/drive/" + left + "/" + right;
     post_command(url);
 }
 
