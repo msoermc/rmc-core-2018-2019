@@ -53,6 +53,8 @@ pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>) ->
 }
 
 /// Responds with the current state of the robot, as a JSON object.
+///
+/// Example:
 /// ```javascript
 /// {
 ///     "life": {
