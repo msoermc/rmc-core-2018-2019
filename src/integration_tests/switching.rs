@@ -62,6 +62,8 @@ fn switch_dig_to_drive() {
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
+    sleep(Duration::from_millis(TIMEOUT));
+
     let response = client.post("/robot/modes/drive").dispatch();
     assert_eq!(Status::Ok, response.status());
 
@@ -82,6 +84,8 @@ fn switch_dig_to_dump() {
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
+    sleep(Duration::from_millis(TIMEOUT));
+
     let response = client.post("/robot/modes/dump").dispatch();
     assert_eq!(Status::Ok, response.status());
     sleep(Duration::from_millis(TIMEOUT));
@@ -100,6 +104,8 @@ fn switch_drive_to_dump() {
     let client = robot.launch_tester();
 
     let _response = client.post("/robot/modes/drive").dispatch();
+
+    sleep(Duration::from_millis(TIMEOUT));
 
     let response = client.post("/robot/modes/dump").dispatch();
     assert_eq!(Status::Ok, response.status());
@@ -120,6 +126,8 @@ fn switch_drive_to_dig() {
 
     let _response = client.post("/robot/modes/drive").dispatch();
 
+    sleep(Duration::from_millis(TIMEOUT));
+
     let response = client.post("/robot/modes/dig").dispatch();
     assert_eq!(Status::Ok, response.status());
     sleep(Duration::from_millis(TIMEOUT));
@@ -138,6 +146,8 @@ fn switch_dump_to_drive() {
     let client = robot.launch_tester();
 
     let _response = client.post("/robot/modes/dump").dispatch();
+
+    sleep(Duration::from_millis(TIMEOUT));
 
     let response = client.post("/robot/modes/drive").dispatch();
     assert_eq!(Status::Ok, response.status());
@@ -158,6 +168,8 @@ fn switch_dump_to_dig() {
     let client = robot.launch_tester();
 
     let _response = client.post("/robot/modes/dump").dispatch();
+
+    sleep(Duration::from_millis(TIMEOUT));
 
     let response = client.post("/robot/modes/dig").dispatch();
     assert_eq!(Status::Ok, response.status());
