@@ -80,3 +80,41 @@ fn stop_digger() {
     assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, state.get_current_state().get_intake().get_ladder().get_motor().get_speed());
 }
+
+#[test]
+fn raise() {
+    let mut builder = RobotBuilder::new();
+    let state = builder.get_state();
+    builder.with_test();
+    let robot = builder.build();
+    let client = robot.launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    let response = client.post("/robot/intake/rails/raise").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+}
+
+#[test]
+fn lower() {
+    let mut builder = RobotBuilder::new();
+    let state = builder.get_state();
+    builder.with_test();
+    let robot = builder.build();
+    let client = robot.launch_tester();
+
+    client.post("/robot/modes/dig").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    let response = client.post("/robot/intake/rails/lower").dispatch();
+    sleep(Duration::from_millis(TIMEOUT));
+
+    assert_eq!(Status::Ok, response.status());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+}
