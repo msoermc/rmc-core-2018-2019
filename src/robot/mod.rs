@@ -16,6 +16,7 @@ use crate::motor_controllers::hover_board::HoverBoardMotor;
 use crate::motor_controllers::motor_group::MotorGroup;
 use crate::motor_controllers::MotorController;
 use crate::motor_controllers::print_motor::PrintMotor;
+use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::enable_pins;
 use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
 use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
@@ -29,25 +30,34 @@ pub struct RobotBuilder {
     left_actuator: Box<MotorController>,
     right_actuator: Box<MotorController>,
     dumper: Box<MotorController>,
-    state: GlobalRobotState,
+    state: Arc<GlobalRobotState>,
 }
 
 impl RobotBuilder {
-    pub fn use_custom_drive(&mut self, left: Box<MotorController>, right: Box<MotorController>) {
-        self.left_drive = left;
-        self.right_drive = right;
+    pub fn get_state(&self) -> Arc<GlobalRobotState> {
+        self.state.clone()
     }
 
-    pub fn use_custom_intake(&mut self, digger: Box<MotorController>,
-                             left_actuator: Box<MotorController>,
-                             right_actuator: Box<MotorController>) {
-        self.digger = digger;
+    pub fn with_test(&mut self) {
+        let state = &self.state;
+        let left_motor = Box::new(TestMotor::new(state.get_drive().get_left()));
+        let right_motor = Box::new(TestMotor::new(state.get_drive().get_right()));
+        let digger_motor = Box::new(TestMotor::new(state.get_intake().get_ladder().get_motor()));
+        let left_actuator = Box::new(TestMotor::new(state.get_intake().get_left_actuator().get_motor()));
+        let right_actuator = Box::new(TestMotor::new(state.get_intake().get_right_actuator().get_motor()));
+        let dumper_motor = Box::new(TestMotor::new(state.get_dumper().get_motor()));
+
+        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
+        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
+
         self.left_actuator = left_actuator;
-        self.right_actuator = right_actuator
-    }
-
-    pub fn use_custom_dumper(&mut self, dumper: Box<MotorController>) {
-        self.dumper = dumper;
+        self.right_actuator = right_actuator;
+        self.left_drive = left_group;
+        self.right_drive = right_group;
+        self.digger = digger_group;
+        self.dumper = dumper_group;
     }
 
     pub fn use_real_drive(&mut self) {
@@ -73,7 +83,7 @@ impl RobotBuilder {
     }
 
     pub fn new() -> Self {
-        let state = GlobalRobotState::new();
+        let state = Arc::new(GlobalRobotState::new());
         let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
         let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));
         let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder().get_motor()));

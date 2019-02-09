@@ -12,3 +12,5 @@ use super::*;
 
 const TIMEOUT: u64 = 100;
 
+#[cfg(test)]
+mod initialization;
