@@ -16,17 +16,19 @@ use crate::status::robot_state::RobotStateInstance;
 #[cfg(test)]
 mod tests;
 
+/// Contains all of the state elements used by the server.
 struct ServerState {
+    /// A sender object which will send messages to the mechatronics controller.
     messager: Mutex<MechatronicsMessageSender>,
+
+    /// A struct containing the entire state of the robot and all of it's component systems.
     state: Arc<GlobalRobotState>,
 }
 
-struct Drive {}
-
-/// Launches the server
-pub fn stage(messager: MechatronicsMessageSender, state: Arc<GlobalRobotState>) -> Rocket {
+/// Prepares the server for launch.
+pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>) -> Rocket {
     let state = ServerState {
-        messager: Mutex::new(messager),
+        messager: Mutex::new(sender),
         state,
     };
     rocket::ignite()
