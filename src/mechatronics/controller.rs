@@ -27,7 +27,7 @@ impl Runnable for RobotController {
     fn init(&mut self) {
         info!("Initializing controller!");
         self.state = MechState::Driving;
-        self.drive_train.enable();
+        self.drive_train.disable();
         self.dumper.disable();
         self.intake.disable();
     }

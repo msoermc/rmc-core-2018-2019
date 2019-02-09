@@ -17,3 +17,6 @@ mod initialization;
 
 #[cfg(test)]
 mod mechatronics;
+
+#[cfg(test)]
+mod switching;

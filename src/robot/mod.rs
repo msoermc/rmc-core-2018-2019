@@ -110,18 +110,16 @@ impl RobotBuilder {
     pub fn build(self) -> Robot {
         let (controller_sender, controller_receiver) = channel();
 
-        let robot_state = Arc::new(GlobalRobotState::new());
+        let robot_view = MechatronicsMessageSender::new(controller_sender, self.state.clone());
+        let bfr = comms::stage(robot_view, self.state.clone());
 
-        let robot_view = MechatronicsMessageSender::new(controller_sender, robot_state.clone());
-        let bfr = comms::stage(robot_view, robot_state.clone());
+        let drive_train = DriveTrain::new(self.state.get_drive(), self.left_drive, self.right_drive, self.state.get_life());
 
-        let drive_train = DriveTrain::new(robot_state.get_drive(), self.left_drive, self.right_drive, robot_state.get_life());
+        let digger = Intake::new(self.digger, self.left_actuator, self.right_actuator, self.state.get_intake(), self.state.get_life());
 
-        let digger = Intake::new(self.digger, self.left_actuator, self.right_actuator, robot_state.get_intake(), robot_state.get_life());
+        let dumper = Dumper::new(self.state.get_life().clone(), self.dumper, self.state.get_dumper());
 
-        let dumper = Dumper::new(robot_state.get_life().clone(), self.dumper, robot_state.get_dumper());
-
-        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, robot_state.get_life());
+        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, self.state.get_life());
 
         Robot::new(robot_controller, bfr)
     }

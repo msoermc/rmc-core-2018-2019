@@ -11,6 +11,8 @@ fn test_drive() {
 
     client.post("/robot/modes/drive").dispatch();
 
-    let response = client.post("/robot/drive_train/drive/1/1").dispatch();
+    let response = client.post("/robot/drive_train/drive/1/-1").dispatch();
     assert_eq!(Status::Ok, response.status());
+    assert_eq!(1.0, state.get_drive().get_left().get_current_state().get_speed());
+    assert_eq!(-1.0, state.get_drive().get_right().get_current_state().get_speed());
 }
