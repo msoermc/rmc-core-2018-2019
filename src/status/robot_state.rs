@@ -70,4 +70,20 @@ impl RobotStateInstance {
             intake,
         }
     }
+
+    pub fn get_life(&self) -> &LifeStateInstance {
+        &self.life
+    }
+
+    pub fn get_drive(&self) -> &DriveTrainStateInstance {
+        &self.drive
+    }
+
+    pub fn get_dumper(&self) -> &DumperStateInstance {
+        &self.dumper
+    }
+
+    pub fn get_intake(&self) -> &IntakeStateInstance {
+        &self.intake
+    }
 }

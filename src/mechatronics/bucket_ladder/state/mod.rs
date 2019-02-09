@@ -32,12 +32,12 @@ impl GlobalIntakeState {
             self.left_actuator.get_current_state(),
             self.right_actuator.get_current_state(),
             self.ladder.get_current_state(),
-            self.enabled.load(Ordering::Relaxed),
+            self.enabled.load(Ordering::SeqCst),
         )
     }
 
     pub fn set_enabled(&self, enabled: bool) {
-        self.enabled.store(enabled, Ordering::Relaxed);
+        self.enabled.store(enabled, Ordering::SeqCst);
     }
 
     pub fn get_left_actuator(&self) -> Arc<GlobalActuatorState> {

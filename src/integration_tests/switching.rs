@@ -9,10 +9,9 @@ fn drive() {
     let client = robot.launch_tester();
 
     let response = client.post("/robot/modes/drive").dispatch();
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+
     assert_eq!(Status::Ok, response.status());
-
-    sleep(Duration::from_millis(TIMEOUT));
-
     assert_eq!(true, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -27,9 +26,9 @@ fn dump() {
     let client = robot.launch_tester();
 
     let response = client.post("/robot/modes/dump").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(true, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -44,9 +43,9 @@ fn dig() {
     let client = robot.launch_tester();
 
     let response = client.post("/robot/modes/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(true, state.get_intake().get_current_state().get_enabled());
@@ -62,13 +61,13 @@ fn switch_dig_to_drive() {
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/drive").dispatch();
+
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+
     assert_eq!(Status::Ok, response.status());
-
-    sleep(Duration::from_millis(TIMEOUT));
-
     assert_eq!(true, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -84,12 +83,12 @@ fn switch_dig_to_dump() {
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/dump").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(true, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -105,12 +104,12 @@ fn switch_drive_to_dump() {
 
     let _response = client.post("/robot/modes/drive").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/dump").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(true, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -126,12 +125,12 @@ fn switch_drive_to_dig() {
 
     let _response = client.post("/robot/modes/drive").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(true, state.get_intake().get_current_state().get_enabled());
@@ -147,13 +146,13 @@ fn switch_dump_to_drive() {
 
     let _response = client.post("/robot/modes/dump").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/drive").dispatch();
+
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+
     assert_eq!(Status::Ok, response.status());
-
-    sleep(Duration::from_millis(TIMEOUT));
-
     assert_eq!(true, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(false, state.get_intake().get_current_state().get_enabled());
@@ -169,12 +168,12 @@ fn switch_dump_to_dig() {
 
     let _response = client.post("/robot/modes/dump").dispatch();
 
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/modes/dig").dispatch();
-    assert_eq!(Status::Ok, response.status());
-    sleep(Duration::from_millis(TIMEOUT));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
+    assert_eq!(Status::Ok, response.status());
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
     assert_eq!(false, state.get_dumper().get_current_state().get_enabled());
     assert_eq!(true, state.get_intake().get_current_state().get_enabled());
