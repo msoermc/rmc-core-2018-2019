@@ -1,6 +1,8 @@
+use std::sync::Arc;
 use std::sync::mpsc::Sender;
 
-use crate::status::life::GlobalLifeStatus;
+use crate::status::life::GlobalLifeState;
+use crate::status::robot_state::GlobalRobotState;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -10,7 +12,9 @@ pub mod controller;
 /// That structure is used to manage the physical drive train and perform operations on it.
 pub mod drive_train;
 
-pub mod material_handling;
+pub mod dumper;
+
+pub mod bucket_ladder;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MechatronicsCommand {
@@ -29,36 +33,39 @@ pub enum MechatronicsCommand {
     StopActuators,
 }
 
-/// The `RobotView` struct is represents a view into the `RobotController`.
-/// It is used to send requests to the controller to perform operations.
-/// It is primarily used for inter thread messaging.
+impl MechatronicsCommand {
+    pub fn drive(self) -> Option<DriveCommandMessage> {
+        if let MechatronicsCommand::Drive(command) = self {
+            Some(command)
+        } else {
+            None
+        }
+    }
+}
+
 pub struct MechatronicsMessageSender {
     channel: Sender<MechatronicsCommand>,
-    robot_life_status: GlobalLifeStatus,
+    state: Arc<GlobalRobotState>,
 }
 
 impl MechatronicsMessageSender {
-    /// Constructs a view, using a supplied `Sender` to send messages to the `RobotController`.
-    /// The other end of the channel should be owned by the `RobotController`.
-    pub fn new(channel: Sender<MechatronicsCommand>, robot_life_status: GlobalLifeStatus) -> Self {
+    pub fn new(channel: Sender<MechatronicsCommand>, state: Arc<GlobalRobotState>) -> Self {
         Self {
             channel,
-            robot_life_status,
+            state,
         }
     }
 
-    /// Reenables the robot, allowing motor control.
     pub fn revive(&self) {
-        self.robot_life_status.revive();
+        self.state.get_life().revive();
     }
 
-    /// Disables the robot, preventing motor control.
     pub fn kill(&self) {
         self.brake();
         self.stop_digger();
         self.stop_dumper();
         self.stop_actuators();
-        self.robot_life_status.kill();
+        self.state.get_life().kill();
         self.brake();
         self.stop_digger();
         self.stop_dumper();
@@ -166,4 +173,22 @@ impl DriveCommandMessage {
 
 fn check_speed(speed: f32) -> bool {
     speed <= 1.0 && speed >= -1.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_drive_command() {
+        let wrong_command =  MechatronicsCommand::EnterDumpMode;
+        assert_eq!(None, wrong_command.drive());
+
+        let invalid = DriveCommandMessage::create(2.0, 2.0);
+        assert!(invalid.is_err());
+
+        let drive = DriveCommandMessage::create(1.0, 1.0).unwrap();
+        let valid = MechatronicsCommand::Drive(drive.clone());
+        assert_eq!(drive, valid.drive().unwrap());
+    }
 }
