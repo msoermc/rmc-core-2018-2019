@@ -6,6 +6,7 @@ use slog_scope::GlobalLoggerGuard;
 
 use crate::robot_map::*;
 
+/// Launches the logger, returning back a global guard object that <b>MUST NOT BE DROPPED!</b>
 pub fn launch_logger() -> GlobalLoggerGuard {
     let term_decorator = slog_term::TermDecorator::new().force_color().build();
     let term_drain = slog_term::FullFormat::new(term_decorator).build().fuse();
