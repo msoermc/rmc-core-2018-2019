@@ -1,7 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Drive Train Motor Controller Pins
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 use slog::Level;
 
 // P9.14
@@ -40,8 +36,7 @@ pub const REAR_LEFT_DIRECTION: u64 = 27;
 pub const REAR_RIGHT_DIRECTION_STRING: &str = "P8_11";
 pub const REAR_RIGHT_DIRECTION: u64 = 45;
 
-/// The address for the tcp server used to communicate with the driver station.
-/// Zero indicates that the server will accept connections from any IP.
+/// The address for the our HTTP server.
 pub const ADDRESS: &str = "0.0.0.0";
 
 /// The port used for communicating with the driver station.
@@ -51,12 +46,17 @@ pub const PORT: u16 = 2401;
 /// If the folder does not exist, the program will create it.
 pub const LOG_PATH: &str = "./rmc.log";
 
+/// The lowest level of logs which will be displayed to the user.
 pub const LOG_FILTER_LEVEL: Level = Level::Info;
 
+/// The speed given to the motors as they dig.
 pub const DIGGING_RATE: f32 = 1.0;
 
+/// The speed at which the actuators move.
 pub const MH_ACTUATOR_RATE: f32 = 1.0;
 
+/// The speed used by the motors to dump material.
 pub const DUMPING_RATE: f32 = 1.0;
 
+/// The speed used by the dumper to reset it's position.
 pub const DUMPER_RESET_RATE: f32 = -1.0;
