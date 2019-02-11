@@ -5,10 +5,20 @@ function drive_from_form() {
 }
 
 function get_state() {
-    fetch("/robot/state", {method: "GET"})
-        .then(function (value) {
+    fetch("/robot/state",
+        {
+            method: "GET",
+            headers: {
+                Accept: 'application/json',
+            },
+        },
+    )
+        .then(response => {
             // TODO find a better way to display state.
-            $("#state-view").text(JSON.stringify(value))
+            response.json().then(value => {
+                $("#state-view").text(JSON.stringify(value));
+                console.log(JSON.stringify(value));
+            })
 
         })
         .catch(function (reason) {
