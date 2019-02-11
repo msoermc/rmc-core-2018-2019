@@ -1,23 +1,14 @@
-[development]
-address = "localhost"
+[global]
+address = "0.0.0.0"
 port = 2401
 workers = 1
+log = "off"
 keep_alive = 5
-log = "normal"
 limits = { forms = 32768 }
+
+[development]
+
 
 [staging]
-address = "0.0.0.0"
-port = 2401
-workers = 1
-keep_alive = 5
-log = "normal"
-limits = { forms = 32768 }
 
 [production]
-address = "0.0.0.0"
-port = 2401
-workers = 1
-keep_alive = 5
-log = "critical"
-limits = { forms = 32768 }

@@ -36,12 +36,6 @@ pub const REAR_LEFT_DIRECTION: u64 = 27;
 pub const REAR_RIGHT_DIRECTION_STRING: &str = "P8_11";
 pub const REAR_RIGHT_DIRECTION: u64 = 45;
 
-/// The address for the our HTTP server.
-pub const ADDRESS: &str = "0.0.0.0";
-
-/// The port used for communicating with the driver station.
-pub const PORT: u16 = 2401;
-
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.
 pub const LOG_PATH: &str = "./rmc.log";
