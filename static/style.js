@@ -11,6 +11,12 @@ function set_background() {
 }
 
 function set_video() {
-    $("#media-view").attr("src", "http://127.0.0.1:1776/video_" + $("#video-selector").val());
-    $("#media-view").load();
+    let media = $("#media-view");
+    media.attr("src", "http://127.0.0.1:1776/video_" + $("#video-selector").val());
+    try {
+        media.load();
+    } catch (e) {
+        media.empty();
+        console.log(e);
+    }
 }
