@@ -4,7 +4,6 @@ port = 2401
 workers = 1
 keep_alive = 5
 log = "normal"
-secret_key = [randomly generated at launch]
 limits = { forms = 32768 }
 
 [staging]
@@ -13,7 +12,6 @@ port = 2401
 workers = 1
 keep_alive = 5
 log = "normal"
-secret_key = [randomly generated at launch]
 limits = { forms = 32768 }
 
 [production]
@@ -22,5 +20,4 @@ port = 2401
 workers = 1
 keep_alive = 5
 log = "critical"
-secret_key = [randomly generated at launch]
 limits = { forms = 32768 }
