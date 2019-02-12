@@ -9,7 +9,7 @@ fn controller_cycles_per_second() {
     builder.with_test();
     builder.with_bench();
     let robot = builder.build();
-    spawn(|| robot.launch_tester());
+    spawn(|| robot.launch());
 
     sleep(Duration::from_secs(2));
     let rate = state.get_cycles_per_second().load(Ordering::SeqCst);

@@ -17,6 +17,7 @@ extern crate slog_scope;
 extern crate slog_stdlog;
 extern crate slog_term;
 
+/// Contains code for benchmarking the performance of the system.
 pub mod benchmarking;
 
 /// The framework module contains traits and interfaces key to the entire system.

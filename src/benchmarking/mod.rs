@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 use std::thread::sleep;
 use std::time::Duration;
-use std::sync::atomic::Ordering;
 
 /// Used for benchmarking the controller
 pub struct ControllerBench {
