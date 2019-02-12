@@ -62,6 +62,7 @@ mod integration_tests;
 fn main() {
     let _logging_guard = logging::launch_logger();
     let mut robot_builder = robot::RobotBuilder::new();
+    robot_builder.with_bench();
     //robot_builder.add_real_drive();
     robot_builder.build().launch();
 }

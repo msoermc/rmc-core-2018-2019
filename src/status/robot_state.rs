@@ -1,4 +1,6 @@
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::mechatronics::bucket_ladder::state::IntakeStateInstance;
@@ -14,6 +16,8 @@ pub struct GlobalRobotState {
     drive: Arc<GlobalDriveTrainState>,
     dumper: Arc<GlobalDumperState>,
     intake: Arc<GlobalIntakeState>,
+    cycles_per_sec: Arc<AtomicUsize>,
+    cycle_counter: Arc<AtomicUsize>,
 }
 
 impl GlobalRobotState {
@@ -23,6 +27,8 @@ impl GlobalRobotState {
             drive: Arc::new(GlobalDriveTrainState::new()),
             dumper: Arc::new(GlobalDumperState::new()),
             intake: Arc::new(GlobalIntakeState::new()),
+            cycles_per_sec: Arc::new(AtomicUsize::new(0)),
+            cycle_counter: Arc::new(AtomicUsize::new(0)),
         }
     }
 
@@ -48,7 +54,17 @@ impl GlobalRobotState {
             self.drive.get_current_state(),
             self.dumper.get_current_state(),
             self.intake.get_current_state(),
+            self.cycles_per_sec.load(Ordering::Relaxed),
+            self.cycle_counter.load(Ordering::Relaxed),
         )
+    }
+
+    pub fn get_cycles_per_second(&self) -> Arc<AtomicUsize> {
+        self.cycles_per_sec.clone()
+    }
+
+    pub fn get_cycle_counter(&self) -> Arc<AtomicUsize> {
+        self.cycle_counter.clone()
     }
 }
 
@@ -58,16 +74,20 @@ pub struct RobotStateInstance {
     drive: DriveTrainStateInstance,
     dumper: DumperStateInstance,
     intake: IntakeStateInstance,
+    cycles_per_sec: usize,
+    cycle_counter: usize,
 }
 
 impl RobotStateInstance {
     pub fn new(life: LifeStateInstance, drive: DriveTrainStateInstance, dumper: DumperStateInstance,
-               intake: IntakeStateInstance) -> Self {
+               intake: IntakeStateInstance, cycles_per_sec: usize, cycle_counter: usize) -> Self {
         Self {
             life,
             drive,
             dumper,
             intake,
+            cycles_per_sec,
+            cycle_counter,
         }
     }
 
@@ -85,5 +105,13 @@ impl RobotStateInstance {
 
     pub fn get_intake(&self) -> &IntakeStateInstance {
         &self.intake
+    }
+
+    pub fn get_cycles_per_second(&self) -> usize {
+        self.cycles_per_sec
+    }
+
+    pub fn get_cycles_counter(&self) -> usize {
+        self.cycle_counter
     }
 }

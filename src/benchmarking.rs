@@ -27,10 +27,13 @@ impl ControllerBench {
     pub fn launch(mut self) {
         loop {
             sleep(Duration::from_secs(1));
-            let new_count = self.controller_cycle_counter.load(Ordering::Relaxed);
+            let new_count = self.controller_cycle_counter.load(Ordering::SeqCst);
+            self.controller_cycle_counter.store(0, Ordering::SeqCst);
             self.total += new_count;
             self.total_secs += 1;
-            self.average.store(self.total / self.total_secs, Ordering::Relaxed);
+            let average = self.total / self.total_secs;
+            self.average.store(average, Ordering::SeqCst);
+            info!("Cycle rate: {}", average);
         }
     }
 }
