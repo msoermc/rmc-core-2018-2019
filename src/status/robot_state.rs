@@ -106,12 +106,4 @@ impl RobotStateInstance {
     pub fn get_intake(&self) -> &IntakeStateInstance {
         &self.intake
     }
-
-    pub fn get_cycles_per_second(&self) -> usize {
-        self.cycles_per_sec
-    }
-
-    pub fn get_cycles_counter(&self) -> usize {
-        self.cycle_counter
-    }
 }
