@@ -64,6 +64,18 @@ function stop_digging() {
     post_command("/robot/intake/digger/stop");
 }
 
+function dump() {
+    post_command("/robot/intake/dumper/dump");
+}
+
+function reset_dumper() {
+    post_command("/robot/intake/dumper/reset");
+}
+
+function stop_dumping() {
+    post_command("/robot/intake/dumper/stop");
+}
+
 function raise_actuators() {
     post_command("/robot/intake/rails/raise");
 }
@@ -89,4 +101,5 @@ function post_command(url) {
         .catch(function (reason) {
             alert("Malformed request!");
         });
+    get_state();
 }
