@@ -17,6 +17,9 @@ extern crate slog_scope;
 extern crate slog_stdlog;
 extern crate slog_term;
 
+/// Contains all code responsible for monitoring system power.
+pub mod power;
+
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;

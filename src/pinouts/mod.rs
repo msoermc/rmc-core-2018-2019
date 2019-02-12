@@ -31,6 +31,10 @@ pub trait AnalogOutput: Send {
     fn set_value(&mut self, val: f32) -> Result<(), String>;
 }
 
+pub trait AnalogInput: Send {
+    fn get_value(&mut self) -> Option<f32>;
+}
+
 pub struct TestPin {
     state: Arc<AtomicBool>,
 }
