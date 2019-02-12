@@ -1,5 +1,6 @@
 use super::*;
 use std::sync::atomic::Ordering;
+use std::thread::spawn;
 
 #[test]
 fn controller_cycles_per_second() {
@@ -8,7 +9,7 @@ fn controller_cycles_per_second() {
     builder.with_test();
     builder.with_bench();
     let robot = builder.build();
-    let _client = robot.launch_tester();
+    spawn(|| robot.launch_tester());
 
     sleep(Duration::from_secs(2));
     let rate = state.get_cycles_per_second().load(Ordering::SeqCst);
