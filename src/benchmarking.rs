@@ -33,7 +33,9 @@ impl ControllerBench {
             self.total_secs += 1;
             let average = self.total / self.total_secs;
             self.average.store(average, Ordering::SeqCst);
-            info!("Cycle rate: {}", average);
+            info!("Current cycle rate: {}", new_count);
+            info!("Total cycle count: {}", self.total);
+            info!("Average cycle rate: {}", average);
         }
     }
 }

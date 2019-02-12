@@ -54,8 +54,8 @@ impl GlobalRobotState {
             self.drive.get_current_state(),
             self.dumper.get_current_state(),
             self.intake.get_current_state(),
-            self.cycles_per_sec.load(Ordering::Relaxed),
-            self.cycle_counter.load(Ordering::Relaxed),
+            self.cycles_per_sec.load(Ordering::SeqCst),
+            self.cycle_counter.load(Ordering::SeqCst),
         )
     }
 
