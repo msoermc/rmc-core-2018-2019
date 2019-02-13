@@ -20,3 +20,6 @@ mod mechatronics;
 
 #[cfg(test)]
 mod switching;
+
+#[cfg(test)]
+mod benchmarking;

@@ -1,35 +1,94 @@
-function post_drive_from_gui() {
+function drive_from_form() {
     let left = $("#left-drive").val();
     let right = $("#right-drive").val();
-    post_drive(left, right)
+    drive(left, right)
 }
 
-function post_kill() {
+function get_state() {
+    fetch("/robot/state",
+        {
+            method: "GET",
+            headers: {
+                Accept: 'application/json',
+            },
+        },
+    )
+        .then(response => {
+            // TODO find a better way to display state.
+            response.json().then(value => {
+                $("#state-view").text(JSON.stringify(value));
+                console.log(JSON.stringify(value));
+            })
+
+        })
+        .catch(function (reason) {
+            alert(reason);
+        });
+}
+
+function kill() {
     let url = "/robot/kill";
     post_command(url);
 }
 
-function post_revive() {
+function revive() {
     let url = "/robot/revive";
     post_command(url);
 }
 
-function post_enable_drive_train() {
-    let url = "/robot/drive_train/enable";
+function switch_to_drive() {
+    let url = "/robot/modes/drive";
     post_command(url);
 }
 
-function post_disable_drive_train() {
-    let url = "/robot/drive_train/disable";
+function switch_to_dump() {
+    let url = "/robot/modes/dump";
     post_command(url);
 }
 
-function post_brake() {
+function switch_to_dig() {
+    let url = "/robot/modes/dig";
+    post_command(url);
+}
+
+function brake() {
     let url = "/robot/drive_train/brake";
     post_command(url);
 }
 
-function post_drive(left, right) {
+function dig() {
+    post_command("/robot/intake/digger/dig");
+}
+
+function stop_digging() {
+    post_command("/robot/intake/digger/stop");
+}
+
+function dump() {
+    post_command("/robot/dumper/dump");
+}
+
+function reset_dumper() {
+    post_command("/robot/dumper/reset");
+}
+
+function stop_dumping() {
+    post_command("/robot/dumper/stop");
+}
+
+function raise_actuators() {
+    post_command("/robot/intake/rails/raise");
+}
+
+function lower_actuators() {
+    post_command("/robot/intake/rails/lower");
+}
+
+function stop_actuators() {
+    post_command("/robot/intake/rails/stop");
+}
+
+function drive(left, right) {
     let url = "/robot/drive_train/drive/" + left + "/" + right;
     post_command(url);
 }
@@ -42,4 +101,5 @@ function post_command(url) {
         .catch(function (reason) {
             alert("Malformed request!");
         });
+    get_state();
 }

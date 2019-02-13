@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mission Control</title>
-    <link href="/static/dark.css" rel="stylesheet">
+    <link href="/static/main.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="/static/style.js" type="text/javascript"></script>
     <script src="/static/requests.js" type="text/javascript"></script>
@@ -11,11 +11,11 @@
 </head>
 <body>
 <h1>Mission Control</h1>
-<!--<audio autoplay>-->
-<!--    <source src="soviet-anthem.mp3" type="audio/mpeg">-->
-<!--    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.-->
-<!--</audio>-->
-<img height="480" id="media-view" type="image/jpeg" width="640">
+<audio autoplay>
+    <source src="/static/soviet-anthem.mp3" type="audio/mpeg">
+    Your browser does not support the audio element. Be sad, for you are missing out on great glory comrade.
+</audio>
+<img src="" height="480" id="media-view" type="image/jpeg" width="640">
 <div>
     <table>
         <tr>
@@ -37,37 +37,120 @@
                 <input id="right-drive" name="textField" type="text">
             </td>
             <td>
-                <button onclick="post_drive_from_gui()">Drive</button>
+                <button onclick="drive_from_form()">Drive</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button onclick="post_kill()">Kill</button>
+                <button onclick="kill()">Kill</button>
             </td>
             <td>
-                <button onclick="post_revive()">Revive</button>
+                <button onclick="revive()">Revive</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button onclick="post_enable_drive_train()">Enable Drive</button>
+                <button onclick="switch_to_drive()">Switch to driving</button>
             </td>
             <td>
-                <button onclick="post_disable_drive_train()">Disable Drive</button>
+                <button onclick="switch_to_dig()">Switch to digging</button>
+            </td>
+            <td>
+                <button onclick="switch_to_dump()">Switch to dumping</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button onclick="post_brake()">Brake</button>
+                <button onclick="brake()">Brake</button>
             </td>
         </tr>
+        <tr>
+            <td>
+                <button onclick="dig()">Dig</button>
+            </td>
+            <td>
+                <button onclick="stop_digging()">Stop Dig</button>
+            </td>
+            <td>
+                <button onclick="raise_actuators()">Raise Actuators</button>
+            </td>
+            <td>
+                <button onclick="lower_actuators()">Lower Actuators</button>
+            </td>
+            <td>
+                <button onclick="stop_actuators()">Stop Actuators</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="dump()">Dump</button>
+            </td>
+            <td>
+                <button onclick="stop_dumping()">Stop Dump</button>
+            </td>
+            <td>
+                <button onclick="reset_dumper()">Reset Dumper</button>
+            </td>
+        </tr>
+        <tf>
+            <td>
+                <button onclick="get_state()">Get State</button>
+            </td>
+        </tf>
     </table>
+    <label id="state-view"></label>
+
     <!--Left:-->
     <!--<input type="text" id="left-drive" name="textField" required maxlength="8">-->
     <!--Right:-->
     <!--<input type="text" id="right-drive" name="textField" required maxlength="8">-->
     <!--<button onclick="post_drive()">Drive</button>-->
-    <br>
+</div>
+<div id="gamepadView">
+    <div id="axis-powers">
+        <canvas id="movement-axis" width="100" height="100"></canvas>
+        <p id="connectionStatus">Disconnected</p>
+        <canvas id="camera-axis" width="100" height="100"></canvas>
+    </div>
+    <div>
+        <table id="buttons">
+            <tr>
+                <td id="a"><p>A</p></td>
+                <td id="b"><p>B</p></td>
+                <td id="x"><p>X</p></td>
+                <td id="y"><p>Y</p></td>
+            </tr>
+            <tr>
+                <td id="lb"><p>LB</p></td>
+                <td id="rb"><p>RB</p></td>
+                <td id="lt"><p>LT</p></td>
+                <td id="rt"><p>RT</p></td>
+            </tr>
+            <tr>
+                <td id="back"><p>Back</p></td>
+                <td id="start"><p>Start</p></td>
+                <td id="ljoy"><p>LJoy</p></td>
+                <td id="rjoy"><p>RJoy</p></td>
+            </tr>
+        </table>
+        <table id="dpad">
+            <tr>
+                <td></td>
+                <td id="up" class="dir">U</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td id="left" class="dir">L</td>
+                <td id="center"></td>
+                <td id="right" class="dir">R</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="down" class="dir">D</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
 </div>
 </body>
 </html>

@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 use std::sync::mpsc::Receiver;
 
 use crate::framework::Runnable;
@@ -7,6 +8,7 @@ use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeState;
+use std::sync::atomic::Ordering;
 
 pub enum MechState {
     Digging,
@@ -21,6 +23,7 @@ pub struct RobotController {
     intake: Intake,
     life: Arc<GlobalLifeState>,
     state: MechState,
+    cycles: Arc<AtomicUsize>,
 }
 
 impl Runnable for RobotController {
@@ -40,12 +43,14 @@ impl Runnable for RobotController {
         self.drive_train.run_cycle();
         self.dumper.run_cycle();
         self.intake.run_cycle();
+
+        self.cycles.fetch_add(1, Ordering::SeqCst);
     }
 }
 
 impl RobotController {
-    pub fn new(command_receiver: Receiver<MechatronicsCommand>,
-               drive_train: DriveTrain, dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>) -> Self {
+    pub fn new(command_receiver: Receiver<MechatronicsCommand>, drive_train: DriveTrain,
+               dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>, cycles: Arc<AtomicUsize>) -> Self {
         Self {
             command_receiver,
             drive_train,
@@ -53,6 +58,7 @@ impl RobotController {
             intake,
             life,
             state: MechState::Driving,
+            cycles,
         }
     }
 
