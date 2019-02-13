@@ -65,15 +65,15 @@ function stop_digging() {
 }
 
 function dump() {
-    post_command("/robot/intake/dumper/dump");
+    post_command("/robot/dumper/dump");
 }
 
 function reset_dumper() {
-    post_command("/robot/intake/dumper/reset");
+    post_command("/robot/dumper/reset");
 }
 
 function stop_dumping() {
-    post_command("/robot/intake/dumper/stop");
+    post_command("/robot/dumper/stop");
 }
 
 function raise_actuators() {

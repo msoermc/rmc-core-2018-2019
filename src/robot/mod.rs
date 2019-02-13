@@ -5,6 +5,7 @@ use std::thread::spawn;
 use rocket::local::Client;
 use rocket::Rocket;
 
+use crate::benchmarking::ControllerBench;
 use crate::comms;
 use crate::framework::Runnable;
 use crate::mechatronics::bucket_ladder::Intake;
@@ -33,6 +34,7 @@ pub struct RobotBuilder {
     right_actuator: Box<MotorController>,
     dumper: Box<MotorController>,
     state: Arc<GlobalRobotState>,
+    bench: Option<ControllerBench>,
 }
 
 impl RobotBuilder {
@@ -62,6 +64,11 @@ impl RobotBuilder {
         self.right_drive = right_group;
         self.digger = digger_group;
         self.dumper = dumper_group;
+    }
+
+    pub fn with_bench(&mut self) {
+        let bench = ControllerBench::new(self.state.get_cycle_counter(), self.state.get_cycles_per_second());
+        self.bench = Some(bench);
     }
 
     /// Instructs the builder to prepare the robot to use the real setup for the robot, with the appropriate
@@ -103,6 +110,7 @@ impl RobotBuilder {
         let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
         let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
 
+
         Self {
             left_drive: left_group,
             right_drive: right_group,
@@ -111,6 +119,7 @@ impl RobotBuilder {
             right_actuator,
             dumper: dumper_group,
             state,
+            bench: None,
         }
     }
 
@@ -127,9 +136,9 @@ impl RobotBuilder {
 
         let dumper = Dumper::new(self.state.get_life().clone(), self.dumper, self.state.get_dumper());
 
-        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, self.state.get_life());
+        let robot_controller = RobotController::new(controller_receiver, drive_train, dumper, digger, self.state.get_life(), self.state.get_cycle_counter());
 
-        Robot::new(robot_controller, bfr)
+        Robot::new(robot_controller, bfr, self.bench)
     }
 }
 
@@ -138,13 +147,15 @@ impl RobotBuilder {
 pub struct Robot {
     controller: RobotController,
     bfr: Rocket,
+    bench: Option<ControllerBench>,
 }
 
 impl Robot {
-    fn new(controller: RobotController, bfr: Rocket) -> Self {
+    fn new(controller: RobotController, bfr: Rocket, bench: Option<ControllerBench>) -> Self {
         Self {
             controller,
             bfr,
+            bench,
         }
     }
 
@@ -155,6 +166,9 @@ impl Robot {
         let mut controller = self.controller;
         let controller_thread = spawn(move || controller.start());
         let _rocket_thread = spawn(move || bfr.launch());
+        self.bench.map(|bench| spawn(move || {
+            bench.launch();
+        }));
 
         controller_thread.join().expect("Controller thread panicked!");
     }
@@ -165,8 +179,10 @@ impl Robot {
     pub fn launch_tester(self) -> Client {
         let bfr = self.bfr;
         let mut controller = self.controller;
-
         spawn(move || controller.start());
+        self.bench.map(|bench| spawn(move || {
+            bench.launch();
+        }));
         Client::new(bfr).expect("Failed to launch client!")
     }
 }

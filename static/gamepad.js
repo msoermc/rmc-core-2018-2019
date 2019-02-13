@@ -1,5 +1,6 @@
 let gamepad;
 let connectionStatus;
+let previousTime = 0;
 
 window.addEventListener("gamepadconnected", function (e) {
     gamepad = navigator.getGamepads()[e.gamepad.index];
@@ -20,7 +21,17 @@ window.addEventListener("gamepaddisconnected", function () {
     cancelAnimationFrame(update);
 });
 
-function update() {
+function update(timestamp) {
+    if(timestamp > previousTime + 500) {
+        previousTime = timestamp;
+
+        // Run every .5 sec
+        console.log(previousTime);
+    }
+    render();
+}
+
+function render() {
     draw_axis("movement-axis", gamepad.axes[0] * 45 + 50, gamepad.axes[1] * 45 + 50);
     draw_axis("camera-axis", gamepad.axes[2] * 45 + 50, gamepad.axes[3] * 45 + 50);
 
