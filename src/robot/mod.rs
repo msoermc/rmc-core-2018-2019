@@ -23,6 +23,7 @@ use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
 use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
+use crate::mechatronics::commands::RobotCommandFactory;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -127,8 +128,10 @@ impl RobotBuilder {
     pub fn build(self) -> Robot {
         let (controller_sender, controller_receiver) = channel();
 
-        let robot_view = MechatronicsMessageSender::new(controller_sender, self.state.clone());
-        let bfr = comms::stage(robot_view, self.state.clone());
+        let command_factory = RobotCommandFactory::new();
+
+        let robot_view = MechatronicsMessageSender::new(controller_sender);
+        let bfr = comms::stage(robot_view, self.state.clone(), command_factory);
 
         let drive_train = DriveTrain::new(self.state.get_drive(), self.left_drive, self.right_drive, self.state.get_life());
 

@@ -9,6 +9,7 @@ use rocket::Rocket;
 use rocket::State;
 use rocket_contrib::json::Json;
 
+use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::MechatronicsMessageSender;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
@@ -23,13 +24,16 @@ struct ServerState {
 
     /// A struct containing the entire state of the robot and all of it's component systems.
     state: Arc<GlobalRobotState>,
+
+    command_factory: RobotCommandFactory,
 }
 
 /// Prepares the server for launch.
-pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>) -> Rocket {
+pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>, command_factory: RobotCommandFactory) -> Rocket {
     let state = ServerState {
         messager: Mutex::new(sender),
         state,
+        command_factory,
     };
     rocket::ignite()
         .manage(state)
@@ -109,11 +113,10 @@ fn get_state(state: State<ServerState>) -> Json<RobotStateInstance> {
 /// When we switch to a mode, only that subsystem is enabled and the others will be disabled.
 #[post("/robot/modes/<mode>")]
 fn switch_mode(mode: String, state: State<ServerState>) -> Status {
-    let controller = state.messager.lock().unwrap();
     match mode.as_str() {
-        "dig" => controller.switch_to_dig(),
-        "dump" => controller.switch_to_dump(),
-        "drive" => controller.switch_to_drive(),
+        "dig" => state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_intake_switch_command())),
+        "dump" => state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_dumper_switch_command())),
+        "drive" => state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_drive_switch_command())),
         _ => return Status::BadRequest,
     }
 
@@ -123,77 +126,78 @@ fn switch_mode(mode: String, state: State<ServerState>) -> Status {
 /// Runs the drive train at the provided speeds.
 #[post("/robot/drive_train/drive/<left>/<right>")]
 fn handle_drive(left: f32, right: f32, state: State<ServerState>) -> Status {
-    if state.messager.lock().unwrap().drive(left, right).is_err() {
-        Status::BadRequest
-    } else {
+    if let Some(command) = state.command_factory.generate_drive_command(left, right) {
+        (*state.messager.lock().unwrap()).send_command(Box::new(command));
         Status::Ok
+    } else {
+        Status::BadRequest
     }
 }
 
 /// Starts the dumper.
 #[post("/robot/dumper/dump")]
 fn dump(state: State<ServerState>) {
-    state.messager.lock().unwrap().dump();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_dump_command()));
 }
 
 /// Resets the dumper
 #[post("/robot/dumper/reset")]
 fn reset_dumper(state: State<ServerState>) {
-    state.messager.lock().unwrap().reset_dumper();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_reset_dumper_command()));
 }
 
 /// Stops the dumper.
 #[post("/robot/dumper/stop")]
 fn stop_dumper(state: State<ServerState>) {
-    state.messager.lock().unwrap().stop_dumper();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_stop_dumper_command()));
 }
 
 /// Raises the actuators on the digger.
 #[post("/robot/intake/rails/raise")]
 fn raise_digger(state: State<ServerState>) {
-    state.messager.lock().unwrap().raise_ladder();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_raise_actuators_command()));
 }
 
 /// Lower the actuators on the digger.
 #[post("/robot/intake/rails/lower")]
 fn lower_digger(state: State<ServerState>) {
-    state.messager.lock().unwrap().lower_ladder();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_lower_actuators_command()));
 }
 
 /// Stops the actuators.
 #[post("/robot/intake/rails/stop")]
 fn stop_rails(state: State<ServerState>) {
-    state.messager.lock().unwrap().stop_actuators();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_stop_actuators_command()));
 }
 
 /// Starts the digger.
 #[post("/robot/intake/digger/dig")]
 fn dig(state: State<ServerState>) {
-    state.messager.lock().unwrap().dig();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_dig_command()));
 }
 
 /// Stops the digger.
 #[post("/robot/intake/digger/stop")]
 fn stop_digger(state: State<ServerState>) {
-    state.messager.lock().unwrap().stop_digger();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_stop_digger_command()));
 }
 
 /// Kills the robot. When this command is invoked, all physical motion on the robot ceases.
 #[post("/robot/kill")]
 fn kill(state: State<ServerState>) {
-    state.messager.lock().unwrap().kill();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_kill_command()));
 }
 
 /// Causes the drive train to begin braking.
 #[post("/robot/drive_train/brake")]
 fn brake(state: State<ServerState>) {
-    state.messager.lock().unwrap().brake();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_brake_command()));
 }
 
 /// Revives a dead robot, allowing further motion.
 #[post("/robot/revive")]
 fn revive(state: State<ServerState>) {
-    state.messager.lock().unwrap().revive();
+    state.messager.lock().unwrap().send_command(Box::new(state.command_factory.generate_revive_command()));
 }
 
 /// Retrieves the index.html file
