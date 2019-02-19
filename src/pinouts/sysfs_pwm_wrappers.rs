@@ -2,9 +2,11 @@ use std::process;
 
 use sysfs_pwm;
 
+use super::PwmOutput;
+
 use super::AnalogOutput;
 
-const PERIOD_NS: u32 = 20_000;
+const PERIOD_NS: u32 = 20_000_000;
 
 pub struct SysfsPwm {
     pwm: sysfs_pwm::Pwm,
@@ -18,6 +20,27 @@ impl AnalogOutput for SysfsPwm {
 
         if self.pwm.set_duty_cycle_ns(pwm_out).is_err() {
             warn!("Failed to set duty cycle for sysfs pwm <{},{}>!", self.chip, self.number);
+            if let Err(e) = self.pwm.export() {
+                warn!("Failed to reexport sysfs pwm <{},{}>!", self.chip, self.number);
+                Err(e.to_string())
+            } else if let Err(e) = self.pwm.set_period_ns(PERIOD_NS) {
+                warn!("Failed to export sysfs pwm <{},{}>!", self.chip, self.number);
+                Err(e.to_string())
+            } else {
+                Ok(())
+            }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl PwmOutput for SysfsPwm {
+    fn set_pulse_width(&mut self, val: f32) -> Result<(), String> {
+        let pwm_out = f32::abs((val * 500000.0) + 1500000.0) as u32;
+    
+        if self.pwm.set_duty_cycle_ns(pwm_out).is_err() {
+            warn!("Failed to set pulse width for sysfs pwm <{},{}>!", self.chip, self.number);
             if let Err(e) = self.pwm.export() {
                 warn!("Failed to reexport sysfs pwm <{},{}>!", self.chip, self.number);
                 Err(e.to_string())
