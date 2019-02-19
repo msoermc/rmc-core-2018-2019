@@ -3,28 +3,6 @@
     padding: 0;
 }
 
-p {
-    clear: both;
-    float: left;
-}
-
-table {
-    width: 20%;
-}
-
-td {
-    width: 20%;
-    height: 100%;
-}
-
-input {
-
-}
-
-button {
-
-}
-
 input, button {
     width: 100%;
     height: 100%;
@@ -38,7 +16,7 @@ input, button {
 #gamepadView {
     outline: black 1px solid;
     position: absolute;
-    background-color: darkgrey;
+    background-color: white;
     width: 400px;
     height: 300px;
     top: 0;
@@ -52,9 +30,11 @@ input, button {
 }
 
 #axis-powers {
+    outline: black 1px solid;
     padding: 10px;
     position: relative;
     display: flex;
+    background-color: #cccccc;
 }
 
 #connectionStatus {
@@ -78,6 +58,28 @@ input, button {
 }
 
 #buttons {
-    width: 100%;
+    width: 50%;
     height: 180px;
+    clear: both;
+    float: left;
+    border-collapse: collapse;
+}
+
+#buttons, #buttons tr, #buttons td {
+    border: 1px solid black;
+}
+
+#buttons td {
+    text-align: center;
+}
+
+#dpad {
+    width: 50%;
+    height: 180px;
+    padding: 20px;
+}
+
+#dpad .dir {
+    border: 1px solid black;
+    text-align: center;
 }
