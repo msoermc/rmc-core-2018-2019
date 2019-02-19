@@ -19,7 +19,6 @@ pub mod dumper;
 
 pub mod bucket_ladder;
 
-#[derive(Clone)]
 pub struct RobotMessenger {
     channel: SyncSender<Box<RobotCommand>>,
 }
