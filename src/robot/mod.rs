@@ -12,7 +12,7 @@ use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
-use crate::mechatronics::MechatronicsMessageSender;
+use crate::mechatronics::RobotMessenger;
 use crate::motor_controllers::hover_board::HoverBoardMotor;
 use crate::motor_controllers::motor_group::MotorGroup;
 use crate::motor_controllers::MotorController;
@@ -130,7 +130,7 @@ impl RobotBuilder {
 
         let command_factory = RobotCommandFactory::new();
 
-        let robot_view = MechatronicsMessageSender::new(controller_sender);
+        let robot_view = RobotMessenger::new(controller_sender);
         let bfr = comms::stage(robot_view, self.state.clone(), command_factory);
 
         let drive_train = DriveTrain::new(self.state.get_drive(), self.left_drive, self.right_drive, self.state.get_life());

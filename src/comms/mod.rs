@@ -10,7 +10,7 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::mechatronics::commands::RobotCommandFactory;
-use crate::mechatronics::MechatronicsMessageSender;
+use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
 
@@ -20,7 +20,7 @@ mod tests;
 /// Contains all of the state elements used by the server.
 struct ServerState {
     /// A sender object which will send messages to the mechatronics controller.
-    messager: Mutex<MechatronicsMessageSender>,
+    messager: Mutex<RobotMessenger>,
 
     /// A struct containing the entire state of the robot and all of it's component systems.
     state: Arc<GlobalRobotState>,
@@ -29,7 +29,7 @@ struct ServerState {
 }
 
 /// Prepares the server for launch.
-pub fn stage(sender: MechatronicsMessageSender, state: Arc<GlobalRobotState>, command_factory: RobotCommandFactory) -> Rocket {
+pub fn stage(sender: RobotMessenger, state: Arc<GlobalRobotState>, command_factory: RobotCommandFactory) -> Rocket {
     let state = ServerState {
         messager: Mutex::new(sender),
         state,

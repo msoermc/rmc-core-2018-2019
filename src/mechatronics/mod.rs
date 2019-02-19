@@ -18,28 +18,12 @@ pub mod dumper;
 
 pub mod bucket_ladder;
 
-pub struct MechatronicsMessengerFactory {
-    messenger: MechatronicsMessageSender,
-}
-
-impl MechatronicsMessengerFactory {
-    pub fn new(messenger: MechatronicsMessageSender) -> Self {
-        MechatronicsMessengerFactory {
-            messenger
-        }
-    }
-
-    pub fn generate(&self) -> MechatronicsMessageSender {
-        self.messenger.clone()
-    }
-}
-
 #[derive(Clone)]
-pub struct MechatronicsMessageSender {
+pub struct RobotMessenger {
     channel: Sender<Box<RobotCommand>>,
 }
 
-impl MechatronicsMessageSender {
+impl RobotMessenger {
     pub fn new(channel: Sender<Box<RobotCommand>>) -> Self {
         Self {
             channel,

@@ -21,7 +21,7 @@ fn setup() -> TestEnvironment {
     let robot_status = Arc::new(GlobalRobotState::new());
 
     // Create RobotView
-    let robot_view = MechatronicsMessageSender::new(controller_sender);
+    let robot_view = RobotMessenger::new(controller_sender);
 
     // Create server
     let grasshopper = comms::stage(robot_view, robot_status.clone(), RobotCommandFactory::new());
