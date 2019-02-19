@@ -1,6 +1,7 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
 
+extern crate libbeaglebone;
 extern crate atomic;
 #[macro_use]
 extern crate log;

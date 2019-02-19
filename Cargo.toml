@@ -6,8 +6,7 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-sysfs-pwm = "0.1.0"
-sysfs_gpio = "0.5.3"
+libbeaglebone = "0.5.0"
 slog = "2.4.1"
 log = "0.4.6"
 slog-stdlog = "3.0.4-pre"

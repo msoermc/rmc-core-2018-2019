@@ -3,8 +3,9 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
-pub mod sysfs_pin_wrappers;
-pub mod sysfs_pwm_wrappers;
+pub mod analog;
+
+pub mod digital;
 
 /// Runs a bash script which will enable the PWM drivers and configure the pins used by the program.
 pub fn enable_pins() -> Result<(), ()> {
