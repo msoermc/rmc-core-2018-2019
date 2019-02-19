@@ -1,17 +1,12 @@
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
 
-use rocket::http::ContentType;
 use rocket::local::Client;
 
 use crate::comms;
-use crate::status::life::GlobalLifeState;
+use crate::mechatronics::commands::RobotCommand;
 
 use super::*;
-use crate::mechatronics::commands::BrakeCommand;
-use crate::mechatronics::commands::RobotCommand;
-use crate::mechatronics::commands::ResetDumperCommand;
-use crate::mechatronics::commands::DumpCommand;
 
 struct TestEnvironment {
     receiver: Receiver<Box<RobotCommand>>,
@@ -38,6 +33,39 @@ fn setup() -> TestEnvironment {
         client,
         status: robot_status,
     }
+}
+
+#[test]
+fn test_bad_switch() {
+    let env = setup();
+    let response = env.client.post("/robot/modes/invalid").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+}
+
+#[test]
+fn test_bad_drive() {
+    let env = setup();
+    let response = env.client.post("/robot/drive_train/drive/2/1").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    let response = env.client.post("/robot/drive_train/drive/1/2").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    let response = env.client.post("/robot/drive_train/drive/2/2").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    let env = setup();
+    let response = env.client.post("/robot/drive_train/drive/-2/1").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    let response = env.client.post("/robot/drive_train/drive/1/-2").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+    let response = env.client.post("/robot/drive_train/drive/-2/-2").dispatch();
+    assert_eq!(Status::BadRequest, response.status());
+}
+
+#[test]
+fn test_state() {
+    let env = setup();
+    let mut response = env.client.get("/robot/state").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert!(response.body().is_some());
 }
 
 #[test]
