@@ -7,6 +7,7 @@ use crate::comms;
 use crate::mechatronics::commands::RobotCommand;
 
 use super::*;
+use std::sync::mpsc::sync_channel;
 
 struct TestEnvironment {
     receiver: Receiver<Box<RobotCommand>>,
@@ -15,7 +16,7 @@ struct TestEnvironment {
 }
 
 fn setup() -> TestEnvironment {
-    let (controller_sender, controller_receiver) = channel();
+    let (controller_sender, controller_receiver) = sync_channel(20);
 
     // Create Robot status
     let robot_status = Arc::new(GlobalRobotState::new());

@@ -3,6 +3,7 @@ use std::sync::mpsc::Sender;
 
 use crate::mechatronics::commands::RobotCommand;
 use crate::status::robot_state::GlobalRobotState;
+use std::sync::mpsc::SyncSender;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -20,11 +21,11 @@ pub mod bucket_ladder;
 
 #[derive(Clone)]
 pub struct RobotMessenger {
-    channel: Sender<Box<RobotCommand>>,
+    channel: SyncSender<Box<RobotCommand>>,
 }
 
 impl RobotMessenger {
-    pub fn new(channel: Sender<Box<RobotCommand>>) -> Self {
+    pub fn new(channel: SyncSender<Box<RobotCommand>>) -> Self {
         Self {
             channel,
         }

@@ -24,6 +24,7 @@ use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
 use crate::mechatronics::commands::RobotCommandFactory;
+use std::sync::mpsc::sync_channel;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -126,7 +127,7 @@ impl RobotBuilder {
 
     /// Builds the robot from the configured preparations.
     pub fn build(self) -> Robot {
-        let (controller_sender, controller_receiver) = channel();
+        let (controller_sender, controller_receiver) = sync_channel(20);
 
         let command_factory = RobotCommandFactory::new();
 
