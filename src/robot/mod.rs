@@ -12,7 +12,7 @@ use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
-use crate::mechatronics::MechatronicsMessageSender;
+use crate::mechatronics::RobotMessenger;
 use crate::motor_controllers::hover_board::HoverBoardMotor;
 use crate::motor_controllers::motor_group::MotorGroup;
 use crate::motor_controllers::MotorController;
@@ -23,6 +23,8 @@ use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
 use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
+use crate::mechatronics::commands::RobotCommandFactory;
+use std::sync::mpsc::sync_channel;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -125,10 +127,12 @@ impl RobotBuilder {
 
     /// Builds the robot from the configured preparations.
     pub fn build(self) -> Robot {
-        let (controller_sender, controller_receiver) = channel();
+        let (controller_sender, controller_receiver) = sync_channel(20);
 
-        let robot_view = MechatronicsMessageSender::new(controller_sender, self.state.clone());
-        let bfr = comms::stage(robot_view, self.state.clone());
+        let command_factory = RobotCommandFactory::new();
+
+        let robot_view = RobotMessenger::new(controller_sender);
+        let bfr = comms::stage(robot_view, self.state.clone(), command_factory);
 
         let drive_train = DriveTrain::new(self.state.get_drive(), self.left_drive, self.right_drive, self.state.get_life());
 
