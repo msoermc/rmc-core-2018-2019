@@ -58,7 +58,7 @@ mod tests {
     use super::*;
     
     #[test]
-    fn test_hobo() {
+    fn test_roboclaw() {
         let pwm_state = Arc::new(Atomic::new(0.0));
         let pin_state = Arc::new(AtomicBool::new(false));
         let pwm = Box::new(TestPwm::new(pwm_state.clone()));
