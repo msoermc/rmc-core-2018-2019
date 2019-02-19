@@ -19,8 +19,6 @@ use crate::motor_controllers::MotorController;
 use crate::motor_controllers::print_motor::PrintMotor;
 use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::enable_pins;
-use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
-use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
 use crate::mechatronics::commands::RobotCommandFactory;
@@ -76,25 +74,25 @@ impl RobotBuilder {
     /// Instructs the builder to prepare the robot to use the real setup for the robot, with the appropriate
     /// pinouts and hardware configuration.
     pub fn with_real(&mut self) {
-        enable_pins().expect("Failed to enable pins!");
-
-        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_DRIVE_STRING).expect("Front left pwm"));
-        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_DRIVE_STRING).expect("Front right pwm"));
-        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_DRIVE_STRING).expect("Rear left pwm"));
-        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_DRIVE_STRING).expect("Rear right pwm"));
-
-        let front_right_direction = Box::new(SysfsPin::create(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING).expect("Front right direction"));
-        let front_left_direction = Box::new(SysfsPin::create(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING).expect("Front left direction"));
-        let rear_right_direction = Box::new(SysfsPin::create(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
-        let rear_left_direction = Box::new(SysfsPin::create(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
-
-        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
-        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
-        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction));
-        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction));
-
-        self.left_drive = Box::new(MotorGroup::new(vec![front_left_motor, rear_left_motor], self.state.get_drive().get_left()));
-        self.right_drive = Box::new(MotorGroup::new(vec![front_right_motor, rear_right_motor], self.state.get_drive().get_right()));
+//        enable_pins().expect("Failed to enable pins!");
+//
+//        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_DRIVE_STRING).expect("Front left pwm"));
+//        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_DRIVE_STRING).expect("Front right pwm"));
+//        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_DRIVE_STRING).expect("Rear left pwm"));
+//        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_DRIVE_STRING).expect("Rear right pwm"));
+//
+//        let front_right_direction = Box::new(SysfsPin::create(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING).expect("Front right direction"));
+//        let front_left_direction = Box::new(SysfsPin::create(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING).expect("Front left direction"));
+//        let rear_right_direction = Box::new(SysfsPin::create(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
+//        let rear_left_direction = Box::new(SysfsPin::create(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
+//
+//        let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
+//        let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
+//        let rear_right_motor = Box::new(HoverBoardMotor::new(right_rear_pwm, rear_right_direction));
+//        let rear_left_motor = Box::new(HoverBoardMotor::new(left_rear_pwm, rear_left_direction));
+//
+//        self.left_drive = Box::new(MotorGroup::new(vec![front_left_motor, rear_left_motor], self.state.get_drive().get_left()));
+//        self.right_drive = Box::new(MotorGroup::new(vec![front_right_motor, rear_right_motor], self.state.get_drive().get_right()));
     }
 
     /// Constructs the robot, using a default configuration with `PrintMotor`s.
