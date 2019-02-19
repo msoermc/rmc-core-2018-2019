@@ -20,6 +20,9 @@ extern crate slog_term;
 /// Contains all code responsible for monitoring system power.
 pub mod power;
 
+/// Contains code for benchmarking the performance of the system.
+pub mod benchmarking;
+
 /// The framework module contains traits and interfaces key to the entire system.
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
@@ -63,6 +66,7 @@ mod integration_tests;
 fn main() {
     let _logging_guard = logging::launch_logger();
     let mut robot_builder = robot::RobotBuilder::new();
+//    robot_builder.with_bench();
     //robot_builder.add_real_drive();
     robot_builder.build().launch();
 }

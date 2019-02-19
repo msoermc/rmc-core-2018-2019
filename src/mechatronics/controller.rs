@@ -1,11 +1,13 @@
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc::Receiver;
 
 use crate::framework::Runnable;
 use crate::mechatronics::bucket_ladder::Intake;
+use crate::mechatronics::commands::RobotCommand;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
-use crate::mechatronics::MechatronicsCommand;
 use crate::status::life::GlobalLifeState;
 
 pub enum MechState {
@@ -15,18 +17,17 @@ pub enum MechState {
 }
 
 pub struct RobotController {
-    command_receiver: Receiver<MechatronicsCommand>,
+    command_receiver: Receiver<Box<RobotCommand>>,
     drive_train: DriveTrain,
     dumper: Dumper,
     intake: Intake,
     life: Arc<GlobalLifeState>,
-    state: MechState,
+    cycles: Arc<AtomicUsize>,
 }
 
 impl Runnable for RobotController {
     fn init(&mut self) {
         info!("Initializing controller!");
-        self.state = MechState::Driving;
         self.drive_train.disable();
         self.dumper.disable();
         self.intake.disable();
@@ -40,72 +41,41 @@ impl Runnable for RobotController {
         self.drive_train.run_cycle();
         self.dumper.run_cycle();
         self.intake.run_cycle();
+
+        self.cycles.fetch_add(1, Ordering::SeqCst);
     }
 }
 
 impl RobotController {
-    pub fn new(command_receiver: Receiver<MechatronicsCommand>,
-               drive_train: DriveTrain, dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>) -> Self {
+    pub fn new(command_receiver: Receiver<Box<RobotCommand>>, drive_train: DriveTrain,
+               dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>, cycles: Arc<AtomicUsize>) -> Self {
         Self {
             command_receiver,
             drive_train,
             dumper,
             intake,
             life,
-            state: MechState::Driving,
+            cycles,
         }
     }
 
-    fn handle_message(&mut self, message: MechatronicsCommand) {
-        match message {
-            MechatronicsCommand::EnterDriveMode => {
-                self.state = MechState::Driving;
-                self.drive_train.enable();
-                self.dumper.disable();
-                self.intake.disable();
-            }
-            MechatronicsCommand::EnterDumpMode => {
-                self.state = MechState::Dumping;
-                self.dumper.enable();
-                self.intake.disable();
-                self.drive_train.disable();
-            }
-            MechatronicsCommand::EnterDiggingMode => {
-                self.state = MechState::Digging;
-                self.intake.enable();
-                self.dumper.disable();
-                self.drive_train.disable();
-            }
-            MechatronicsCommand::Drive(command) => {
-                self.drive_train.drive(command.left_speed, command.right_speed);
-            }
-            MechatronicsCommand::Brake => {
-                self.drive_train.brake();
-            }
-            MechatronicsCommand::Dump => {
-                self.dumper.dump();
-            }
-            MechatronicsCommand::ResetDumper => {
-                self.dumper.reset();
-            }
-            MechatronicsCommand::StopDumper => {
-                self.dumper.stop();
-            }
-            MechatronicsCommand::Dig => {
-                self.intake.dig()
-            }
-            MechatronicsCommand::StopDigging => {
-                self.intake.stop_ladder();
-            }
-            MechatronicsCommand::RaiseActuators => {
-                self.intake.raise();
-            }
-            MechatronicsCommand::LowerActuators => {
-                self.intake.lower();
-            }
-            MechatronicsCommand::StopActuators => {
-                self.intake.stop_actuators();
-            }
-        }
+    pub fn get_drive_train(&mut self) -> &mut DriveTrain {
+        &mut self.drive_train
+    }
+
+    pub fn get_dumper(&mut self) -> &mut Dumper {
+        &mut self.dumper
+    }
+
+    pub fn get_intake(&mut self) -> &mut Intake {
+        &mut self.intake
+    }
+
+    pub fn get_life(&mut self) -> &GlobalLifeState {
+        &self.life
+    }
+
+    fn handle_message(&mut self, command: Box<RobotCommand>) {
+        command.execute(self);
     }
 }

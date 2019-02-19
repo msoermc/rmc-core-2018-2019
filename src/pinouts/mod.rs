@@ -35,6 +35,10 @@ pub trait AnalogInput: Send {
     fn get_value(&mut self) -> Option<f32>;
 }
 
+pub trait PwmOutput: AnalogOutput {
+    fn set_pulse_width(&mut self, val: f32) -> Result<(), String>;
+}
+
 pub struct TestPin {
     state: Arc<AtomicBool>,
 }
@@ -61,6 +65,13 @@ pub struct TestPwm {
 impl AnalogOutput for TestPwm {
     fn set_value(&mut self, val: f32) -> Result<(), String> {
         self.state.swap(val, atomic::Ordering::SeqCst);
+        Ok(())
+    }
+}
+
+impl PwmOutput for TestPwm {
+    fn set_pulse_width(&mut self, val: f32) -> Result<(), String> {
+        self.state.swap(val, Ordering::SeqCst);
         Ok(())
     }
 }
