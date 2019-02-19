@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
 use atomic::Atomic;
-
-use crate::pinouts::AnalogInput;
+use crate::pinouts::analog::input::AnalogInput;
 
 /// Monitors current and updates it's state accordingly.
 pub struct CurrentMonitor {
