@@ -23,8 +23,8 @@ use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
 use crate::mechatronics::commands::RobotCommandFactory;
 use std::sync::mpsc::sync_channel;
-use crate::pinouts::analog::output::pwm::LibBeagleBonePwm;
 use crate::pinouts::digital::libbeaglebone::GpioPinout;
+use crate::pinouts::factories::IoFactory;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -78,15 +78,17 @@ impl RobotBuilder {
     pub fn with_real(&mut self) {
         enable_pins().expect("Failed to enable pins!");
 
-        let left_front_pwm = Box::new(LibBeagleBonePwm::new(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER));
-        let right_front_pwm = Box::new(LibBeagleBonePwm::new(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER));
-        let left_rear_pwm = Box::new(LibBeagleBonePwm::new(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER));
-        let right_rear_pwm = Box::new(LibBeagleBonePwm::new(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER));
+        let io_factory = IoFactory::new();
 
-        let front_right_direction = Box::new(GpioPinout::new(FRONT_RIGHT_DIRECTION));
-        let front_left_direction = Box::new(GpioPinout::new(FRONT_LEFT_DIRECTION));
-        let rear_right_direction = Box::new(GpioPinout::new(REAR_RIGHT_DIRECTION));
-        let rear_left_direction = Box::new(GpioPinout::new(REAR_LEFT_DIRECTION));
+        let left_front_pwm = io_factory.generate_analog_output(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER);
+        let right_front_pwm = io_factory.generate_analog_output(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER);
+        let left_rear_pwm = io_factory.generate_analog_output(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER);
+        let right_rear_pwm = io_factory.generate_analog_output(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER);
+
+        let front_right_direction = io_factory.generate_digital_output(FRONT_RIGHT_DIRECTION);
+        let front_left_direction = io_factory.generate_digital_output(FRONT_LEFT_DIRECTION);
+        let rear_right_direction = io_factory.generate_digital_output(REAR_RIGHT_DIRECTION);
+        let rear_left_direction = io_factory.generate_digital_output(REAR_LEFT_DIRECTION);
 
         let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
         let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
