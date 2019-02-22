@@ -1,22 +1,14 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
 
-extern crate libbeaglebone;
-extern crate atomic;
 #[macro_use]
 extern crate log;
 #[macro_use]
 extern crate rocket;
-extern crate rocket_contrib;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
-extern crate slog_async;
-extern crate slog_scope;
-extern crate slog_stdlog;
-extern crate slog_term;
 
 /// Contains all code responsible for monitoring system power.
 pub mod power;
