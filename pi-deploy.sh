@@ -8,4 +8,4 @@ cargo build --release
 
 sudo sshpass -p ${BB_PASSWD} scp target/debug/rmc-core rmc@${BB_IP}:~/debug
 sudo sshpass -p ${BB_PASSWD} scp target/release/rmc-core rmc@${BB_IP}:~/release
-sudo sshpass -p ${BB_PASSWD} scp -R ./static/ rmc@192.168.7.2:/home/rmc/
+sudo sshpass -p ${BB_PASSWD} scp --recursive ./static/ rmc@192.168.7.2:/home/rmc/
