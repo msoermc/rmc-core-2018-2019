@@ -1,9 +1,9 @@
 use libbeaglebone::enums::DeviceState;
 use libbeaglebone::pwm::PWM;
+use libbeaglebone::pwm::PWMState;
 
 use crate::pinouts::analog::output::AnalogOutput;
 use crate::pinouts::analog::output::PwmOutput;
-use libbeaglebone::pwm::PWMState;
 
 pub struct LibBeagleBonePwm {
     pwm: PWM,
@@ -30,6 +30,9 @@ impl PwmOutput for LibBeagleBonePwm {
 impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
         let mut pwm = PWM::new(chip, num);
+        if pwm.set_period(20_000).is_err() {
+            error!("Failed to set initial period of pwm {}, {}", chip, num);
+        }
         pwm.set_export(DeviceState::Exported).unwrap();
         pwm.set_state(PWMState::Enabled).unwrap();
         Self {
