@@ -19,5 +19,5 @@ rocket = "0.4.0"
 rocket_contrib = "0.4.0"
 atomic = "0.4.3"
 
-[build-dependencies.mml]
-version = "0.1"
+#[build-dependencies.mml]
+#version = "0.1"
