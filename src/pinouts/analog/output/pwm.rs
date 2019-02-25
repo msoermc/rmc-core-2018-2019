@@ -1,8 +1,9 @@
+use libbeaglebone::enums::DeviceState;
 use libbeaglebone::pwm::PWM;
 
 use crate::pinouts::analog::output::AnalogOutput;
 use crate::pinouts::analog::output::PwmOutput;
-use libbeaglebone::enums::DeviceState;
+use libbeaglebone::pwm::PWMState;
 
 pub struct LibBeagleBonePwm {
     pwm: PWM,
@@ -11,54 +12,29 @@ pub struct LibBeagleBonePwm {
 
 impl AnalogOutput for LibBeagleBonePwm {
     fn set_value(&mut self, val: f32) {
-        if self.pwm.set_duty_cycle((val * self.period as f32) as u32).is_err() {
-            error!("Failed to set value, re-exporting PWM!");
-            if self.pwm.set_export(DeviceState::Exported).is_err() {
-                error!("Failed to export PWM!");
-            } else {
-                info!("Successfully re-exported PWM")
-            }
-        }
+        self.pwm.set_duty_cycle((val * self.period as f32) as u32).unwrap();
     }
 }
 
 impl PwmOutput for LibBeagleBonePwm {
     fn set_pulse_duty_cycle(&mut self, val: u32) {
-        if self.pwm.set_duty_cycle(val).is_err() {
-            error!("Failed to set duty cycle, re-exporting PWM!");
-            if self.pwm.set_export(DeviceState::Exported).is_err() {
-                error!("Failed to export PWM!");
-            } else {
-                info!("Successfully re-exported PWM")
-            }
-        }
+        self.pwm.set_duty_cycle(val).unwrap();
     }
 
     fn set_period(&mut self, val: u32) {
-        if self.pwm.set_period(val).is_err() {
-            error!("Failed to set period, re-exporting PWM!");
-            if self.pwm.set_export(DeviceState::Exported).is_err() {
-                error!("Failed to export PWM!");
-            } else {
-                info!("Successfully re-exported PWM")
-            }
-        } else {
-            self.period = val;
-        }
+        self.pwm.set_period(val).unwrap()
+        self.period = val;
     }
 }
 
 impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
-        let pwm = PWM::new(chip, num);
-        if pwm.set_export(DeviceState::Exported).is_err() {
-            error!("Failed to export PWM {}, {}!", chip, num);
-        } else {
-            info!("Successfully exported {}, {}", chip, num)
-        }
+        let mut pwm = PWM::new(chip, num);
+        pwm.set_export(DeviceState::Exported).unwrap();
+        pwm.set_state(PWMState::Enabled).unwrap();
         Self {
             pwm,
-            period: 20_000
+            period: 20_000,
         }
     }
 }
