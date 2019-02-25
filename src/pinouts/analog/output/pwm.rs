@@ -54,7 +54,7 @@ impl LibBeagleBonePwm {
         if pwm.set_export(DeviceState::Exported).is_err() {
             error!("Failed to export PWM {}, {}!", chip, num);
         } else {
-            info!("Successfully exported PWM")
+            info!("Successfully exported {}, {}", chip, num)
         }
         Self {
             pwm,
