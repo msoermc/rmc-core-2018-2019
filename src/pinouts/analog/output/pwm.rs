@@ -2,6 +2,7 @@ use libbeaglebone::pwm::PWM;
 
 use crate::pinouts::analog::output::AnalogOutput;
 use crate::pinouts::analog::output::PwmOutput;
+use libbeaglebone::enums::DeviceState;
 
 pub struct LibBeagleBonePwm {
     pwm: PWM,
@@ -27,8 +28,10 @@ impl PwmOutput for LibBeagleBonePwm {
 
 impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
+        let pwm = PWM::new(chip, num);
+        pwm.set_export(DeviceState::Exported).expect("Failed to export PWM!");
         Self {
-            pwm: PWM::new(chip, num),
+            pwm,
             period: 20_000
         }
     }
