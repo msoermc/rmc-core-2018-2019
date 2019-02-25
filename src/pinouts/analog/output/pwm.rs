@@ -22,7 +22,7 @@ impl PwmOutput for LibBeagleBonePwm {
     }
 
     fn set_period(&mut self, val: u32) {
-        self.pwm.set_period(val).unwrap()
+        self.pwm.set_period(val).unwrap();
         self.period = val;
     }
 }
