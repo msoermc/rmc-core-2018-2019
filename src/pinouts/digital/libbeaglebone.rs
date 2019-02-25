@@ -4,6 +4,7 @@ use libbeaglebone::gpio::PinState;
 
 use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::digital::output::DigitalOutput;
+use libbeaglebone::gpio::PinDirection;
 
 pub struct GpioPinout {
     pin: GPIO,
@@ -41,6 +42,7 @@ impl GpioPinout {
     pub fn new(pin_number: u8) -> Self {
         let pin = GPIO::new(pin_number);
         pin.set_export(DeviceState::Exported).unwrap();
+        pin.set_direction(PinDirection::Out).unwrap();
         Self {
             pin,
         }
