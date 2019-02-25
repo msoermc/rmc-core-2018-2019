@@ -25,6 +25,7 @@ use crate::mechatronics::commands::RobotCommandFactory;
 use std::sync::mpsc::sync_channel;
 use crate::pinouts::digital::libbeaglebone::GpioPinout;
 use crate::pinouts::factories::IoFactory;
+use std::thread;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -170,11 +171,11 @@ impl Robot {
     pub fn launch(self) {
         let bfr = self.bfr;
         let mut controller = self.controller;
-        let controller_thread = spawn(move || controller.start());
-        let _rocket_thread = spawn(move || bfr.launch());
-        self.bench.map(|bench| spawn(move || {
+        let controller_thread = thread::Builder::new().name("Controller Thread".to_string()).spawn(move || controller.start()).unwrap();
+        let _rocket_thread = thread::Builder::new().name("Rocket Thread".to_string()).spawn(move || bfr.launch()).unwrap();
+        self.bench.map(|bench| thread::Builder::new().name("Bench Thread".to_string()).spawn(move || {
             bench.launch();
-        }));
+        }).unwrap());
 
         controller_thread.join().expect("Controller thread panicked!");
     }
@@ -185,10 +186,10 @@ impl Robot {
     pub fn launch_tester(self) -> Client {
         let bfr = self.bfr;
         let mut controller = self.controller;
-        spawn(move || controller.start());
-        self.bench.map(|bench| spawn(move || {
+        thread::Builder::new().name("Controller Thread".to_string()).spawn(move || controller.start()).unwrap();
+        self.bench.map(|bench| thread::Builder::new().name("Bench Thread".to_string()).spawn(move || {
             bench.launch();
-        }));
+        }).unwrap());
         Client::new(bfr).expect("Failed to launch client!")
     }
 }
