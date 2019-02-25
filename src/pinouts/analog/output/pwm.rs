@@ -11,25 +11,43 @@ pub struct LibBeagleBonePwm {
 
 impl AnalogOutput for LibBeagleBonePwm {
     fn set_value(&mut self, val: f32) {
-        self.pwm.set_duty_cycle((val * self.period as f32) as u32).unwrap();
+        if self.pwm.set_duty_cycle((val * self.period as f32) as u32).is_err() {
+            error!("Failed to set duty cycle, re-exporting PWM!");
+            if self.pwm.set_export(DeviceState::Exported).is_err() {
+                error!("Failed to export PWM!");
+            }
+        }
     }
 }
 
 impl PwmOutput for LibBeagleBonePwm {
     fn set_pulse_duty_cycle(&mut self, val: u32) {
-        self.pwm.set_duty_cycle(val).unwrap();
+        if self.pwm.set_duty_cycle(val).is_err() {
+            error!("Failed to set duty cycle, re-exporting PWM!");
+            if self.pwm.set_export(DeviceState::Exported).is_err() {
+                error!("Failed to export PWM!");
+            }
+        }
     }
 
     fn set_period(&mut self, val: u32) {
-        self.pwm.set_period(val).unwrap();
-        self.period = val;
+        if self.pwm.set_period(val).is_err() {
+            error!("Failed to set period, re-exporting PWM!");
+            if self.pwm.set_export(DeviceState::Exported).is_err() {
+                error!("Failed to export PWM!");
+            }
+        } else {
+            self.period = val;
+        }
     }
 }
 
 impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
         let pwm = PWM::new(chip, num);
-        pwm.set_export(DeviceState::Exported).expect("Failed to export PWM!");
+        if pwm.set_export(DeviceState::Exported).is_err() {
+            error!("Failed to export PWM!");
+        }
         Self {
             pwm,
             period: 20_000
