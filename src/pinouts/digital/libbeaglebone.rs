@@ -29,8 +29,8 @@ impl DigitalInput for GpioPinout {
 impl GpioPinout {
     pub fn new(pin_number: u8) -> Self {
         let pin = GPIO::new(pin_number);
-        pin.set_export(DeviceState::Exported).unwrap();
         pin.set_direction(PinDirection::Out).unwrap();
+        pin.set_export(DeviceState::Exported).unwrap();
         Self {
             pin,
         }
