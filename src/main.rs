@@ -13,6 +13,7 @@ extern crate slog;
 use libbeaglebone::prelude::*;
 use std::time::Duration;
 use std::thread;
+use crate::pinouts::enable_pins;
 
 /// Contains all code responsible for monitoring system power.
 pub mod power;
@@ -69,6 +70,7 @@ mod integration_tests;
 //}
 
 fn main() {
+    enable_pins().unwrap();
     // Create a GPIO object at pin #69 that'll represent the LED, export it, and
     // set it as an output
     // Adjust the pin number to whatever pin your LED is connected to
