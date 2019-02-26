@@ -23,8 +23,7 @@ impl TestPin {
 }
 
 impl DigitalOutput for TestPin {
-    fn set_value(&mut self, val: bool) -> Result<(), String> {
+    fn set_value(&mut self, val: bool) {
         self.state.swap(val, Ordering::SeqCst);
-        Ok(())
     }
 }

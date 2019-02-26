@@ -11,23 +11,11 @@ pub struct GpioPinout {
 }
 
 impl DigitalOutput for GpioPinout {
-    fn set_value(&mut self, val: bool) -> Result<(), String> {
+    fn set_value(&mut self, val: bool) {
         if val {
-            if let Err(e) = self.pin.write(PinState::High) {
-                self.pin.set_export(DeviceState::Exported).unwrap();
-                error!("{:?}", e);
-                Err(format!("{:?}", e))
-            } else {
-                Ok(())
-            }
+            self.pin.write(PinState::High).unwrap()
         } else {
-            if let Err(e) = self.pin.write(PinState::Low) {
-                self.pin.set_export(DeviceState::Exported).unwrap();
-                error!("{:?}", e);
-                Err(format!("{:?}", e))
-            } else {
-                Ok(())
-            }
+            self.pin.write(PinState::Low).unwrap()
         }
     }
 }
