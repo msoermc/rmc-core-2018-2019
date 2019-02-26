@@ -5,6 +5,7 @@ use libbeaglebone::gpio::PinState;
 use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::digital::output::DigitalOutput;
 use libbeaglebone::gpio::PinDirection;
+use std::path::Prefix::DeviceNS;
 
 pub struct GpioPinout {
     pin: GPIO,
@@ -35,6 +36,14 @@ impl GpioPinout {
         }
         Self {
             pin,
+        }
+    }
+}
+
+impl Drop for GpioPinout {
+    fn drop(&mut self) {
+        if let Err(e) = self.pin.set_export(DeviceState::Unexported) {
+            error!("{}", e);
         }
     }
 }
