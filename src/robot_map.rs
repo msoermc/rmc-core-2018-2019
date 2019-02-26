@@ -1,4 +1,9 @@
 use slog::Level;
+use libbeaglebone::pins::Pin::GPIO_P8_9;
+use libbeaglebone::pins::Pin;
+use libbeaglebone::pins::Pin::GPIO_P9_12;
+use libbeaglebone::pins::Pin::GPIO_P8_17;
+use libbeaglebone::pins::Pin::GPIO_P8_11;
 
 // P9.14
 pub const FRONT_LEFT_DRIVE_STRING: &str = "P9_14";
@@ -22,19 +27,19 @@ pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 
 // P9.12
 pub const FRONT_LEFT_DIRECTION_STRING: &str = "P9_12";
-pub const FRONT_LEFT_DIRECTION: u8 = 60;
+pub const FRONT_LEFT_DIRECTION: Pin = GPIO_P9_12;
 
 // P8.9
 pub const FRONT_RIGHT_DIRECTION_STRING: &str = "P8_9";
-pub const FRONT_RIGHT_DIRECTION: u8 = 69;
+pub const FRONT_RIGHT_DIRECTION: Pin = GPIO_P8_9;
 
 // P8.17
 pub const REAR_LEFT_DIRECTION_STRING: &str = "P8_17";
-pub const REAR_LEFT_DIRECTION: u8 = 27;
+pub const REAR_LEFT_DIRECTION: Pin = GPIO_P8_17;
 
 // P8.11
 pub const REAR_RIGHT_DIRECTION_STRING: &str = "P8_11";
-pub const REAR_RIGHT_DIRECTION: u8 = 45;
+pub const REAR_RIGHT_DIRECTION: Pin = GPIO_P8_11;
 
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.

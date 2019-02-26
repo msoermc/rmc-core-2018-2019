@@ -6,6 +6,7 @@ use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::digital::output::DigitalOutput;
 use libbeaglebone::gpio::PinDirection;
 use std::path::Prefix::DeviceNS;
+use libbeaglebone::pins::Pin;
 
 pub struct GpioPinout {
     pin: GPIO,
@@ -28,7 +29,7 @@ impl DigitalInput for GpioPinout {
 }
 
 impl GpioPinout {
-    pub fn new(pin_number: u8) -> Self {
+    pub fn new(pin_number: Pin) -> Self {
         let pin = GPIO::new(pin_number);
         pin.set_export(DeviceState::Exported).unwrap();
         Self {

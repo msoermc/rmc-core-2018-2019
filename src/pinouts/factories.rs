@@ -4,6 +4,7 @@ use crate::pinouts::analog::output::PwmOutput;
 use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::digital::libbeaglebone::GpioPinout;
 use crate::pinouts::digital::output::DigitalOutput;
+use libbeaglebone::pins::Pin;
 
 pub struct IoFactory {}
 
@@ -20,13 +21,13 @@ impl IoFactory {
         Box::new(LibBeagleBonePwm::new(chip, num))
     }
 
-    pub fn generate_digital_input(&self, num: u8) -> Box<DigitalInput> {
+    pub fn generate_digital_input(&self, num: Pin) -> Box<DigitalInput> {
         let mut pin = GpioPinout::new(num);
         pin.set_input();
         Box::new(pin)
     }
 
-    pub fn generate_digital_output(&self, num: u8) -> Box<DigitalOutput> {
+    pub fn generate_digital_output(&self, num: Pin) -> Box<DigitalOutput> {
         let mut pin = GpioPinout::new(num);
         pin.set_output();
         Box::new(pin)
