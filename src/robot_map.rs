@@ -24,9 +24,9 @@ pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 pub const FRONT_LEFT_DIRECTION_STRING: &str = "P9_12";
 pub const FRONT_LEFT_DIRECTION: u8 = 60;
 
-// P8.7
-pub const FRONT_RIGHT_DIRECTION_STRING: &str = "P8_7";
-pub const FRONT_RIGHT_DIRECTION: u8 = 66;
+// P8.9
+pub const FRONT_RIGHT_DIRECTION_STRING: &str = "P8_9";
+pub const FRONT_RIGHT_DIRECTION: u8 = 69;
 
 // P8.17
 pub const REAR_LEFT_DIRECTION_STRING: &str = "P8_17";
