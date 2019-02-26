@@ -6,7 +6,7 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-libbeaglebone = ""
+libbeaglebone = {git = "https://github.com/ekmecic/libbeaglebone"}
 slog = ""
 log = ""
 slog-stdlog = ""

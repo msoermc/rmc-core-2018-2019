@@ -394,7 +394,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "libbeaglebone"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/ekmecic/libbeaglebone#1545e1d0e1987c763eb8469e6a0c79ca7aa2d3d0"
 dependencies = [
  "bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -778,7 +778,7 @@ name = "rmc-core"
 version = "0.1.0"
 dependencies = [
  "atomic 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "libbeaglebone 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libbeaglebone 0.5.0 (git+https://github.com/ekmecic/libbeaglebone)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_contrib 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1260,7 +1260,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 "checksum lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a374c89b9db55895453a74c1e38861d9deec0b01b405a82516e9d5de4820dea1"
 "checksum lazycell 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
-"checksum libbeaglebone 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ffa2f6766749f33167dc144ff3b9d770f966332a136dc96b14d1d728485c8469"
+"checksum libbeaglebone 0.5.0 (git+https://github.com/ekmecic/libbeaglebone)" = "<none>"
 "checksum libc 0.2.49 (registry+https://github.com/rust-lang/crates.io-index)" = "413f3dfc802c5dc91dc570b05125b6cda9855edfaa9825c9849807876376e70e"
 "checksum libudev 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ea626d3bdf40a1c5aee3bcd4f40826970cae8d80a8fec934c82a63840094dcfe"
 "checksum libudev-sys 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "3c8469b4a23b962c1396b9b451dda50ef5b283e8dd309d69033475fa9b334324"
