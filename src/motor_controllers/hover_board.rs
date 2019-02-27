@@ -1,8 +1,8 @@
 use crate::motor_controllers::GlobalMotorState;
-use crate::pinouts::AnalogOutput;
-use crate::pinouts::DigitalOutput;
 
 use super::MotorController;
+use crate::pinouts::digital::output::DigitalOutput;
+use crate::pinouts::analog::output::AnalogOutput;
 
 pub struct HoverBoardMotor {
     pwm: Box<AnalogOutput>,
@@ -55,10 +55,10 @@ mod tests {
     use atomic::Atomic;
     use atomic::Ordering as ExtOrd;
 
-    use crate::pinouts::TestPin;
-    use crate::pinouts::TestPwm;
 
     use super::*;
+    use crate::pinouts::analog::output::TestPwm;
+    use crate::pinouts::digital::TestPin;
 
     #[test]
     fn test_hobo() {
