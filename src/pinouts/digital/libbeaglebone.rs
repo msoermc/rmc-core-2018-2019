@@ -61,6 +61,12 @@ impl GpioPinout {
             error!("{}", error);
         }
     }
+
+    pub fn set_input_twice(&mut self) {
+        if let Err(error) = self.pin.set_direction(PinDirection::In) {
+            self.set_input();
+        }
+    }
 }
 
 impl Drop for GpioPinout {
