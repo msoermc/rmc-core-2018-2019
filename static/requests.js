@@ -1,3 +1,5 @@
+setInterval(get_state, 100);
+
 function drive_from_form() {
     let left = $("#left-drive").val();
     let right = $("#right-drive").val();
