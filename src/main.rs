@@ -10,11 +10,6 @@ extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
 
-use libbeaglebone::prelude::*;
-use std::time::Duration;
-use std::thread;
-use crate::pinouts::enable_pins;
-
 /// Contains all code responsible for monitoring system power.
 pub mod power;
 
@@ -64,28 +59,7 @@ mod integration_tests;
 fn main() {
     let _logging_guard = logging::launch_logger();
     let mut robot_builder = robot::RobotBuilder::new();
-//    robot_builder.with_bench();
+    robot_builder.with_bench();
     robot_builder.with_real();
     robot_builder.build().launch();
 }
-
-//fn main() {
-//    enable_pins().unwrap();
-//    // Create a GPIO object at pin #69 that'll represent the LED, export it, and
-//    // set it as an output
-//    // Adjust the pin number to whatever pin your LED is connected to
-//    let mut led = GPIO::new(GPIO_P8_9);
-//    led.set_export(DeviceState::Exported).unwrap();
-//    led.set_direction(PinDirection::Out).unwrap();
-//
-//    for _ in 1..11 {
-//        // Toggle the LED on and off every 250ms 10 times
-//        led.write(PinState::High).unwrap();
-//        thread::sleep(Duration::from_millis(250));
-//        led.write(PinState::Low).unwrap();
-//        thread::sleep(Duration::from_millis(250));
-//    }
-//
-//    // Unexport the LED once we're done with it.
-//    led.set_export(DeviceState::Unexported).unwrap();
-//}
