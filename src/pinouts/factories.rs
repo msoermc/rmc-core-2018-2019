@@ -29,8 +29,7 @@ impl IoFactory {
 
     pub fn generate_digital_output(&self, num: Pin) -> Box<DigitalOutput> {
         let mut pin = GpioPinout::new(num);
-        pin.set_output();
-        pin.set_output();
+        pin.set_output_twice();
         Box::new(pin)
     }
 }
