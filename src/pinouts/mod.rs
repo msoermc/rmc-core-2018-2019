@@ -1,10 +1,14 @@
 use std::process::Command;
-use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
 
-pub mod sysfs_pin_wrappers;
-pub mod sysfs_pwm_wrappers;
+/// Contains all code for "analog" pinout signals, including things that only simulate an analog signal like
+/// PWM.
+pub mod analog;
+
+/// Contains all code for digital pinout.
+pub mod digital;
+
+/// Contains factory functions for producing the pinouts used by the robot.
+pub mod factories;
 
 /// Runs a bash script which will enable the PWM drivers and configure the pins used by the program.
 pub fn enable_pins() -> Result<(), ()> {
@@ -19,63 +23,3 @@ pub fn enable_pins() -> Result<(), ()> {
     }
 }
 
-pub trait DigitalInput {
-    fn get_value(&self) -> Option<bool>;
-}
-
-pub trait DigitalOutput: Send {
-    fn set_value(&mut self, val: bool) -> Result<(), String>;
-}
-
-pub trait AnalogOutput: Send {
-    fn set_value(&mut self, val: f32) -> Result<(), String>;
-}
-
-pub trait PwmOutput: AnalogOutput {
-    fn set_pulse_width(&mut self, val: f32) -> Result<(), String>;
-}
-
-pub struct TestPin {
-    state: Arc<AtomicBool>,
-}
-
-impl DigitalOutput for TestPin {
-    fn set_value(&mut self, val: bool) -> Result<(), String> {
-        self.state.swap(val, Ordering::SeqCst);
-        Ok(())
-    }
-}
-
-impl TestPin {
-    pub fn new(state: Arc<AtomicBool>) -> Self {
-        Self {
-            state
-        }
-    }
-}
-
-pub struct TestPwm {
-    state: Arc<atomic::Atomic<f32>>,
-}
-
-impl AnalogOutput for TestPwm {
-    fn set_value(&mut self, val: f32) -> Result<(), String> {
-        self.state.swap(val, atomic::Ordering::SeqCst);
-        Ok(())
-    }
-}
-
-impl PwmOutput for TestPwm {
-    fn set_pulse_width(&mut self, val: f32) -> Result<(), String> {
-        self.state.swap(val, Ordering::SeqCst);
-        Ok(())
-    }
-}
-
-impl TestPwm {
-    pub fn new(state: Arc<atomic::Atomic<f32>>) -> Self {
-        Self {
-            state
-        }
-    }
-}

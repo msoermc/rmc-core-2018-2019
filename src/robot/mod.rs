@@ -19,12 +19,13 @@ use crate::motor_controllers::MotorController;
 use crate::motor_controllers::print_motor::PrintMotor;
 use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::enable_pins;
-use crate::pinouts::sysfs_pin_wrappers::SysfsPin;
-use crate::pinouts::sysfs_pwm_wrappers::SysfsPwm;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
 use crate::mechatronics::commands::RobotCommandFactory;
 use std::sync::mpsc::sync_channel;
+use crate::pinouts::digital::libbeaglebone::GpioPinout;
+use crate::pinouts::factories::IoFactory;
+use std::thread;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
@@ -78,15 +79,17 @@ impl RobotBuilder {
     pub fn with_real(&mut self) {
         enable_pins().expect("Failed to enable pins!");
 
-        let left_front_pwm = Box::new(SysfsPwm::create(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER, FRONT_LEFT_DRIVE_STRING).expect("Front left pwm"));
-        let right_front_pwm = Box::new(SysfsPwm::create(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER, FRONT_RIGHT_DRIVE_STRING).expect("Front right pwm"));
-        let left_rear_pwm = Box::new(SysfsPwm::create(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER, REAR_LEFT_DRIVE_STRING).expect("Rear left pwm"));
-        let right_rear_pwm = Box::new(SysfsPwm::create(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER, REAR_RIGHT_DRIVE_STRING).expect("Rear right pwm"));
+        let io_factory = IoFactory::new();
 
-        let front_right_direction = Box::new(SysfsPin::create(FRONT_RIGHT_DIRECTION, FRONT_RIGHT_DIRECTION_STRING).expect("Front right direction"));
-        let front_left_direction = Box::new(SysfsPin::create(FRONT_LEFT_DIRECTION, FRONT_LEFT_DIRECTION_STRING).expect("Front left direction"));
-        let rear_right_direction = Box::new(SysfsPin::create(REAR_RIGHT_DIRECTION, REAR_RIGHT_DIRECTION_STRING).expect("Rear right direction"));
-        let rear_left_direction = Box::new(SysfsPin::create(REAR_LEFT_DIRECTION, REAR_LEFT_DIRECTION_STRING).expect("Rear left direction"));
+        let left_front_pwm = io_factory.generate_analog_output(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER);
+        let right_front_pwm = io_factory.generate_analog_output(FRONT_RIGHT_PWM_CHIP, FRONT_RIGHT_PWM_NUMBER);
+        let left_rear_pwm = io_factory.generate_analog_output(REAR_LEFT_PWM_CHIP, REAR_LEFT_PWM_NUMBER);
+        let right_rear_pwm = io_factory.generate_analog_output(REAR_RIGHT_PWM_CHIP, REAR_RIGHT_PWM_NUMBER);
+
+        let front_right_direction = io_factory.generate_digital_output(FRONT_RIGHT_DIRECTION);
+        let front_left_direction = io_factory.generate_digital_output(FRONT_LEFT_DIRECTION);
+        let rear_right_direction = io_factory.generate_digital_output(REAR_RIGHT_DIRECTION);
+        let rear_left_direction = io_factory.generate_digital_output(REAR_LEFT_DIRECTION);
 
         let front_right_motor = Box::new(HoverBoardMotor::new(right_front_pwm, front_right_direction));
         let front_left_motor = Box::new(HoverBoardMotor::new(left_front_pwm, front_left_direction));
@@ -168,11 +171,11 @@ impl Robot {
     pub fn launch(self) {
         let bfr = self.bfr;
         let mut controller = self.controller;
-        let controller_thread = spawn(move || controller.start());
-        let _rocket_thread = spawn(move || bfr.launch());
-        self.bench.map(|bench| spawn(move || {
+        let controller_thread = thread::Builder::new().name("Controller Thread".to_string()).spawn(move || controller.start()).unwrap();
+        let _rocket_thread = thread::Builder::new().name("Rocket Thread".to_string()).spawn(move || bfr.launch()).unwrap();
+        self.bench.map(|bench| thread::Builder::new().name("Bench Thread".to_string()).spawn(move || {
             bench.launch();
-        }));
+        }).unwrap());
 
         controller_thread.join().expect("Controller thread panicked!");
     }
@@ -183,10 +186,10 @@ impl Robot {
     pub fn launch_tester(self) -> Client {
         let bfr = self.bfr;
         let mut controller = self.controller;
-        spawn(move || controller.start());
-        self.bench.map(|bench| spawn(move || {
+        thread::Builder::new().name("Controller Thread".to_string()).spawn(move || controller.start()).unwrap();
+        self.bench.map(|bench| thread::Builder::new().name("Bench Thread".to_string()).spawn(move || {
             bench.launch();
-        }));
+        }).unwrap());
         Client::new(bfr).expect("Failed to launch client!")
     }
 }

@@ -1,21 +1,17 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
 
-extern crate atomic;
 #[macro_use]
 extern crate log;
 #[macro_use]
 extern crate rocket;
-extern crate rocket_contrib;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
-extern crate slog_async;
-extern crate slog_scope;
-extern crate slog_stdlog;
-extern crate slog_term;
+
+/// Contains all code responsible for monitoring system power.
+pub mod power;
 
 /// Contains code for benchmarking the performance of the system.
 pub mod benchmarking;
@@ -64,6 +60,6 @@ fn main() {
     let _logging_guard = logging::launch_logger();
     let mut robot_builder = robot::RobotBuilder::new();
 //    robot_builder.with_bench();
-    //robot_builder.add_real_drive();
+    robot_builder.with_real();
     robot_builder.build().launch();
 }
