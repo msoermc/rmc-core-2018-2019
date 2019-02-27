@@ -1,12 +1,13 @@
+use std::path::Prefix::DeviceNS;
+
 use libbeaglebone::enums::DeviceState;
 use libbeaglebone::gpio::GPIO;
+use libbeaglebone::gpio::PinDirection;
 use libbeaglebone::gpio::PinState;
+use libbeaglebone::pins::Pin;
 
 use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::digital::output::DigitalOutput;
-use libbeaglebone::gpio::PinDirection;
-use std::path::Prefix::DeviceNS;
-use libbeaglebone::pins::Pin;
 
 pub struct GpioPinout {
     pin: GPIO,
@@ -14,10 +15,16 @@ pub struct GpioPinout {
 
 impl DigitalOutput for GpioPinout {
     fn set_value(&mut self, val: bool) {
+        let mut set_pin = |state| {
+            if let Err(e) = self.pin.write(state) {
+                error!("{}", e);
+                self.set_output();
+            }
+        };
         if val {
-            self.pin.write(PinState::High).unwrap()
+            set_pin(PinState::High);
         } else {
-            self.pin.write(PinState::Low).unwrap()
+            set_pin(PinState::Low);
         }
     }
 }
