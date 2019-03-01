@@ -31,7 +31,15 @@ impl DigitalOutput for GpioPinout {
 
 impl DigitalInput for GpioPinout {
     fn get_value(&self) -> Option<bool> {
-        self.pin.read().ok().map(|val| val == PinState::High)
+        match self.pin.read() {
+            Ok(val) => {
+                Some(PinState::High == val)
+            },
+            Err(e) => {
+                error!("{}", e);
+                None
+            },
+        }
     }
 }
 
