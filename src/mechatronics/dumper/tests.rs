@@ -4,8 +4,8 @@ use crate::motor_controllers::test_motor::TestMotor;
 
 #[test]
 fn test_setup() {
-    let life: Arc<GlobalLifeState> = Arc::new(Default::default());
-    let state: Arc<GlobalDumperState> = Arc::new(Default::default());
+    let life = Arc::new(GlobalLifeState::new());
+    let state = Arc::new(GlobalDumperState::new());
     let motor = Box::new(TestMotor::new(state.get_motor()));
 
     let _dumper = Dumper::new(life.clone(), motor, state.clone());
