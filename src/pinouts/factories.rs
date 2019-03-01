@@ -23,7 +23,7 @@ impl IoFactory {
 
     pub fn generate_digital_input(&self, num: Pin) -> Box<DigitalInput> {
         let mut pin = GpioPinout::new(num);
-        pin.set_input();
+        pin.set_input_twice();
         Box::new(pin)
     }
 

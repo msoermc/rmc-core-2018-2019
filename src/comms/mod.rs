@@ -1,7 +1,6 @@
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::sync::Mutex;
 
 use rocket::http::Status;
 use rocket::response::NamedFile;
