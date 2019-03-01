@@ -1,5 +1,6 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
+#![allow(clippy::new_without_default)]
 
 #[macro_use]
 extern crate log;
