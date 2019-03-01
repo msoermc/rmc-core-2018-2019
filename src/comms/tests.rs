@@ -8,6 +8,7 @@ use crate::mechatronics::commands::RobotCommand;
 
 use super::*;
 use std::sync::mpsc::sync_channel;
+use crate::status::life::GlobalLifeState;
 
 struct TestEnvironment {
     receiver: Receiver<Box<RobotCommand>>,
@@ -19,7 +20,7 @@ fn setup() -> TestEnvironment {
     let (controller_sender, controller_receiver) = sync_channel(20);
 
     // Create Robot status
-    let robot_status = Arc::new(Default::default());
+    let robot_status: Arc<GlobalRobotState> = Arc::new(Default::default());
 
     // Create RobotView
     let robot_view = RobotMessenger::new(controller_sender);

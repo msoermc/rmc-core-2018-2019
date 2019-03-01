@@ -24,10 +24,10 @@ pub struct GlobalRobotState {
 impl GlobalRobotState {
     pub fn new() -> Self {
         Self {
-            life: Arc::new(GlobalLifeState::new()),
-            drive: Arc::new(GlobalDriveTrainState::new()),
-            dumper: Arc::new(GlobalDumperState::new()),
-            intake: Arc::new(GlobalIntakeState::new()),
+            life: Arc::new(Default::default()),
+            drive: Arc::new(Default::default()),
+            dumper: Arc::new(Default::default()),
+            intake: Arc::new(Default::default()),
             cycles_per_sec: Arc::new(AtomicUsize::new(0)),
             cycle_counter: Arc::new(AtomicUsize::new(0)),
         }
