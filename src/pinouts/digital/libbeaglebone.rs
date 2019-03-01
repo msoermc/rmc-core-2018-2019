@@ -1,3 +1,5 @@
+use std::path::Prefix::DeviceNS;
+
 use libbeaglebone::enums::DeviceState;
 use libbeaglebone::gpio::GPIO;
 use libbeaglebone::gpio::PinDirection;
@@ -32,11 +34,11 @@ impl DigitalInput for GpioPinout {
         match self.pin.read() {
             Ok(val) => {
                 Some(PinState::High == val)
-            }
+            },
             Err(e) => {
                 error!("{}", e);
                 None
-            }
+            },
         }
     }
 }
@@ -59,7 +61,7 @@ impl GpioPinout {
     }
 
     pub fn set_output_twice(&mut self) {
-        if self.pin.set_direction(PinDirection::Out).is_err() {
+        if let Err(error) = self.pin.set_direction(PinDirection::Out) {
             self.set_output();
         }
     }
@@ -71,7 +73,7 @@ impl GpioPinout {
     }
 
     pub fn set_input_twice(&mut self) {
-        if self.pin.set_direction(PinDirection::In).is_err() {
+        if let Err(error) = self.pin.set_direction(PinDirection::In) {
             self.set_input();
         }
     }

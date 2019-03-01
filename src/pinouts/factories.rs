@@ -6,7 +6,6 @@ use crate::pinouts::digital::libbeaglebone::GpioPinout;
 use crate::pinouts::digital::output::DigitalOutput;
 use libbeaglebone::pins::Pin;
 
-#[derive(Default)]
 pub struct IoFactory {}
 
 impl IoFactory {

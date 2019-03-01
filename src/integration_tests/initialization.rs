@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn life() {
-    let mut builder = RobotBuilder::default();
+    let mut builder = RobotBuilder::new();
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.build();
@@ -13,7 +13,7 @@ fn life() {
 
 #[test]
 fn enabling() {
-    let mut builder = RobotBuilder::default();
+    let mut builder = RobotBuilder::new();
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.build();
@@ -26,7 +26,7 @@ fn enabling() {
 
 #[test]
 fn motors() {
-    let mut builder = RobotBuilder::default();
+    let mut builder = RobotBuilder::new();
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.build();

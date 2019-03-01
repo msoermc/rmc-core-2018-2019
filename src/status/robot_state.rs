@@ -11,7 +11,6 @@ use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::status::life::GlobalLifeState;
 use crate::status::life::LifeStateInstance;
 
-#[derive(Default)]
 pub struct GlobalRobotState {
     life: Arc<GlobalLifeState>,
     drive: Arc<GlobalDriveTrainState>,

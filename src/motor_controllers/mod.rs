@@ -20,7 +20,6 @@ pub trait MotorController: Send {
     fn get_motor_state(&self) -> &GlobalMotorState;
 }
 
-#[derive(Default)]
 pub struct GlobalMotorState {
     speed: Atomic<f32>,
 }
