@@ -99,7 +99,7 @@ impl RobotBuilder {
 
     /// Constructs the robot, using a default configuration with `PrintMotor`s.
     pub fn new() -> Self {
-        let state = Arc::new(GlobalRobotState::new());
+        let state = Arc::new(Default::default());
         let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
         let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));
         let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder().get_motor()));
