@@ -59,7 +59,7 @@ impl GpioPinout {
     }
 
     pub fn set_output_twice(&mut self) {
-        if let Err(error) = self.pin.set_direction(PinDirection::Out) {
+        if self.pin.set_direction(PinDirection::Out).is_err() {
             self.set_output();
         }
     }
@@ -71,7 +71,7 @@ impl GpioPinout {
     }
 
     pub fn set_input_twice(&mut self) {
-        if let Err(error) = self.pin.set_direction(PinDirection::In) {
+        if self.pin.set_direction(PinDirection::In).is_err() {
             self.set_input();
         }
     }

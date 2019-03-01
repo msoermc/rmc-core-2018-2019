@@ -1,6 +1,6 @@
 use std::sync::Arc;
-use std::sync::mpsc::channel;
-use std::thread::spawn;
+use std::sync::mpsc::sync_channel;
+use std::thread;
 
 use rocket::local::Client;
 use rocket::Rocket;
@@ -9,6 +9,7 @@ use crate::benchmarking::ControllerBench;
 use crate::comms;
 use crate::framework::Runnable;
 use crate::mechatronics::bucket_ladder::Intake;
+use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::controller::RobotController;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
@@ -19,13 +20,9 @@ use crate::motor_controllers::MotorController;
 use crate::motor_controllers::print_motor::PrintMotor;
 use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::enable_pins;
+use crate::pinouts::factories::IoFactory;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
-use crate::mechatronics::commands::RobotCommandFactory;
-use std::sync::mpsc::sync_channel;
-use crate::pinouts::digital::libbeaglebone::GpioPinout;
-use crate::pinouts::factories::IoFactory;
-use std::thread;
 
 /// Assembles the robot from components using the builder design pattern.
 /// If no preparation instructions are given, a default configuration using `PrintMotors` is assumed.
