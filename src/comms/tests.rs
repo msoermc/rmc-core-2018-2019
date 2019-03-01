@@ -19,7 +19,7 @@ fn setup() -> TestEnvironment {
     let (controller_sender, controller_receiver) = sync_channel(20);
 
     // Create Robot status
-    let robot_status = Arc::new(Default::default());
+    let robot_status = Arc::new(GlobalRobotState::new());
 
     // Create RobotView
     let robot_view = RobotMessenger::new(controller_sender);
