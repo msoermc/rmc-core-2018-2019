@@ -10,6 +10,7 @@ use crate::mechatronics::bucket_ladder::state::ladder::LadderStateInstance;
 pub mod actuator;
 pub mod ladder;
 
+#[derive(Default)]
 pub struct GlobalIntakeState {
     left_actuator: Arc<GlobalActuatorState>,
     right_actuator: Arc<GlobalActuatorState>,

@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorStateInstance;
 
+#[derive(Default)]
 pub struct GlobalLadderState {
     motor: Arc<GlobalMotorState>,
 }

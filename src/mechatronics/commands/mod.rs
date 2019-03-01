@@ -138,6 +138,7 @@ impl RobotCommand for LowerActuatorsCommand {
     }
 }
 
+#[derive(Default)]
 pub struct RobotCommandFactory {}
 
 impl RobotCommandFactory {

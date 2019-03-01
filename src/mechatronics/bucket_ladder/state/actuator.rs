@@ -5,6 +5,7 @@ use std::sync::atomic::Ordering;
 use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorStateInstance;
 
+#[derive(Default)]
 pub struct GlobalActuatorState {
     upper: Arc<AtomicBool>,
     lower: Arc<AtomicBool>,
