@@ -46,7 +46,9 @@ impl DigitalInput for GpioPinout {
 impl GpioPinout {
     pub fn new(pin_number: Pin) -> Self {
         let pin = GPIO::new(pin_number);
-        pin.set_export(DeviceState::Exported).unwrap();
+        if let Err(e) = pin.set_export(DeviceState::Exported) {
+            error!("{}", e);
+        }
         Self {
             pin,
         }
