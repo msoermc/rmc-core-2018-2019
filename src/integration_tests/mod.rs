@@ -5,7 +5,6 @@ use std::time::Duration;
 
 use rocket::http::Status;
 
-use crate::robot::RobotBuilder;
 use crate::robot_map::*;
 
 use super::*;
