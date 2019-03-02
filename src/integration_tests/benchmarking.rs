@@ -6,7 +6,6 @@ use std::thread::spawn;
 fn controller_cycles_per_second() {
     let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
-    builder.with_test();
     builder.with_bench();
     let robot = builder.generate().assemble();
     spawn(|| robot.launch());
