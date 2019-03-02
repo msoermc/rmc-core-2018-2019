@@ -5,6 +5,7 @@ use crate::builder::factories::SubsystemFactory;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::motor_controllers::hover_board::HoverBoardMotor;
 use crate::motor_controllers::motor_group::MotorGroup;
+use crate::motor_controllers::print_motor::PrintMotor;
 use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::factories::IoFactory;
 use crate::robot_map::*;
@@ -89,6 +90,13 @@ impl SubsystemFactory<DriveTrain> for TestDriveFactory {
 
 impl SubsystemFactory<DriveTrain> for PrintDriveFactory {
     fn produce(&self) -> DriveTrain {
-        unimplemented!()
+        let state = &self.state;
+        let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
+        let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));
+
+        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
+        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
+
+        DriveTrain::new(self.state.get_drive(), left_group, right_group, self.state.get_life())
     }
 }
