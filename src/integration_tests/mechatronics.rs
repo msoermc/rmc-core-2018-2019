@@ -2,10 +2,10 @@ use super::*;
 
 #[test]
 fn test_drive() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/drive").dispatch();
@@ -21,10 +21,10 @@ fn test_drive() {
 
 #[test]
 fn test_kill_drive() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/drive").dispatch();
@@ -43,10 +43,10 @@ fn test_kill_drive() {
 
 #[test]
 fn test_brake() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/drive").dispatch();
@@ -65,10 +65,10 @@ fn test_brake() {
 
 #[test]
 fn dig() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -83,10 +83,10 @@ fn dig() {
 
 #[test]
 fn stop_digger() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -104,10 +104,10 @@ fn stop_digger() {
 
 #[test]
 fn kill_digger() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -125,10 +125,10 @@ fn kill_digger() {
 
 #[test]
 fn raise() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -144,10 +144,10 @@ fn raise() {
 
 #[test]
 fn lower() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -163,10 +163,10 @@ fn lower() {
 
 #[test]
 fn stop_actuators() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -195,10 +195,10 @@ fn stop_actuators() {
 
 #[test]
 fn kill_actuators() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dig").dispatch();
@@ -230,10 +230,10 @@ fn kill_actuators() {
 
 #[test]
 fn dump() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dump").dispatch();
@@ -248,10 +248,10 @@ fn dump() {
 
 #[test]
 fn reset_dumper() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dump").dispatch();
@@ -266,10 +266,10 @@ fn reset_dumper() {
 
 #[test]
 fn stop_dumper() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dump").dispatch();
@@ -296,10 +296,10 @@ fn stop_dumper() {
 
 #[test]
 fn kill_dumper() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let client = robot.launch_tester();
 
     client.post("/robot/modes/dump").dispatch();

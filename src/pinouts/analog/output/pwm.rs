@@ -12,17 +12,28 @@ pub struct LibBeagleBonePwm {
 
 impl AnalogOutput for LibBeagleBonePwm {
     fn set_value(&mut self, val: f32) {
-        self.pwm.set_duty_cycle((val * self.period as f32) as u32).unwrap();
+        if let Err(e) = self.pwm.set_duty_cycle((val * self.period as f32) as u32) {
+            error!("{}", e);
+        }
     }
 }
 
 impl PwmOutput for LibBeagleBonePwm {
     fn set_pulse_duty_cycle(&mut self, val: u32) {
-        self.pwm.set_duty_cycle(val).unwrap();
+        if let Err(e) = self.pwm.set_duty_cycle(val) {
+            error!("{}", e);
+        }
+
+        if let Err(e) = self.pwm.set_period(val) {
+            error!("{}", e);
+        }
     }
 
     fn set_period(&mut self, val: u32) {
-        self.pwm.set_period(val).unwrap();
+        if let Err(e) = self.pwm.set_period(val) {
+            error!("{}", e);
+        }
+
         self.period = val;
     }
 }
@@ -30,11 +41,17 @@ impl PwmOutput for LibBeagleBonePwm {
 impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
         let mut pwm = PWM::new(chip, num);
-        if pwm.set_period(20_000).is_err() {
-            error!("Failed to set initial period of pwm {}, {}", chip, num);
+
+        if let Err(e) = pwm.set_period(20_000) {
+            error!("{}", e);
         }
-        pwm.set_export(DeviceState::Exported).unwrap();
-        pwm.set_state(PWMState::Enabled).unwrap();
+        if let Err(e) = pwm.set_export(DeviceState::Exported) {
+            error!("{}", e);
+        }
+        if let Err(e) = pwm.set_state(PWMState::Enabled) {
+            error!("{}", e);
+        }
+
         Self {
             pwm,
             period: 20_000,

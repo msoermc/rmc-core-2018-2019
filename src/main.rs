@@ -1,5 +1,6 @@
 //! ![uml](ml.svg)
 #![feature(proc_macro_hygiene, decl_macro)]
+#![allow(clippy::new_without_default)]
 
 #[macro_use]
 extern crate log;
@@ -9,6 +10,8 @@ extern crate rocket;
 extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
+
+use crate::builder::config::RobotAssemblyBuilder;
 
 /// Contains all code responsible for monitoring system power.
 pub mod power;
@@ -42,9 +45,6 @@ pub mod mechatronics;
 /// It is used to make reconfiguring pinouts a simpler process.
 pub mod robot_map;
 
-/// Used for building the robot and assembling all components together.
-pub mod robot;
-
 /// Contains code used to start the global logger.
 pub mod logging;
 
@@ -52,14 +52,22 @@ pub mod logging;
 /// the life status and global state.
 pub mod status;
 
+pub mod builder;
+
 /// Contains integration tests which test the full stack of the software.
 #[cfg(test)]
 mod integration_tests;
 
 fn main() {
     let _logging_guard = logging::launch_logger();
-    let mut robot_builder = robot::RobotBuilder::new();
-//    robot_builder.with_bench();
-    robot_builder.with_real();
-    robot_builder.build().launch();
+    let mut builder = RobotAssemblyBuilder::new();
+
+    builder
+        .with_production_ladder()
+        .with_production_dumper()
+        .with_production_drive();
+
+    builder.generate()
+        .assemble()
+        .launch();
 }

@@ -2,10 +2,10 @@ use super::*;
 
 #[test]
 fn life() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let _client = robot.launch_tester();
 
     assert_eq!(true, state.get_current_state().get_life().get_life());
@@ -13,10 +13,10 @@ fn life() {
 
 #[test]
 fn enabling() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let _client = robot.launch_tester();
 
     assert_eq!(false, state.get_drive().get_current_state().get_enabled());
@@ -26,10 +26,10 @@ fn enabling() {
 
 #[test]
 fn motors() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     let _client = robot.launch_tester();
 
     assert_eq!(0.0, state.get_intake().get_current_state().get_left_actuator().get_motor().get_speed());
