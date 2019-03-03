@@ -5,8 +5,16 @@ use crate::builder::factories::SubsystemFactory;
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::motor_controllers::motor_group::MotorGroup;
 use crate::motor_controllers::print_motor::PrintMotor;
+use crate::motor_controllers::roboclaw::RoboClaw;
 use crate::motor_controllers::test_motor::TestMotor;
+use crate::pinouts::analog::output::pwm::LibBeagleBonePwm;
 use crate::pinouts::factories::IoFactory;
+use crate::robot_map::ACTUATOR_LEFT_PWM_CHIP;
+use crate::robot_map::ACTUATOR_LEFT_PWM_NUM;
+use crate::robot_map::ACTUATOR_RIGHT_PWM_CHIP;
+use crate::robot_map::ACTUATOR_RIGHT_PWM_NUM;
+use crate::robot_map::DIGGER_PWM_CHIP;
+use crate::robot_map::DIGGER_PWM_NUM;
 use crate::status::robot_state::GlobalRobotState;
 
 pub struct ProductionIntakeFactory {
@@ -67,7 +75,17 @@ impl ToString for PrintIntakeFactory {
 
 impl SubsystemFactory<Intake> for ProductionIntakeFactory {
     fn produce(&self) -> Intake {
-        unimplemented!()
+        let state = &self.state;
+        let digger_pwm = Box::new(LibBeagleBonePwm::new(DIGGER_PWM_CHIP, DIGGER_PWM_NUM));
+        let left_pwm = Box::new(LibBeagleBonePwm::new(ACTUATOR_LEFT_PWM_CHIP, ACTUATOR_LEFT_PWM_NUM));
+        let right_pwm = Box::new(LibBeagleBonePwm::new(ACTUATOR_RIGHT_PWM_CHIP, ACTUATOR_RIGHT_PWM_NUM));
+        let digger_motor = Box::new(RoboClaw::new(digger_pwm));
+        let left_actuator = Box::new(RoboClaw::new(left_pwm));
+        let right_actuator = Box::new(RoboClaw::new(right_pwm));
+
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+
+        Intake::new(digger_group, left_actuator, right_actuator, state.get_intake(), state.get_life())
     }
 }
 
