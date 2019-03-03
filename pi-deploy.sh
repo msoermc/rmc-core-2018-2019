@@ -3,7 +3,8 @@
 BB_IP=192.168.1.29
 BB_PASSWD=msoe
 
-rm -rf ./test
+rm -rf ./test-release
+rm -rf ./test-debug
 
 cargo build
 cargo build --release
