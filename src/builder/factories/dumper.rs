@@ -8,6 +8,10 @@ use crate::motor_controllers::print_motor::PrintMotor;
 use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::factories::IoFactory;
 use crate::status::robot_state::GlobalRobotState;
+use crate::motor_controllers::roboclaw::RoboClaw;
+use crate::pinouts::analog::output::pwm::LibBeagleBonePwm;
+use crate::robot_map::DUMPER_PWM_CHIP;
+use crate::robot_map::DUMPER_PWM_NUM;
 
 pub struct ProductionDumperFactory {
     state: Arc<GlobalRobotState>,
@@ -67,8 +71,13 @@ impl ToString for PrintDumperFactory {
 
 impl SubsystemFactory<Dumper> for ProductionDumperFactory {
     fn produce(&self) -> Dumper {
-        unimplemented!()
-    }
+        let state = &self.state;
+        let pwm = Box::new(LibBeagleBonePwm::new(DUMPER_PWM_CHIP, DUMPER_PWM_NUM));
+        let dumper_motor = Box::new(RoboClaw::new(pwm));
+
+        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
+
+        Dumper::new(state.get_life(), dumper_group, state.get_dumper())    }
 }
 
 impl SubsystemFactory<Dumper> for TestDumperFactory {
