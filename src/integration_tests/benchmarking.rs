@@ -4,11 +4,10 @@ use std::thread::spawn;
 
 #[test]
 fn controller_cycles_per_second() {
-    let mut builder = RobotBuilder::new();
+    let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
-    builder.with_test();
     builder.with_bench();
-    let robot = builder.build();
+    let robot = builder.generate().assemble();
     spawn(|| robot.launch());
 
     sleep(Duration::from_secs(2));

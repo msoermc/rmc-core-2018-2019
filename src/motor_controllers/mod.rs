@@ -6,6 +6,7 @@ pub mod test_motor;
 pub mod motor_group;
 pub mod print_motor;
 pub mod decorators;
+pub mod roboclaw;
 
 pub trait MotorController: Send {
     /// Sets the current speed of the motor controller.
