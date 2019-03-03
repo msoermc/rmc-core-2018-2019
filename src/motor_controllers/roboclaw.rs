@@ -14,11 +14,11 @@ impl MotorController for RoboClaw {
     fn set_speed(&mut self, new_speed: f32) {
         let value = (new_speed + 1.0) / OUTPUT_VOLTAGE;
         self.pwm.set_value(value);
+        self.state.set_speed(new_speed);
     }
 
     fn stop(&mut self) {
         self.set_speed(0.0);
-        self.state.set_speed(0.0);
     }
 
     fn get_motor_state(&self) -> &GlobalMotorState {
@@ -65,7 +65,7 @@ mod tests {
         let output = Arc::new(atomic::Atomic::new(0.0));
         let pwm = Box::new(TestPwm::new(output.clone()));
 
-        let mut motor = RoboClaw::new(pwm);
+        let _motor = RoboClaw::new(pwm);
 
         assert_eq!(output_to_voltage(0.0), output.load(Ordering::SeqCst));
     }
@@ -80,6 +80,7 @@ mod tests {
         motor.set_speed(1.0);
 
         assert_eq!(2.0 / OUTPUT_VOLTAGE, output.load(Ordering::SeqCst));
+        assert_eq!(1.0, motor.get_motor_state().get_speed())
     }
 
     #[test]
@@ -92,6 +93,7 @@ mod tests {
         motor.set_speed(-1.0);
 
         assert_eq!(0.0, output.load(Ordering::SeqCst));
+        assert_eq!(-1.0, motor.get_motor_state().get_speed())
     }
 
     #[test]
@@ -106,5 +108,6 @@ mod tests {
         motor.stop();
 
         assert_eq!(1.0 / OUTPUT_VOLTAGE, output.load(Ordering::SeqCst));
+        assert_eq!(0.0, motor.get_motor_state().get_speed())
     }
 }
