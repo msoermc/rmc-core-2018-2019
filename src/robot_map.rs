@@ -25,6 +25,11 @@ pub const REAR_RIGHT_DRIVE_STRING: &str = "P8_13";
 pub const REAR_RIGHT_PWM_CHIP: u8 = 6;
 pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 
+// P9.22
+pub const DUMPER_PWM_CHIP: u8 = 0;
+pub const DUMPER_PWM_NUM: u8 = 0;
+
+
 // P9.12
 pub const FRONT_LEFT_DIRECTION_STRING: &str = "P9_12";
 pub const FRONT_LEFT_DIRECTION: Pin = GPIO_P9_12;
