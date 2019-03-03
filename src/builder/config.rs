@@ -50,6 +50,10 @@ impl RobotAssemblyBuilder {
         self.with_test_drive().with_test_dumper().with_test_ladder()
     }
 
+    pub fn with_production(&mut self) -> &mut Self {
+        self.with_production_drive().with_production_dumper().with_production_ladder()
+    }
+
     pub fn with_bench(&mut self) {
         let bench = ControllerBench::new(self.state.get_cycle_counter(), self.state.get_cycles_per_second());
         self.bench = Some(bench);
@@ -91,5 +95,48 @@ impl RobotAssemblyBuilder {
         let intake = self.intake.produce();
 
         RobotAssembler::new(dumper, drive, intake, self.state, self.bench)
+    }
+
+    pub fn get_drive_factory(&self) -> String {
+        self.drive.to_string()
+    }
+
+    pub fn get_dumper_factory(&self) -> String {
+        self.dumper.to_string()
+    }
+
+    pub fn get_intake_factory(&self) -> String {
+        self.intake.to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn global_production() {
+        let mut builder = RobotAssemblyBuilder::new();
+        builder.with_production();
+        assert_eq!("production drive", builder.get_drive_factory());
+        assert_eq!("production dumper", builder.get_dumper_factory());
+        assert_eq!("production intake", builder.get_intake_factory());
+    }
+
+    #[test]
+    fn global_test() {
+        let mut builder = RobotAssemblyBuilder::new();
+        builder.with_test();
+        assert_eq!("test drive", builder.get_drive_factory());
+        assert_eq!("test dumper", builder.get_dumper_factory());
+        assert_eq!("test intake", builder.get_intake_factory());
+    }
+
+    #[test]
+    fn global_print() {
+        let mut builder = RobotAssemblyBuilder::new();
+        assert_eq!("print drive", builder.get_drive_factory());
+        assert_eq!("print dumper", builder.get_dumper_factory());
+        assert_eq!("print intake", builder.get_intake_factory());
     }
 }

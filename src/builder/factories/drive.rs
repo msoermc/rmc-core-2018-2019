@@ -49,6 +49,24 @@ impl PrintDriveFactory {
     }
 }
 
+impl ToString for ProductionDriveFactory {
+    fn to_string(&self) -> String {
+        "production drive".to_owned()
+    }
+}
+
+impl ToString for TestDriveFactory {
+    fn to_string(&self) -> String {
+        "test drive".to_owned()
+    }
+}
+
+impl ToString for PrintDriveFactory {
+    fn to_string(&self) -> String {
+        "print drive".to_owned()
+    }
+}
+
 impl SubsystemFactory<DriveTrain> for ProductionDriveFactory {
     fn produce(&self) -> DriveTrain {
         let io_factory = &self.io;

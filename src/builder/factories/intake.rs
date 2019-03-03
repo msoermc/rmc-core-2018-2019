@@ -47,6 +47,24 @@ impl PrintIntakeFactory {
     }
 }
 
+impl ToString for ProductionIntakeFactory {
+    fn to_string(&self) -> String {
+        "production intake".to_owned()
+    }
+}
+
+impl ToString for TestIntakeFactory {
+    fn to_string(&self) -> String {
+        "test intake".to_owned()
+    }
+}
+
+impl ToString for PrintIntakeFactory {
+    fn to_string(&self) -> String {
+        "print intake".to_owned()
+    }
+}
+
 impl SubsystemFactory<Intake> for ProductionIntakeFactory {
     fn produce(&self) -> Intake {
         unimplemented!()

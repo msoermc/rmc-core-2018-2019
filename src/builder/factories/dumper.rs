@@ -47,6 +47,24 @@ impl PrintDumperFactory {
     }
 }
 
+impl ToString for ProductionDumperFactory {
+    fn to_string(&self) -> String {
+        "production dumper".to_owned()
+    }
+}
+
+impl ToString for TestDumperFactory {
+    fn to_string(&self) -> String {
+        "test dumper".to_owned()
+    }
+}
+
+impl ToString for PrintDumperFactory {
+    fn to_string(&self) -> String {
+        "print dumper".to_owned()
+    }
+}
+
 impl SubsystemFactory<Dumper> for ProductionDumperFactory {
     fn produce(&self) -> Dumper {
         unimplemented!()
