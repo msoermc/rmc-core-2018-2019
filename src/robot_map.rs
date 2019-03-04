@@ -30,11 +30,11 @@ pub const DIGGER_PWM_CHIP: u8 = 1;
 pub const DIGGER_PWM_NUM: u8 = 1;
 
 // P9.42
-pub const ACTUATOR_LEFT_PWM_CHIP: u8 = 0;
+pub const ACTUATOR_LEFT_PWM_CHIP: u8 = 2;
 pub const ACTUATOR_LEFT_PWM_NUM: u8 = 0;
 
 // P9.28
-pub const ACTUATOR_RIGHT_PWM_CHIP: u8 = 5;
+pub const ACTUATOR_RIGHT_PWM_CHIP: u8 = 7;
 pub const ACTUATOR_RIGHT_PWM_NUM: u8 = 0;
 
 // P9.12
