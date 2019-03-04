@@ -6,7 +6,7 @@ use libbeaglebone::pins::Pin::GPIO_P9_12;
 use slog::Level;
 
 // P9.14
-pub const FRONT_LEFT_PWM_CHIP: u8 = 1;
+pub const FRONT_LEFT_PWM_CHIP: u8 = 3;
 pub const FRONT_LEFT_PWM_NUMBER: u8 = 0;
 
 // P9.16
@@ -22,7 +22,7 @@ pub const REAR_RIGHT_PWM_CHIP: u8 = 6;
 pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 
 // P9.22
-pub const DUMPER_PWM_CHIP: u8 = 3;
+pub const DUMPER_PWM_CHIP: u8 = 1;
 pub const DUMPER_PWM_NUM: u8 = 0;
 
 // P9.21
