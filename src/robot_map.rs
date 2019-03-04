@@ -54,7 +54,7 @@ pub const REAR_RIGHT_DIRECTION: Pin = GPIO_P8_11;
 pub const LOG_PATH: &str = "./rmc.log";
 
 /// The lowest level of logs which will be displayed to the user.
-pub const LOG_FILTER_LEVEL: Level = Level::Info;
+pub const LOG_FILTER_LEVEL: Level = Level::Warning;
 
 /// The speed given to the motors as they dig.
 pub const DIGGING_RATE: f32 = 1.0;
