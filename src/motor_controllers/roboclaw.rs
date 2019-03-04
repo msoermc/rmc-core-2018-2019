@@ -34,7 +34,7 @@ impl RoboClaw {
             state: GlobalMotorState::new(),
         };
 
-        result.set_speed(1.0);
+        result.set_speed(0.0);
         result
     }
 }
