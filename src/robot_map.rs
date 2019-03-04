@@ -1,9 +1,9 @@
-use slog::Level;
-use libbeaglebone::pins::Pin::GPIO_P8_9;
 use libbeaglebone::pins::Pin;
-use libbeaglebone::pins::Pin::GPIO_P9_12;
-use libbeaglebone::pins::Pin::GPIO_P8_17;
 use libbeaglebone::pins::Pin::GPIO_P8_11;
+use libbeaglebone::pins::Pin::GPIO_P8_17;
+use libbeaglebone::pins::Pin::GPIO_P8_9;
+use libbeaglebone::pins::Pin::GPIO_P9_12;
+use slog::Level;
 
 // P9.14
 pub const FRONT_LEFT_PWM_CHIP: u8 = 3;
@@ -22,19 +22,19 @@ pub const REAR_RIGHT_PWM_CHIP: u8 = 6;
 pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 
 // P9.22
-pub const DUMPER_PWM_CHIP: u8 = 0;
+pub const DUMPER_PWM_CHIP: u8 = 1;
 pub const DUMPER_PWM_NUM: u8 = 0;
 
 // P9.21
-pub const DIGGER_PWM_CHIP: u8 = 0;
+pub const DIGGER_PWM_CHIP: u8 = 1;
 pub const DIGGER_PWM_NUM: u8 = 1;
 
 // P9.42
-pub const ACTUATOR_LEFT_PWM_CHIP: u8 = 2;
+pub const ACTUATOR_LEFT_PWM_CHIP: u8 = 0;
 pub const ACTUATOR_LEFT_PWM_NUM: u8 = 0;
 
 // P9.28
-pub const ACTUATOR_RIGHT_PWM_CHIP: u8 = 7;
+pub const ACTUATOR_RIGHT_PWM_CHIP: u8 = 2;
 pub const ACTUATOR_RIGHT_PWM_NUM: u8 = 0;
 
 // P9.12
