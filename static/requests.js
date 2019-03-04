@@ -1,4 +1,4 @@
-setInterval(get_state, 100);
+setInterval(get_state, 10000);
 
 function drive_from_form() {
     let left = $("#left-drive").val();
