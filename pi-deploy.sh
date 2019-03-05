@@ -2,7 +2,7 @@
 
 BB_IP=192.168.1.29
 BB_PASSWD=msoe
-ROBOT_DIR=~/robot
+ROBOT_DIR=/home/rmc/robot
 
 rm -rf ./test-release
 rm -rf ./test-debug
