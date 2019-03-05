@@ -1,6 +1,6 @@
 use super::*;
 
-const TIMEOUT_MILLIS: u64 = 200;
+const TIMEOUT_MILLIS: u64 = 500;
 
 #[test]
 fn drive() {
