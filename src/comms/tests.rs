@@ -78,6 +78,14 @@ fn test_index() {
 }
 
 #[test]
+fn favicon() {
+    let env = setup();
+    let mut response = env.client.get("/favicon.ico").dispatch();
+    assert_eq!(Status::Ok, response.status());
+    assert!(response.body().is_some());
+}
+
+#[test]
 fn test_file() {
     let env = setup();
     let mut response = env.client.get("/static/main.css").dispatch();
