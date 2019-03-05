@@ -18,6 +18,7 @@ use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
 use crate::pinouts::factories::IoFactory;
 use crate::status::robot_state::GlobalRobotState;
+use crate::pinouts::enable_pins;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
@@ -26,6 +27,7 @@ pub struct RobotAssemblyBuilder {
     state: Arc<GlobalRobotState>,
     bench: Option<ControllerBench>,
     io: Rc<IoFactory>,
+    pin_enabled_status: bool,
 }
 
 impl RobotAssemblyBuilder {
@@ -39,6 +41,7 @@ impl RobotAssemblyBuilder {
             state,
             bench: None,
             io: Rc::new(IoFactory::new()),
+            pin_enabled_status: false,
         }
     }
 
@@ -61,7 +64,7 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_drive(&mut self) -> &mut Self {
         self.drive = Box::new(ProductionDriveFactory::new(self.state.clone(), self.io.clone()));
-        self
+        self.with_pinouts()
     }
 
     pub fn with_test_drive(&mut self) -> &mut Self {
@@ -71,7 +74,7 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_dumper(&mut self) -> &mut Self {
         self.dumper = Box::new(ProductionDumperFactory::new(self.state.clone(), self.io.clone()));
-        self
+        self.with_pinouts()
     }
 
     pub fn with_test_dumper(&mut self) -> &mut Self {
@@ -81,7 +84,7 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_ladder(&mut self) -> &mut Self {
         self.intake = Box::new(ProductionIntakeFactory::new(self.state.clone(), self.io.clone()));
-        self
+        self.with_pinouts()
     }
 
     pub fn with_test_ladder(&mut self) -> &mut Self {
@@ -108,6 +111,24 @@ impl RobotAssemblyBuilder {
     pub fn get_intake_factory(&self) -> String {
         self.intake.to_string()
     }
+
+    fn with_pinouts(&mut self) -> &mut Self {
+        if false == self.pin_enabled_status {
+            if enable_pins().is_err() {
+                error!("Failed to enable pins!");
+            } else {
+                info!("Enabled pins!");
+                self.pin_enabled_status = true;
+            }
+        } else {
+            info!("Pins already enabled, skipping enable");
+        }
+        self
+    }
+
+    fn get_pin_status(&self) -> bool {
+        self.pin_enabled_status
+    }
 }
 
 #[cfg(test)]
@@ -121,6 +142,7 @@ mod tests {
         assert_eq!("production drive", builder.get_drive_factory());
         assert_eq!("production dumper", builder.get_dumper_factory());
         assert_eq!("production intake", builder.get_intake_factory());
+        assert_eq!(true, builder.get_pin_status());
     }
 
     #[test]
@@ -130,6 +152,7 @@ mod tests {
         assert_eq!("test drive", builder.get_drive_factory());
         assert_eq!("test dumper", builder.get_dumper_factory());
         assert_eq!("test intake", builder.get_intake_factory());
+        assert_eq!(false, builder.get_pin_status());
     }
 
     #[test]
@@ -138,5 +161,6 @@ mod tests {
         assert_eq!("print drive", builder.get_drive_factory());
         assert_eq!("print dumper", builder.get_dumper_factory());
         assert_eq!("print intake", builder.get_intake_factory());
+        assert_eq!(false, builder.get_pin_status());
     }
 }
