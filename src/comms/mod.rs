@@ -199,6 +199,11 @@ fn revive(state: State<ServerState>) {
     state.messenger.send_command(Box::new(state.command_factory.generate_revive_command()));
 }
 
+#[get("/favicon.ico")]
+fn favicon() -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join("favicon.png")).ok()
+}
+
 /// Retrieves the index.html file
 #[get("/")]
 fn index() -> Option<NamedFile> {
