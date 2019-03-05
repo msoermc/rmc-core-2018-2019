@@ -52,7 +52,8 @@ pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_fa
                               stop_rails,
                               switch_mode,
                               index,
-                              files])
+                              files,
+                              favicon,])
 }
 
 /// Responds with the current state of the robot, as a JSON object.
