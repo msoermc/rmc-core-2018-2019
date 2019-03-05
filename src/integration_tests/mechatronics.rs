@@ -1,5 +1,7 @@
 use super::*;
 
+const TIMEOUT_MILLIS: u64 = 50;
+
 #[test]
 fn test_drive() {
     let mut builder = RobotAssemblyBuilder::new();
