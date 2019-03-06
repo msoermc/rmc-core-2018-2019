@@ -30,9 +30,6 @@ pub mod pinouts;
 /// state structs.
 pub mod motor_controllers;
 
-/// Contains all code for sensors more complicated than a limit switch.
-pub mod sensors;
-
 /// The comms module contains the code for running the HTTP server
 pub mod comms;
 
