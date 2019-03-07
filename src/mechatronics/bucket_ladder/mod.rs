@@ -4,7 +4,6 @@ use std::sync::atomic::AtomicBool;
 use atomic::Ordering;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
-use crate::motor_controllers::decorators::dual_limit::DualLimitMotor;
 use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
 use crate::status::life::GlobalLifeState;
