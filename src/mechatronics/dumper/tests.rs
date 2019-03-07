@@ -21,7 +21,7 @@ fn test_dump() {
     let motor = Box::new(TestMotor::new(state.get_motor()));
 
     let mut dumper = Dumper::new(life.clone(), motor, state.clone());
-    state.set_enabled(true);
+    dumper.enable();
 
     dumper.dump();
     assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
@@ -61,7 +61,7 @@ fn test_reset() {
     let motor = Box::new(TestMotor::new(state.get_motor()));
 
     let mut dumper = Dumper::new(life.clone(), motor, state.clone());
-    state.set_enabled(true);
+    dumper.enable();
 
     dumper.reset();
     assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
