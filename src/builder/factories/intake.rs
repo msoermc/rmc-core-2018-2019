@@ -81,19 +81,20 @@ impl SubsystemFactory<Intake> for ProductionIntakeFactory {
         let digger_motor = Box::new(RoboClaw::new(digger_pwm));
         let left_actuator = Box::new(RoboClaw::new(left_pwm));
 
-        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let actuator_group = Box::new(MotorGroup::new(vec![left_actuator], state.get_intake().get_actuator()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder()));
 
-        Intake::new(digger_group, left_actuator, state.get_intake(), state.get_life())
+        Intake::new(digger_group, actuator_group, state.get_intake(), state.get_life())
     }
 }
 
 impl SubsystemFactory<Intake> for TestIntakeFactory {
     fn produce(&self) -> Intake {
         let state = &self.state;
-        let digger_motor = Box::new(TestMotor::new(state.get_intake().get_ladder().get_motor()));
-        let left_actuator = Box::new(TestMotor::new(state.get_intake().get_left_actuator().get_motor()));
+        let digger_motor = Box::new(TestMotor::new(state.get_intake().get_ladder()));
+        let left_actuator = Box::new(TestMotor::new(state.get_intake().get_actuator()));
 
-        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder()));
 
         Intake::new(digger_group, left_actuator, state.get_intake(), state.get_life())
     }
@@ -102,10 +103,10 @@ impl SubsystemFactory<Intake> for TestIntakeFactory {
 impl SubsystemFactory<Intake> for PrintIntakeFactory {
     fn produce(&self) -> Intake {
         let state = &self.state;
-        let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder().get_motor()));
-        let left_actuator = Box::new(PrintMotor::new("Actuators", state.get_intake().get_left_actuator().get_motor()));
+        let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder()));
+        let left_actuator = Box::new(PrintMotor::new("Actuators", state.get_intake().get_actuator()));
 
-        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder().get_motor()));
+        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder()));
 
         Intake::new(digger_group, left_actuator, state.get_intake(), state.get_life())
     }

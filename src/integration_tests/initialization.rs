@@ -32,9 +32,8 @@ fn motors() {
     let robot = builder.generate().assemble();
     let _client = robot.launch_tester();
 
-    assert_eq!(0.0, state.get_intake().get_current_state().get_left_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_intake().get_current_state().get_right_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_intake().get_ladder().get_current_state().get_motor().get_speed());
+    assert_eq!(0.0, state.get_intake().get_current_state().get_actuator().get_speed());
+    assert_eq!(0.0, state.get_intake().get_ladder().get_current_state().get_speed());
 
     assert_eq!(0.0, state.get_drive().get_current_state().get_left().get_speed());
     assert_eq!(0.0, state.get_drive().get_current_state().get_right().get_speed());

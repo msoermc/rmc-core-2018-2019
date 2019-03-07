@@ -80,7 +80,7 @@ fn dig() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(DIGGING_RATE, state.get_current_state().get_intake().get_ladder().get_motor().get_speed());
+    assert_eq!(DIGGING_RATE, state.get_current_state().get_intake().get_digger().get_speed());
 }
 
 #[test]
@@ -101,7 +101,7 @@ fn stop_digger() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_ladder().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
 }
 
 #[test]
@@ -122,7 +122,7 @@ fn kill_digger() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_ladder().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
 }
 
 #[test]
@@ -140,8 +140,7 @@ fn raise() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_actuator().get_speed());
 }
 
 #[test]
@@ -159,8 +158,7 @@ fn lower() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_actuator().get_speed());
 }
 
 #[test]
@@ -181,8 +179,7 @@ fn stop_actuators() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_actuator().get_speed());
 
     let response = client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -191,8 +188,7 @@ fn stop_actuators() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_actuator().get_speed());
 }
 
 #[test]
@@ -213,8 +209,7 @@ fn kill_actuators() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_actuator().get_speed());
 
     let response = client.post("/robot/revive").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -226,8 +221,7 @@ fn kill_actuators() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(Status::Ok, response.status());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_right_actuator().get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_intake().get_left_actuator().get_motor().get_speed());
+    assert_eq!(0.0, state.get_current_state().get_intake().get_actuator().get_speed());
 }
 
 #[test]
