@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use atomic::Atomic;
 use crate::pinouts::analog::input::AnalogInput;
+use crate::framework::Runnable;
 
 /// Monitors current and updates it's state accordingly.
 pub struct CurrentMonitor {
@@ -16,9 +17,14 @@ impl CurrentMonitor {
             current,
         }
     }
+}
 
-    /// Launches the power monitor, taking over this thread.
-    pub fn launch(mut self) {
-        // TODO
+impl Runnable for CurrentMonitor {
+    fn init(&mut self) {
+        unimplemented!()
+    }
+
+    fn run(&mut self) {
+        unimplemented!()
     }
 }
