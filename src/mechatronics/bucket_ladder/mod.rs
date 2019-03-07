@@ -47,7 +47,7 @@ impl Intake {
     }
 
     pub fn raise(&mut self) {
-        if self.is_enabled() && self.life.is_alive() && !(self.state.get_left_actuator().get_upper().load(Ordering::Relaxed) && self.state.get_right_actuator().get_upper().load(Ordering::Relaxed)) {
+        if self.check_if_safe_to_move_actuators(self.state.get_left_actuator().get_upper(), self.state.get_right_actuator().get_upper()) {
             self.actuator.set_speed(MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators()
@@ -55,7 +55,7 @@ impl Intake {
     }
 
     pub fn lower(&mut self) {
-        if self.is_enabled() && self.life.is_alive() {
+        if self.check_if_safe_to_move_actuators(self.state.get_left_actuator().get_lower(), self.state.get_right_actuator().get_lower()) {
             self.actuator.set_speed(-MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators();

@@ -2,29 +2,23 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
-use crate::motor_controllers::GlobalMotorState;
-use crate::motor_controllers::MotorStateInstance;
-
-pub struct GlobalActuatorState {
+pub struct GlobalActuatorLimitState {
     upper: Arc<AtomicBool>,
     lower: Arc<AtomicBool>,
-    motor: Arc<GlobalMotorState>,
 }
 
-impl GlobalActuatorState {
+impl GlobalActuatorLimitState {
     pub fn new() -> Self {
-        GlobalActuatorState {
+        GlobalActuatorLimitState {
             upper: Arc::new(AtomicBool::new(false)),
             lower: Arc::new(AtomicBool::new(false)),
-            motor: Arc::new(GlobalMotorState::new()),
         }
     }
 
-    pub fn get_current_state(&self) -> ActuatorStateInstance {
-        ActuatorStateInstance::new(
+    pub fn get_current_state(&self) -> ActuatorLimitStateInstance {
+        ActuatorLimitStateInstance::new(
             self.upper.load(Ordering::Relaxed),
             self.lower.load(Ordering::Relaxed),
-            self.motor.get_current_state(),
         )
     }
 
@@ -43,25 +37,19 @@ impl GlobalActuatorState {
     pub fn get_lower(&self) -> Arc<AtomicBool> {
         self.lower.clone()
     }
-
-    pub fn get_motor(&self) -> Arc<GlobalMotorState> {
-        self.motor.clone()
-    }
 }
 
 #[derive(Serialize)]
-pub struct ActuatorStateInstance {
+pub struct ActuatorLimitStateInstance {
     upper: bool,
     lower: bool,
-    motor: MotorStateInstance,
 }
 
-impl ActuatorStateInstance {
-    fn new(upper: bool, lower: bool, motor: MotorStateInstance) -> Self {
-        ActuatorStateInstance {
+impl ActuatorLimitStateInstance {
+    fn new(upper: bool, lower: bool) -> Self {
+        ActuatorLimitStateInstance {
             upper,
             lower,
-            motor,
         }
     }
 
@@ -71,9 +59,5 @@ impl ActuatorStateInstance {
 
     pub fn get_lower(&self) -> bool {
         self.lower
-    }
-
-    pub fn get_motor(&self) -> &MotorStateInstance {
-        &self.motor
     }
 }
