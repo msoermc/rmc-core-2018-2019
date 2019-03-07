@@ -13,10 +13,9 @@ struct IntakeEnvironment {
 fn create_environment() -> IntakeEnvironment {
     let state = Arc::new(GlobalIntakeState::new());
     let left = Box::new(TestMotor::new(state.get_left_actuator().get_motor()));
-    let right = Box::new(TestMotor::new(state.get_right_actuator().get_motor()));
     let ladder = Box::new(TestMotor::new(state.get_ladder().get_motor()));
     let life = Arc::new(GlobalLifeState::new());
-    let intake = Intake::new(ladder, left, right, state.clone(), life.clone());
+    let intake = Intake::new(ladder, left, state.clone(), life.clone());
 
     IntakeEnvironment {
         state,
