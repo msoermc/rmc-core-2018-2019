@@ -1,4 +1,7 @@
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+
+use atomic::Ordering;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::motor_controllers::decorators::dual_limit::DualLimitMotor;
@@ -12,67 +15,59 @@ pub mod state;
 mod tests;
 
 pub struct Intake {
-    left_actuator: Box<MotorController>,
-    right_actuator: Box<MotorController>,
+    actuator: Box<MotorController>,
     ladder: Box<MotorController>,
     state: Arc<GlobalIntakeState>,
     life: Arc<GlobalLifeState>,
+    enabled_cache: bool,
 }
 
 impl Intake {
-    pub fn new(ladder: Box<MotorController>, left_actuator: Box<MotorController>,
-               right_actuator: Box<MotorController>, state: Arc<GlobalIntakeState>,
-               life: Arc<GlobalLifeState>) -> Self {
-        let left_actuator = DualLimitMotor::new(left_actuator, state.get_left_actuator().get_upper(), state.get_left_actuator().get_lower());
-        let right_actuator = DualLimitMotor::new(right_actuator, state.get_right_actuator().get_upper(), state.get_right_actuator().get_lower());
-
-        let left_actuator = Box::new(left_actuator);
-        let right_actuator = Box::new(right_actuator);
-
+    pub fn new(ladder: Box<MotorController>, actuator: Box<MotorController>, state: Arc<GlobalIntakeState>, life: Arc<GlobalLifeState>) -> Self {
+        let enabled_cache = state.get_enabled();
         Self {
-            left_actuator,
-            right_actuator,
+            actuator,
             ladder,
             state,
             life,
+            enabled_cache,
         }
     }
 
     pub fn enable(&mut self) {
         self.state.set_enabled(true);
+        self.enabled_cache = true;
     }
 
     pub fn disable(&mut self) {
         self.state.set_enabled(false);
+        self.enabled_cache = false;
         self.stop_ladder();
         self.stop_actuators();
     }
 
     pub fn raise(&mut self) {
-        if self.state.get_enabled() && self.life.is_alive() {
-            self.left_actuator.set_speed(MH_ACTUATOR_RATE);
-            self.right_actuator.set_speed(MH_ACTUATOR_RATE);
+        if self.is_enabled() && self.life.is_alive() && !(self.state.get_left_actuator().get_upper().load(Ordering::Relaxed) && self.state.get_right_actuator().get_upper().load(Ordering::Relaxed)) {
+            self.actuator.set_speed(MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators()
         }
     }
 
     pub fn lower(&mut self) {
-        if self.state.get_enabled() && self.life.is_alive() {
-            self.left_actuator.set_speed(-MH_ACTUATOR_RATE);
-            self.right_actuator.set_speed(-MH_ACTUATOR_RATE);
+        if self.is_enabled() && self.life.is_alive() {
+            self.actuator.set_speed(-MH_ACTUATOR_RATE);
         } else {
             self.stop_actuators();
         }
     }
 
     pub fn stop_actuators(&mut self) {
-        self.left_actuator.stop();
-        self.right_actuator.stop();
+        self.actuator.stop();
     }
 
     pub fn dig(&mut self) {
-        if self.state.get_enabled() && self.life.is_alive() {
+        if self.is_enabled() && self.life.is_alive() {
             self.ladder.set_speed(DIGGING_RATE);
         } else {
             self.stop_ladder();
@@ -84,11 +79,26 @@ impl Intake {
     }
 
     pub fn run_cycle(&mut self) {
-        if self.life.is_alive() && self.state.get_enabled() {
+        if self.life.is_alive() && self.is_enabled() {
             // TODO
         } else {
             self.stop_ladder();
             self.stop_actuators();
         }
     }
+
+    #[inline]
+    fn is_enabled(&self) -> bool {
+        self.enabled_cache
+    }
+
+    #[inline]
+    fn check_if_safe_to_move_actuators(&self, left: Arc<AtomicBool>, right: Arc<AtomicBool>) -> bool {
+        check_actuator_limits(left, right) && self.is_enabled() && self.life.is_alive()
+    }
+}
+
+#[inline]
+fn check_actuator_limits(left: Arc<AtomicBool>, right: Arc<AtomicBool>) -> bool {
+    !(left.load(Ordering::Relaxed) && right.load(Ordering::Relaxed))
 }
