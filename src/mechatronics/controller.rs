@@ -9,7 +9,6 @@ use crate::mechatronics::commands::RobotCommand;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
 use crate::status::life::GlobalLifeState;
-use std::thread;
 
 pub enum MechState {
     Digging,
@@ -44,8 +43,6 @@ impl Runnable for RobotController {
         self.intake.run_cycle();
 
         self.cycles.fetch_add(1, Ordering::SeqCst);
-
-        thread::yield_now();
     }
 }
 
