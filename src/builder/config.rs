@@ -113,7 +113,7 @@ impl RobotAssemblyBuilder {
     }
 
     fn with_pinouts(&mut self) -> &mut Self {
-        if false == self.pin_enabled_status {
+        if !self.get_pin_status() {
             if enable_pins().is_err() {
                 error!("Failed to enable pins!");
             } else {
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn global_print() {
-        let mut builder = RobotAssemblyBuilder::new();
+        let builder = RobotAssemblyBuilder::new();
         assert_eq!("print drive", builder.get_drive_factory());
         assert_eq!("print dumper", builder.get_dumper_factory());
         assert_eq!("print intake", builder.get_intake_factory());
