@@ -1,6 +1,7 @@
 use std::sync::mpsc::SyncSender;
 
 use crate::mechatronics::commands::RobotCommand;
+use std::thread;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -30,5 +31,6 @@ impl RobotMessenger {
     #[inline]
     pub fn send_command(&self, command: Box<RobotCommand>) {
         self.channel.send(command).unwrap();
+        thread::yield_now()
     }
 }
