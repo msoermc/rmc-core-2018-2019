@@ -177,6 +177,9 @@ fn test_raise_limits() {
     assert_eq!(true, environment.state.get_right_actuator().get_current_state().get_upper());
     assert_eq!(true, environment.state.get_left_actuator().get_current_state().get_upper());
 
+    assert_eq!(true, environment.state.get_current_state().get_right_actuator().get_upper());
+    assert_eq!(true, environment.state.get_current_state().get_left_actuator().get_upper());
+
     environment.intake.raise();
 
     assert_eq!(0.0, environment.state.get_current_state().get_actuator().get_speed());
@@ -202,6 +205,9 @@ fn test_lower_limits() {
 
     assert_eq!(true, environment.state.get_right_actuator().get_current_state().get_lower());
     assert_eq!(true, environment.state.get_left_actuator().get_current_state().get_lower());
+
+    assert_eq!(true, environment.state.get_current_state().get_right_actuator().get_lower());
+    assert_eq!(true, environment.state.get_current_state().get_left_actuator().get_lower());
 
     environment.intake.lower();
 
