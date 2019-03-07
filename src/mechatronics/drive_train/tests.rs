@@ -60,7 +60,7 @@ fn test_drive() {
 
     life.revive();
     drive_train.drive(1.0, -1.0);
-    state.set_enabled(false);
+    drive_train.disable();
     drive_train.run_cycle();
     assert_eq!(false, state.get_enabled());
     assert_eq!(false, state.get_current_state().get_enabled());
