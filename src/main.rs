@@ -65,5 +65,6 @@ fn main() {
 
     builder.generate()
         .assemble()
-        .launch();
+        .launch()
+        .engage_production_server();
 }
