@@ -13,17 +13,24 @@ use crate::builder::factories::intake::PrintIntakeFactory;
 use crate::builder::factories::intake::ProductionIntakeFactory;
 use crate::builder::factories::intake::TestIntakeFactory;
 use crate::builder::factories::SubsystemFactory;
+use crate::framework::{CompositeRunnable, Runnable};
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
+use crate::pinouts::enable_pins;
 use crate::pinouts::factories::IoFactory;
 use crate::status::robot_state::GlobalRobotState;
-use crate::pinouts::enable_pins;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
     intake: Box<SubsystemFactory<Intake>>,
     drive: Box<SubsystemFactory<DriveTrain>>,
+    right_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    right_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    left_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    left_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    dumper_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    dumper_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
     state: Arc<GlobalRobotState>,
     bench: Option<ControllerBench>,
     io: Rc<IoFactory>,
@@ -38,6 +45,12 @@ impl RobotAssemblyBuilder {
             dumper: Box::new(PrintDumperFactory::new(state.clone())),
             intake: Box::new(PrintIntakeFactory::new(state.clone())),
             drive: Box::new(PrintDriveFactory::new(state.clone())),
+            right_upper_limit: None,
+            right_lower_limit: None,
+            left_upper_limit: None,
+            left_lower_limit: None,
+            dumper_upper_limit: None,
+            dumper_lower_limit: None,
             state,
             bench: None,
             io: Rc::new(IoFactory::new()),
@@ -96,8 +109,9 @@ impl RobotAssemblyBuilder {
         let dumper = self.dumper.produce();
         let drive = self.drive.produce();
         let intake = self.intake.produce();
+        let monitor = CompositeRunnable::new();
 
-        RobotAssembler::new(dumper, drive, intake, self.state, self.bench)
+        RobotAssembler::new(dumper, drive, intake, self.state, self.bench, monitor)
     }
 
     pub fn get_drive_factory(&self) -> String {
