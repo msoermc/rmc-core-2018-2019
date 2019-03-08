@@ -4,7 +4,6 @@ use std::thread::JoinHandle;
 use rocket::local::Client;
 use rocket::Rocket;
 
-use crate::framework::Runnable;
 
 pub struct Robot {
     controller: JoinHandle<()>,

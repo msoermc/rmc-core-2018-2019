@@ -1,14 +1,10 @@
-use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 
 use crate::builder::factories::SubsystemFactory;
-use crate::framework::{CompositeRunnable, Runnable};
+use crate::framework::Runnable;
 use crate::pinouts::digital::input::DigitalInput;
-use crate::pinouts::digital::TestPin;
-use crate::pinouts::factories::IoFactory;
 use crate::sensors::digital::DigitalInputMonitor;
-use crate::status::robot_state::GlobalRobotState;
 
 pub struct DigitalMonitorFactory {
     update_field: Arc<AtomicBool>,
