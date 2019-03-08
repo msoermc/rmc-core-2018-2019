@@ -1,8 +1,11 @@
 use std::rc::Rc;
 use std::sync::Arc;
 
+use libbeaglebone::pins::Pin;
+
 use crate::benchmarking::ControllerBench;
 use crate::builder::assembly::RobotAssembler;
+use crate::builder::factories::digital_monitor::DigitalMonitorFactory;
 use crate::builder::factories::drive::PrintDriveFactory;
 use crate::builder::factories::drive::ProductionDriveFactory;
 use crate::builder::factories::drive::TestDriveFactory;
@@ -19,18 +22,19 @@ use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
 use crate::pinouts::enable_pins;
 use crate::pinouts::factories::IoFactory;
+use crate::robot_map::{DUMPER_LOWER_ACTUATOR_LIMIT, DUMPER_UPPER_ACTUATOR_LIMIT, LEFT_LOWER_ACTUATOR_LIMIT, LEFT_UPPER_ACTUATOR_LIMIT, RIGHT_LOWER_ACTUATOR_LIMIT, RIGHT_UPPER_ACTUATOR_LIMIT};
 use crate::status::robot_state::GlobalRobotState;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
     intake: Box<SubsystemFactory<Intake>>,
     drive: Box<SubsystemFactory<DriveTrain>>,
-    right_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
-    right_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
-    left_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
-    left_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
-    dumper_upper_limit: Option<Box<SubsystemFactory<Runnable>>>,
-    dumper_lower_limit: Option<Box<SubsystemFactory<Runnable>>>,
+    right_upper_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
+    right_lower_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
+    left_upper_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
+    left_lower_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
+    dumper_upper_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
+    dumper_lower_limit: Option<Box<SubsystemFactory<Box<Runnable>>>>,
     state: Arc<GlobalRobotState>,
     bench: Option<ControllerBench>,
     io: Rc<IoFactory>,
@@ -87,6 +91,8 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_dumper(&mut self) -> &mut Self {
         self.dumper = Box::new(ProductionDumperFactory::new(self.state.clone(), self.io.clone()));
+        self.dumper_upper_limit = self.make_limit(DUMPER_UPPER_ACTUATOR_LIMIT);
+        self.dumper_lower_limit = self.make_limit(DUMPER_LOWER_ACTUATOR_LIMIT);
         self.with_pinouts()
     }
 
@@ -96,7 +102,12 @@ impl RobotAssemblyBuilder {
     }
 
     pub fn with_production_ladder(&mut self) -> &mut Self {
-        self.intake = Box::new(ProductionIntakeFactory::new(self.state.clone(), self.io.clone()));
+        self.intake = Box::new(ProductionIntakeFactory::new(
+            self.state.clone(), self.io.clone()));
+        self.left_upper_limit = self.make_limit(LEFT_UPPER_ACTUATOR_LIMIT);
+        self.right_upper_limit = self.make_limit(RIGHT_UPPER_ACTUATOR_LIMIT);
+        self.left_lower_limit = self.make_limit(LEFT_LOWER_ACTUATOR_LIMIT);
+        self.right_lower_limit = self.make_limit(RIGHT_LOWER_ACTUATOR_LIMIT);
         self.with_pinouts()
     }
 
@@ -109,7 +120,31 @@ impl RobotAssemblyBuilder {
         let dumper = self.dumper.produce();
         let drive = self.drive.produce();
         let intake = self.intake.produce();
-        let monitor = CompositeRunnable::new();
+        let mut monitor = CompositeRunnable::new();
+
+        if let Some(sensor) = self.dumper_lower_limit {
+            monitor.add_runnable(sensor.produce());
+        }
+
+        if let Some(sensor) = self.dumper_upper_limit {
+            monitor.add_runnable(sensor.produce());
+        }
+
+        if let Some(sensor) = self.left_lower_limit {
+            monitor.add_runnable(sensor.produce());
+        }
+
+        if let Some(sensor) = self.left_upper_limit {
+            monitor.add_runnable(sensor.produce());
+        }
+
+        if let Some(sensor) = self.right_lower_limit {
+            monitor.add_runnable(sensor.produce());
+        }
+
+        if let Some(sensor) = self.right_upper_limit {
+            monitor.add_runnable(sensor.produce());
+        }
 
         RobotAssembler::new(dumper, drive, intake, self.state, self.bench, monitor)
     }
@@ -138,6 +173,17 @@ impl RobotAssemblyBuilder {
             info!("Pins already enabled, skipping enable");
         }
         self
+    }
+
+    fn make_limit(&self, pin: Pin) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
+        Some(
+            Box::new(
+                DigitalMonitorFactory::new(
+                    self.state
+                        .get_intake()
+                        .get_left_actuator()
+                        .get_upper().clone(),
+                    self.io.generate_digital_input(pin))))
     }
 
     fn get_pin_status(&self) -> bool {

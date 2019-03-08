@@ -1,6 +1,5 @@
 use std::thread;
 
-use rocket::local::Client;
 use rocket::Rocket;
 
 use crate::benchmarking::ControllerBench;
