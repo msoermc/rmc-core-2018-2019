@@ -13,9 +13,6 @@ extern crate slog;
 
 use crate::builder::config::RobotAssemblyBuilder;
 
-/// Contains all code responsible for monitoring system power.
-pub mod power;
-
 /// Contains code for benchmarking the performance of the system.
 pub mod benchmarking;
 
@@ -50,6 +47,8 @@ pub mod logging;
 pub mod status;
 
 pub mod builder;
+
+pub mod sensors;
 
 /// Contains integration tests which test the full stack of the software.
 #[cfg(test)]
