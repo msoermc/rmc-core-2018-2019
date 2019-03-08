@@ -24,6 +24,8 @@ use crate::pinouts::enable_pins;
 use crate::pinouts::factories::IoFactory;
 use crate::robot_map::{DUMPER_LOWER_ACTUATOR_LIMIT, DUMPER_UPPER_ACTUATOR_LIMIT, LEFT_LOWER_ACTUATOR_LIMIT, LEFT_UPPER_ACTUATOR_LIMIT, RIGHT_LOWER_ACTUATOR_LIMIT, RIGHT_UPPER_ACTUATOR_LIMIT};
 use crate::status::robot_state::GlobalRobotState;
+use crate::pinouts::digital::input::DigitalInput;
+use std::sync::atomic::AtomicBool;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
@@ -70,6 +72,16 @@ impl RobotAssemblyBuilder {
         self.with_test_drive().with_test_dumper().with_test_ladder()
     }
 
+    pub fn with_test_intake_limits(&mut self, left_upper: Box<DigitalInput>, left_lower: Box<DigitalInput>,
+                                   right_upper: Box<DigitalInput>, right_lower: Box<DigitalInput>) -> &mut Self {
+        self.right_upper_limit = self.make_test_limit(self.state.get_intake().get_right_actuator().get_upper().clone(), left_upper);
+        self.right_lower_limit = self.make_test_limit(self.state.get_intake().get_right_actuator().get_lower().clone(), left_lower);
+        self.left_upper_limit = self.make_test_limit(self.state.get_intake().get_left_actuator().get_upper().clone(), right_upper);
+        self.left_lower_limit = self.make_test_limit(self.state.get_intake().get_left_actuator().get_lower().clone(), right_lower);
+
+        self
+    }
+
     pub fn with_production(&mut self) -> &mut Self {
         self.with_production_drive().with_production_dumper().with_production_ladder()
     }
@@ -91,8 +103,6 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_dumper(&mut self) -> &mut Self {
         self.dumper = Box::new(ProductionDumperFactory::new(self.state.clone(), self.io.clone()));
-        self.dumper_upper_limit = self.make_limit(DUMPER_UPPER_ACTUATOR_LIMIT);
-        self.dumper_lower_limit = self.make_limit(DUMPER_LOWER_ACTUATOR_LIMIT);
         self.with_pinouts()
     }
 
@@ -104,10 +114,10 @@ impl RobotAssemblyBuilder {
     pub fn with_production_ladder(&mut self) -> &mut Self {
         self.intake = Box::new(ProductionIntakeFactory::new(
             self.state.clone(), self.io.clone()));
-        self.left_upper_limit = self.make_limit(LEFT_UPPER_ACTUATOR_LIMIT);
-        self.right_upper_limit = self.make_limit(RIGHT_UPPER_ACTUATOR_LIMIT);
-        self.left_lower_limit = self.make_limit(LEFT_LOWER_ACTUATOR_LIMIT);
-        self.right_lower_limit = self.make_limit(RIGHT_LOWER_ACTUATOR_LIMIT);
+        self.left_upper_limit = self.make_production_limit(self.state.get_intake().get_left_actuator().get_upper().clone(), LEFT_UPPER_ACTUATOR_LIMIT);
+        self.right_upper_limit = self.make_production_limit(self.state.get_intake().get_right_actuator().get_upper().clone(), RIGHT_UPPER_ACTUATOR_LIMIT);
+        self.left_lower_limit = self.make_production_limit(self.state.get_intake().get_left_actuator().get_lower().clone(), LEFT_LOWER_ACTUATOR_LIMIT);
+        self.right_lower_limit = self.make_production_limit(self.state.get_intake().get_right_actuator().get_lower().clone(), RIGHT_LOWER_ACTUATOR_LIMIT);
         self.with_pinouts()
     }
 
@@ -175,15 +185,13 @@ impl RobotAssemblyBuilder {
         self
     }
 
-    fn make_limit(&self, pin: Pin) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
-        Some(
-            Box::new(
-                DigitalMonitorFactory::new(
-                    self.state
-                        .get_intake()
-                        .get_left_actuator()
-                        .get_upper().clone(),
-                    self.io.generate_digital_input(pin))))
+    fn make_production_limit(&self, state: Arc<AtomicBool>, pin: Pin) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
+        Some(Box::new(DigitalMonitorFactory::new(state,
+                                           self.io.generate_digital_input(pin))))
+    }
+
+    fn make_test_limit(&self,state: Arc<AtomicBool>, input: Box<DigitalInput>) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
+        Some(Box::new(DigitalMonitorFactory::new(state, input)))
     }
 
     fn get_pin_status(&self) -> bool {
