@@ -1,7 +1,7 @@
 use std::thread;
 
 /// The runnable trait represents a process which should initialize itself and run repeatedly.
-pub trait Runnable {
+pub trait Runnable: Send {
     /// Initializes the Runnable, returning a result object indicating whether the action was
     /// successful.
     fn init(&mut self);

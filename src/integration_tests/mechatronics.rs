@@ -8,7 +8,7 @@ fn test_drive() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/drive").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -27,7 +27,7 @@ fn test_kill_drive() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/drive").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -49,7 +49,7 @@ fn test_brake() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/drive").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -71,7 +71,7 @@ fn dig() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -89,7 +89,7 @@ fn stop_digger() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -110,7 +110,7 @@ fn kill_digger() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -131,7 +131,7 @@ fn raise() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -149,7 +149,7 @@ fn lower() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -167,7 +167,7 @@ fn stop_actuators() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -197,7 +197,7 @@ fn kill_actuators() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -230,7 +230,7 @@ fn dump() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -248,7 +248,7 @@ fn reset_dumper() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -266,7 +266,7 @@ fn stop_dumper() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -296,7 +296,7 @@ fn kill_dumper() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     client.post("/robot/modes/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));

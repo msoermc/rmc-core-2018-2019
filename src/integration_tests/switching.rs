@@ -8,7 +8,7 @@ fn drive() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let response = client.post("/robot/modes/drive").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -25,7 +25,7 @@ fn dump() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let response = client.post("/robot/modes/dump").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -42,7 +42,7 @@ fn dig() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let response = client.post("/robot/modes/dig").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
@@ -59,7 +59,7 @@ fn switch_dig_to_drive() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
@@ -81,7 +81,7 @@ fn switch_dig_to_dump() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/dig").dispatch();
 
@@ -102,7 +102,7 @@ fn switch_drive_to_dump() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/drive").dispatch();
 
@@ -123,7 +123,7 @@ fn switch_drive_to_dig() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/drive").dispatch();
 
@@ -144,7 +144,7 @@ fn switch_dump_to_drive() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/dump").dispatch();
 
@@ -166,7 +166,7 @@ fn switch_dump_to_dig() {
     let state = builder.get_state();
     builder.with_test();
     let robot = builder.generate().assemble();
-    let client = robot.launch_tester();
+    let client = robot.launch().engage_testing_server();
 
     let _response = client.post("/robot/modes/dump").dispatch();
 
