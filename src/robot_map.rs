@@ -39,6 +39,9 @@ pub const LEFT_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P9_30;
 pub const RIGHT_UPPER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_7;
 pub const RIGHT_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_8;
 
+pub const DUMPER_UPPER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_15;
+pub const DUMPER_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_16;
+
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.
 pub const LOG_PATH: &str = "./rmc.log";
