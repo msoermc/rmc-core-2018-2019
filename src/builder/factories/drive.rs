@@ -68,7 +68,7 @@ impl ToString for PrintDriveFactory {
 }
 
 impl SubsystemFactory<DriveTrain> for ProductionDriveFactory {
-    fn produce(&self) -> DriveTrain {
+    fn produce(self: Box<Self>) -> DriveTrain {
         let io_factory = &self.io;
 
         let left_front_pwm = io_factory.generate_analog_output(FRONT_LEFT_PWM_CHIP, FRONT_LEFT_PWM_NUMBER);
@@ -94,7 +94,7 @@ impl SubsystemFactory<DriveTrain> for ProductionDriveFactory {
 }
 
 impl SubsystemFactory<DriveTrain> for TestDriveFactory {
-    fn produce(&self) -> DriveTrain {
+    fn produce(self: Box<Self>) -> DriveTrain {
         let state = &self.state;
         let left_motor = Box::new(TestMotor::new(state.get_drive().get_left()));
         let right_motor = Box::new(TestMotor::new(state.get_drive().get_right()));
@@ -107,7 +107,7 @@ impl SubsystemFactory<DriveTrain> for TestDriveFactory {
 }
 
 impl SubsystemFactory<DriveTrain> for PrintDriveFactory {
-    fn produce(&self) -> DriveTrain {
+    fn produce(self: Box<Self>) -> DriveTrain {
         let state = &self.state;
         let left_motor = Box::new(PrintMotor::new("Left", state.get_drive().get_left()));
         let right_motor = Box::new(PrintMotor::new("Right", state.get_drive().get_right()));

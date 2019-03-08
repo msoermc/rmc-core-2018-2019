@@ -4,7 +4,7 @@ use rocket::local::Client;
 use rocket::Rocket;
 
 use crate::benchmarking::ControllerBench;
-use crate::framework::Runnable;
+use crate::framework::{Runnable, CompositeRunnable};
 use crate::mechatronics::controller::RobotController;
 
 pub struct RobotLauncher {
@@ -14,7 +14,7 @@ pub struct RobotLauncher {
 }
 
 impl RobotLauncher {
-    pub fn new(controller: RobotController, bfr: Rocket, bench: Option<ControllerBench>) -> Self {
+    pub fn new(controller: RobotController, bfr: Rocket, bench: Option<ControllerBench>, runner: CompositeRunnable) -> Self {
         Self {
             controller,
             bfr,

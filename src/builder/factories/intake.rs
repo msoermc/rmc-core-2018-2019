@@ -71,7 +71,7 @@ impl ToString for PrintIntakeFactory {
 }
 
 impl SubsystemFactory<Intake> for ProductionIntakeFactory {
-    fn produce(&self) -> Intake {
+    fn produce(self: Box<Self>) -> Intake {
         let state = &self.state;
         let digger_pwm = self.io.generate_pwm(DIGGER_PWM_CHIP, DIGGER_PWM_NUM);
         let left_pwm = self.io.generate_pwm(ACTUATOR_PWM_CHIP, ACTUATOR_PWM_NUM);
@@ -86,7 +86,7 @@ impl SubsystemFactory<Intake> for ProductionIntakeFactory {
 }
 
 impl SubsystemFactory<Intake> for TestIntakeFactory {
-    fn produce(&self) -> Intake {
+    fn produce(self: Box<Self>) -> Intake {
         let state = &self.state;
         let digger_motor = Box::new(TestMotor::new(state.get_intake().get_ladder()));
         let left_actuator = Box::new(TestMotor::new(state.get_intake().get_actuator()));
@@ -98,7 +98,7 @@ impl SubsystemFactory<Intake> for TestIntakeFactory {
 }
 
 impl SubsystemFactory<Intake> for PrintIntakeFactory {
-    fn produce(&self) -> Intake {
+    fn produce(self: Box<Self>) -> Intake {
         let state = &self.state;
         let digger_motor = Box::new(PrintMotor::new("Digger", state.get_intake().get_ladder()));
         let left_actuator = Box::new(PrintMotor::new("Actuators", state.get_intake().get_actuator()));
