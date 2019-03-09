@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use atomic::{Atomic, Ordering};
+use crate::robot_map::{BROWN_CURRENT, CRITICAL_CURRENT};
+use crate::status::current::CurrentUsageLevel::{Brownout, Critical, Normal};
 
 #[derive(Copy, Clone, Eq, PartialEq, Serialize)]
 pub enum CurrentUsageLevel {
@@ -37,7 +39,13 @@ impl GlobalCurrentState {
     }
 
     pub fn update_current(&mut self, current: f32) {
-        unimplemented!()
+        if current > BROWN_CURRENT {
+            self.level.store(Brownout, Ordering::Relaxed);
+        } else if current > CRITICAL_CURRENT {
+            self.level.store(Critical, Ordering::Relaxed);
+        } else {
+            self.level.store(Normal, Ordering::Relaxed);
+        }
     }
 
     pub fn get_json(&self) -> CurrentStateJson {

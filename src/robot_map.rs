@@ -60,3 +60,8 @@ pub const DUMPING_RATE: f32 = 1.0;
 
 /// The speed used by the dumper to reset it's position.
 pub const DUMPER_RESET_RATE: f32 = -1.0;
+
+// Thresholds for current levels (Currently placeholder)
+pub const NORMAL_CURRENT: f32 = 1.8;
+pub const BROWN_CURRENT: f32 = 2.0;
+pub const CRITICAL_CURRENT: f32 = 3.3;
