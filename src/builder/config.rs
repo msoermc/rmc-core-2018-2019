@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 
 use libbeaglebone::pins::Pin;
 
@@ -20,12 +21,11 @@ use crate::framework::{CompositeRunnable, Runnable};
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::drive_train::DriveTrain;
 use crate::mechatronics::dumper::Dumper;
+use crate::pinouts::digital::input::DigitalInput;
 use crate::pinouts::enable_pins;
 use crate::pinouts::factories::IoFactory;
-use crate::robot_map::{DUMPER_LOWER_ACTUATOR_LIMIT, DUMPER_UPPER_ACTUATOR_LIMIT, LEFT_LOWER_ACTUATOR_LIMIT, LEFT_UPPER_ACTUATOR_LIMIT, RIGHT_LOWER_ACTUATOR_LIMIT, RIGHT_UPPER_ACTUATOR_LIMIT};
+use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
-use crate::pinouts::digital::input::DigitalInput;
-use std::sync::atomic::AtomicBool;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
@@ -187,10 +187,10 @@ impl RobotAssemblyBuilder {
 
     fn make_production_limit(&self, state: Arc<AtomicBool>, pin: Pin) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
         Some(Box::new(DigitalMonitorFactory::new(state,
-                                           self.io.generate_digital_input(pin))))
+                                                 self.io.generate_digital_input(pin))))
     }
 
-    fn make_test_limit(&self,state: Arc<AtomicBool>, input: Box<DigitalInput>) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
+    fn make_test_limit(&self, state: Arc<AtomicBool>, input: Box<DigitalInput>) -> Option<Box<SubsystemFactory<Box<Runnable>>>> {
         Some(Box::new(DigitalMonitorFactory::new(state, input)))
     }
 
