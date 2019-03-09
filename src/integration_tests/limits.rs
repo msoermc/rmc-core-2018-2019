@@ -6,7 +6,7 @@ use crate::pinouts::digital::TestPin;
 
 use super::*;
 
-const TIMEOUT_MILLIS: u64 = 50;
+const TIMEOUT_MILLIS: u64 = 100;
 
 #[test]
 fn upper_digger_limit() {
@@ -34,41 +34,40 @@ fn upper_digger_limit() {
 
     client.post("/robot/modes/dig").dispatch();
 
-    sleep(Duration::from_millis(50));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_speed());
-    assert_eq!(false, left_limit.load(Ordering::Relaxed));
-    assert_eq!(false, right_limit.load(Ordering::Relaxed));
+    assert_eq!(false, left_limit.load(Ordering::SeqCst));
+    assert_eq!(false, right_limit.load(Ordering::SeqCst));
 
-    left_input.store(true, Ordering::Relaxed);
-
-    client.post("/robot/intake/rails/raise").dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
-
-    assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(true, left_limit.load(Ordering::Relaxed));
-    assert_eq!(false, right_limit.load(Ordering::Relaxed));
-
-    left_input.store(false, Ordering::Relaxed);
-    right_input.store(true, Ordering::Relaxed);
+    left_input.store(true, Ordering::SeqCst);
 
     client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
     assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(false, left_limit.load(Ordering::Relaxed));
-    assert_eq!(true, right_limit.load(Ordering::Relaxed));
+    assert_eq!(true, left_limit.load(Ordering::SeqCst));
+    assert_eq!(false, right_limit.load(Ordering::SeqCst));
 
-    left_input.store(true, Ordering::Relaxed);
-    right_input.store(true, Ordering::Relaxed);
+    left_input.store(false, Ordering::SeqCst);
+    right_input.store(true, Ordering::SeqCst);
 
     client.post("/robot/intake/rails/raise").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
     assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(true, left_limit.load(Ordering::Relaxed));
-    assert_eq!(true, right_limit.load(Ordering::Relaxed));
+    assert_eq!(false, left_limit.load(Ordering::SeqCst));
+    assert_eq!(true, right_limit.load(Ordering::SeqCst));
+
+    left_input.store(true, Ordering::SeqCst);
+    right_input.store(true, Ordering::SeqCst);
+
+    client.post("/robot/intake/rails/raise").dispatch();
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+    assert_eq!(0.0, actuator.get_speed());
+    assert_eq!(true, left_limit.load(Ordering::SeqCst));
+    assert_eq!(true, right_limit.load(Ordering::SeqCst));
 }
 
 #[test]
@@ -97,39 +96,39 @@ fn lower_digger_limit() {
 
     client.post("/robot/modes/dig").dispatch();
 
-    sleep(Duration::from_millis(50));
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     client.post("/robot/intake/rails/lower").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(-MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_speed());
-    assert_eq!(false, left_limit.load(Ordering::Relaxed));
-    assert_eq!(false, right_limit.load(Ordering::Relaxed));
+    assert_eq!(false, left_limit.load(Ordering::SeqCst));
+    assert_eq!(false, right_limit.load(Ordering::SeqCst));
 
-    left_input.store(true, Ordering::Relaxed);
+    left_input.store(true, Ordering::SeqCst);
 
     client.post("/robot/intake/rails/lower").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(true, left_limit.load(Ordering::Relaxed));
-    assert_eq!(false, right_limit.load(Ordering::Relaxed));
+    assert_eq!(true, left_limit.load(Ordering::SeqCst));
+    assert_eq!(false, right_limit.load(Ordering::SeqCst));
 
-    left_input.store(false, Ordering::Relaxed);
-    right_input.store(true, Ordering::Relaxed);
-
-    client.post("/robot/intake/rails/lower").dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
-    assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(false, left_limit.load(Ordering::Relaxed));
-    assert_eq!(true, right_limit.load(Ordering::Relaxed));
-
-    left_input.store(true, Ordering::Relaxed);
-    right_input.store(true, Ordering::Relaxed);
+    left_input.store(false, Ordering::SeqCst);
+    right_input.store(true, Ordering::SeqCst);
 
     client.post("/robot/intake/rails/lower").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
     assert_eq!(0.0, actuator.get_speed());
-    assert_eq!(true, left_limit.load(Ordering::Relaxed));
-    assert_eq!(true, right_limit.load(Ordering::Relaxed));
+    assert_eq!(false, left_limit.load(Ordering::SeqCst));
+    assert_eq!(true, right_limit.load(Ordering::SeqCst));
+
+    left_input.store(true, Ordering::SeqCst);
+    right_input.store(true, Ordering::SeqCst);
+
+    client.post("/robot/intake/rails/lower").dispatch();
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+    assert_eq!(0.0, actuator.get_speed());
+    assert_eq!(true, left_limit.load(Ordering::SeqCst));
+    assert_eq!(true, right_limit.load(Ordering::SeqCst));
 }
