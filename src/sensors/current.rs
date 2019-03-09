@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use atomic::Atomic;
+use atomic::{Atomic, Ordering};
 use crate::pinouts::analog::input::AnalogInput;
 use crate::framework::Runnable;
 
@@ -20,11 +20,9 @@ impl CurrentMonitor {
 }
 
 impl Runnable for CurrentMonitor {
-    fn init(&mut self) {
-        unimplemented!()
-    }
+    fn init(&mut self) {}
 
     fn run(&mut self) {
-        unimplemented!()
+        self.current.store(self.input.get_value().unwrap(), Ordering::Relaxed)
     }
 }
