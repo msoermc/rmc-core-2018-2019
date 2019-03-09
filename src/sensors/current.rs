@@ -18,7 +18,7 @@ impl CurrentMonitor {
         Self {
             input,
             current,
-            old_values: oldvalues,
+            old_values: [0.0; 3],
         }
     }
 }
@@ -32,7 +32,7 @@ impl Runnable for CurrentMonitor {
         self.old_values[2] = self.old_values[1];
         self.old_values[1] = self.old_values[0];
         self.old_values[0] = self.input.get_value().unwrap();
-        let avg_current : f32 = (self.old_values[0] + self.old_values[1] + self.old_values[2]) / 3;
-        self.current.update_current(avg_current);
+        let avg_current : f32 = (self.old_values[0] + self.old_values[1] + self.old_values[2]) / 3.0;
+//        self.current.update_current(avg_current);
     }
 }
