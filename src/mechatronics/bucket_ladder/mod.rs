@@ -99,5 +99,5 @@ impl Intake {
 
 #[inline]
 fn check_actuator_limits(left: Arc<AtomicBool>, right: Arc<AtomicBool>) -> bool {
-    !(left.load(Ordering::Relaxed) && right.load(Ordering::Relaxed))
+    !(left.load(Ordering::Relaxed) || right.load(Ordering::Relaxed))
 }
