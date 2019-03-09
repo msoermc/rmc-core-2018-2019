@@ -1,17 +1,17 @@
 use std::sync::Arc;
 
-use atomic::{Atomic, Ordering};
-use crate::pinouts::analog::input::AnalogInput;
 use crate::framework::Runnable;
+use crate::pinouts::analog::input::AnalogInput;
+use crate::status::current::GlobalCurrentState;
 
 /// Monitors current and updates it's state accordingly.
 pub struct CurrentMonitor {
     input: Box<AnalogInput>,
-    current: Arc<Atomic<f32>>,
+    current: Arc<GlobalCurrentState>,
 }
 
 impl CurrentMonitor {
-    pub fn new(input: Box<AnalogInput>, current: Arc<Atomic<f32>>) -> Self {
+    pub fn new(input: Box<AnalogInput>, current: Arc<GlobalCurrentState>) -> Self {
         Self {
             input,
             current,
@@ -20,9 +20,11 @@ impl CurrentMonitor {
 }
 
 impl Runnable for CurrentMonitor {
-    fn init(&mut self) {}
+    fn init(&mut self) {
+        unimplemented!()
+    }
 
     fn run(&mut self) {
-        self.current.store(self.input.get_value().unwrap(), Ordering::Relaxed)
+        unimplemented!()
     }
 }
