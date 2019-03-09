@@ -119,7 +119,7 @@ fn kill_digger() {
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     let response = client.post("/robot/kill").dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+    sleep(Duration::from_millis(50));
 
     assert_eq!(Status::Ok, response.status());
     assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
