@@ -58,10 +58,7 @@ fn main() {
     let _logging_guard = logging::launch_logger();
     let mut builder = RobotAssemblyBuilder::new();
 
-    builder
-        .with_production_ladder()
-        .with_production_dumper()
-        .with_production_drive();
+    builder.with_production();
 
     builder.generate()
         .assemble()
