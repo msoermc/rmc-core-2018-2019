@@ -1,2 +1,2 @@
-pub mod power;
+pub mod current;
 pub mod digital;
