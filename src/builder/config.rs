@@ -82,6 +82,26 @@ impl RobotAssemblyBuilder {
         self
     }
 
+    pub fn with_test_upper_left_intake_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.left_upper_limit = self.make_test_limit(self.state.get_intake().get_left_actuator().get_upper().clone(), limit);
+        self
+    }
+
+    pub fn with_test_lower_left_intake_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.left_lower_limit = self.make_test_limit(self.state.get_intake().get_left_actuator().get_lower().clone(), limit);
+        self
+    }
+
+    pub fn with_test_upper_right_intake_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.right_upper_limit = self.make_test_limit(self.state.get_intake().get_right_actuator().get_upper().clone(), limit);
+        self
+    }
+
+    pub fn with_test_lower_right_intake_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.right_lower_limit = self.make_test_limit(self.state.get_intake().get_right_actuator().get_lower().clone(), limit);
+        self
+    }
+
     pub fn with_production(&mut self) -> &mut Self {
         self.with_production_drive().with_production_dumper().with_production_ladder()
     }

@@ -20,3 +20,6 @@ mod switching;
 
 #[cfg(test)]
 mod benchmarking;
+
+#[cfg(test)]
+mod limits;
