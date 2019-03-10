@@ -28,16 +28,6 @@ fn test_dump() {
     dumper.run_cycle();
     assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
 
-    life.kill();
-    dumper.run_cycle();
-    assert_eq!(0.0, state.get_motor().get_speed());
-    dumper.dump();
-    assert_eq!(0.0, state.get_motor().get_speed());
-    state.get_motor().set_speed(1.0);
-    dumper.run_cycle();
-    assert_eq!(0.0, state.get_motor().get_speed());
-
-    life.revive();
     dumper.dump();
     assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
 
@@ -66,19 +56,6 @@ fn test_reset() {
     dumper.run_cycle();
     assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
     assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_motor().get_speed());
-
-    life.kill();
-    dumper.run_cycle();
-    assert_eq!(0.0, state.get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
-
-    dumper.reset();
-    assert_eq!(0.0, state.get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
-    state.get_motor().set_speed(1.0);
-    dumper.run_cycle();
-    assert_eq!(0.0, state.get_motor().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_motor().get_speed());
 
     life.revive();
     dumper.reset();

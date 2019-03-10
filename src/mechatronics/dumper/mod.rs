@@ -61,11 +61,5 @@ impl Dumper {
         self.motors.stop();
     }
 
-    pub fn run_cycle(&mut self) {
-        if self.enabled && self.life.is_alive() {
-            // TODO;
-        } else if self.enabled {
-            self.stop();
-        }
-    }
+    pub fn run_cycle(&mut self) {}
 }

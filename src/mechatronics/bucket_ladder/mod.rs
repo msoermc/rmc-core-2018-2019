@@ -77,14 +77,7 @@ impl Intake {
         self.ladder.stop();
     }
 
-    pub fn run_cycle(&mut self) {
-        if self.life.is_alive() && self.is_enabled() {
-            // TODO
-        } else if self.is_enabled() {
-            self.stop_ladder();
-            self.stop_actuators();
-        }
-    }
+    pub fn run_cycle(&mut self) {}
 
     #[inline]
     fn is_enabled(&self) -> bool {

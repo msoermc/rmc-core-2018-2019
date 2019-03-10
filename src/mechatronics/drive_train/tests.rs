@@ -49,15 +49,6 @@ fn test_drive() {
     assert_eq!(0.0, state.get_right().get_speed());
     assert_eq!(0.0, state.get_current_state().get_right().get_speed());
 
-    drive_train.enable();
-    drive_train.drive(1.0, -1.0);
-    life.kill();
-    drive_train.run_cycle();
-    assert_eq!(0.0, state.get_left().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_left().get_speed());
-    assert_eq!(0.0, state.get_right().get_speed());
-    assert_eq!(0.0, state.get_current_state().get_right().get_speed());
-
     life.revive();
     drive_train.drive(1.0, -1.0);
     drive_train.disable();
