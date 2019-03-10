@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use atomic::Ordering;
+
 use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
@@ -24,7 +26,7 @@ impl Dumper {
             motors,
             state,
             life,
-            enabled
+            enabled,
         }
     }
 
@@ -40,7 +42,7 @@ impl Dumper {
     }
 
     pub fn dump(&mut self) {
-        if self.enabled && self.life.is_alive() {
+        if self.enabled && self.life.is_alive() && !self.state.get_upper_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPING_RATE);
         } else {
             self.stop();
@@ -48,7 +50,7 @@ impl Dumper {
     }
 
     pub fn reset(&mut self) {
-        if self.enabled && self.life.is_alive() {
+        if self.enabled && self.life.is_alive() && !self.state.get_lower_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPER_RESET_RATE);
         } else {
             self.stop();
