@@ -6,7 +6,7 @@ use crate::pinouts::digital::TestPin;
 
 use super::*;
 
-const TIMEOUT_MILLIS: u64 = 50;
+const TIMEOUT_MILLIS: u64 = 100;
 
 #[test]
 fn upper_digger_limit() {
