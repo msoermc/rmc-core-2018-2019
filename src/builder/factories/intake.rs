@@ -75,13 +75,10 @@ impl SubsystemFactory<Intake> for ProductionIntakeFactory {
         let state = &self.state;
         let digger_pwm = self.io.generate_pwm(DIGGER_PWM_CHIP, DIGGER_PWM_NUM);
         let left_pwm = self.io.generate_pwm(ACTUATOR_PWM_CHIP, ACTUATOR_PWM_NUM);
-        let digger_motor = Box::new(RoboClaw::new(digger_pwm));
-        let left_actuator = Box::new(RoboClaw::new(left_pwm));
+        let digger_motor = Box::new(RoboClaw::new(digger_pwm, state.get_intake().get_ladder()));
+        let actuator = Box::new(RoboClaw::new(left_pwm, state.get_intake().get_actuator()));
 
-        let actuator_group = Box::new(MotorGroup::new(vec![left_actuator], state.get_intake().get_actuator()));
-        let digger_group = Box::new(MotorGroup::new(vec![digger_motor], state.get_intake().get_ladder()));
-
-        Intake::new(digger_group, actuator_group, state.get_intake(), state.get_life())
+        Intake::new(digger_motor, actuator, state.get_intake(), state.get_life())
     }
 }
 

@@ -99,10 +99,7 @@ impl SubsystemFactory<DriveTrain> for TestDriveFactory {
         let left_motor = Box::new(TestMotor::new(state.get_drive().get_left()));
         let right_motor = Box::new(TestMotor::new(state.get_drive().get_right()));
 
-        let left_group = Box::new(MotorGroup::new(vec![left_motor], state.get_drive().get_left()));
-        let right_group = Box::new(MotorGroup::new(vec![right_motor], state.get_drive().get_right()));
-
-        DriveTrain::new(self.state.get_drive(), left_group, right_group, self.state.get_life())
+        DriveTrain::new(self.state.get_drive(), left_motor, right_motor, self.state.get_life())
     }
 }
 

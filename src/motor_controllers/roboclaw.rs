@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::motor_controllers::GlobalMotorState;
 use crate::pinouts::analog::output::PwmOutput;
 
@@ -7,7 +9,7 @@ const OUTPUT_VOLTAGE: f32 = 3.3;
 
 pub struct RoboClaw {
     pwm: Box<PwmOutput>,
-    state: GlobalMotorState,
+    state: Arc<GlobalMotorState>,
 }
 
 impl MotorController for RoboClaw {
@@ -27,10 +29,10 @@ impl MotorController for RoboClaw {
 }
 
 impl RoboClaw {
-    pub fn new(pwm: Box<PwmOutput>) -> Self {
+    pub fn new(pwm: Box<PwmOutput>, state: Arc<GlobalMotorState>) -> Self {
         let mut result = RoboClaw {
             pwm,
-            state: GlobalMotorState::new(),
+            state,
         };
 
         result.set_speed(0.0);
@@ -65,7 +67,7 @@ mod tests {
         let output = Arc::new(atomic::Atomic::new(0.0));
         let pwm = Box::new(TestPwm::new(output.clone()));
 
-        let _motor = RoboClaw::new(pwm);
+        let _motor = RoboClaw::new(pwm, Arc::new(GlobalMotorState::new()));
 
         assert_eq!(output_to_voltage(0.0), output.load(Ordering::SeqCst));
     }
@@ -75,7 +77,7 @@ mod tests {
         let output = Arc::new(Atomic::new(0.0));
         let pwm = Box::new(TestPwm::new(output.clone()));
 
-        let mut motor = RoboClaw::new(pwm);
+        let mut motor = RoboClaw::new(pwm, Arc::new(GlobalMotorState::new()));
 
         motor.set_speed(1.0);
 
@@ -88,7 +90,7 @@ mod tests {
         let output = Arc::new(Atomic::new(0.0));
         let pwm = Box::new(TestPwm::new(output.clone()));
 
-        let mut motor = RoboClaw::new(pwm);
+        let mut motor = RoboClaw::new(pwm, Arc::new(GlobalMotorState::new()));
 
         motor.set_speed(-1.0);
 
@@ -101,7 +103,7 @@ mod tests {
         let output = Arc::new(Atomic::new(0.0));
         let pwm = Box::new(TestPwm::new(output.clone()));
 
-        let mut motor = RoboClaw::new(pwm);
+        let mut motor = RoboClaw::new(pwm, Arc::new(GlobalMotorState::new()));
 
         motor.set_speed(1.0);
 
