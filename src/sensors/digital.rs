@@ -9,31 +9,23 @@ use crate::pinouts::digital::input::DigitalInput;
 pub struct DigitalInputMonitor {
     input: Box<DigitalInput>,
     update_field: Arc<AtomicBool>,
-    default: bool,
 }
 
 impl Runnable for DigitalInputMonitor {
     fn init(&mut self) {
-        if let Some(val) = self.input.get_value() {
-            self.update_field.store(val, Ordering::SeqCst)
-        } else {
-            self.update_field.store(self.default, Ordering::SeqCst)
-        }
+        self.update_field.store(self.input.get_value(), Ordering::SeqCst)
     }
 
     fn run(&mut self) {
-        if let Some(val) = self.input.get_value() {
-            self.update_field.store(val, Ordering::SeqCst)
-        }
+        self.update_field.store(self.input.get_value(), Ordering::SeqCst)
     }
 }
 
 impl DigitalInputMonitor {
-    pub fn new(input: Box<DigitalInput>, update_field: Arc<AtomicBool>, default: bool) -> Self {
+    pub fn new(input: Box<DigitalInput>, update_field: Arc<AtomicBool>) -> Self {
         Self {
             input,
             update_field,
-            default,
         }
     }
 }
