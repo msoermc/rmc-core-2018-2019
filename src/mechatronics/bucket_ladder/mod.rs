@@ -93,7 +93,7 @@ impl Intake {
 
     #[inline]
     fn check_if_safe_to_move_actuators(&self, left: Arc<AtomicBool>, right: Arc<AtomicBool>) -> bool {
-        check_actuator_limits(left, right) && self.is_enabled() && self.life.is_alive()
+        self.is_enabled() && self.life.is_alive() && check_actuator_limits(left, right)
     }
 }
 
