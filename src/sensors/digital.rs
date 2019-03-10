@@ -15,15 +15,15 @@ pub struct DigitalInputMonitor {
 impl Runnable for DigitalInputMonitor {
     fn init(&mut self) {
         if let Some(val) = self.input.get_value() {
-            self.update_field.store(val, Ordering::Relaxed)
+            self.update_field.store(val, Ordering::SeqCst)
         } else {
-            self.update_field.store(self.default, Ordering::Relaxed)
+            self.update_field.store(self.default, Ordering::SeqCst)
         }
     }
 
     fn run(&mut self) {
         if let Some(val) = self.input.get_value() {
-            self.update_field.store(val, Ordering::Relaxed)
+            self.update_field.store(val, Ordering::SeqCst)
         }
     }
 }
