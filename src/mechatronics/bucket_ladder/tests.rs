@@ -131,7 +131,6 @@ fn test_lower_actuators() {
     environment.intake.disable();
     environment.intake.lower();
 
-
     assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
     assert_eq!(0.0, environment.state.get_actuator().get_speed());
     environment.intake.run_cycle();
