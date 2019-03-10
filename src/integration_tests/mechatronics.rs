@@ -292,6 +292,7 @@ fn stop_dumper() {
 
 #[test]
 fn kill_dumper() {
+    const TIMEOUT_MILLIS: u64 = 100;
     let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
     builder.with_test();

@@ -102,6 +102,16 @@ impl RobotAssemblyBuilder {
         self
     }
 
+    pub fn with_test_lower_dumper_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.dumper_lower_limit = self.make_test_limit(self.state.get_dumper().get_lower_limit().clone(), limit);
+        self
+    }
+
+    pub fn with_test_upper_dumper_limit(&mut self, limit: Box<DigitalInput>) -> &mut Self {
+        self.dumper_upper_limit = self.make_test_limit(self.state.get_dumper().get_upper_limit().clone(), limit);
+        self
+    }
+
     pub fn with_production(&mut self) -> &mut Self {
         self.with_production_drive().with_production_dumper().with_production_ladder()
     }
