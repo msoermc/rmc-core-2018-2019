@@ -39,8 +39,6 @@ impl DriveTrain {
         if self.enabled && self.robot_status.is_alive() {
             self.left.set_speed(left_speed);
             self.right.set_speed(right_speed);
-        } else if self.enabled {
-            self.brake();
         }
     }
 

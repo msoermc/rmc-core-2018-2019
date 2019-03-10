@@ -44,16 +44,12 @@ impl Dumper {
     pub fn dump(&mut self) {
         if self.enabled && self.life.is_alive() && !self.state.get_upper_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPING_RATE);
-        } else {
-            self.stop();
         }
     }
 
     pub fn reset(&mut self) {
         if self.enabled && self.life.is_alive() && !self.state.get_lower_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPER_RESET_RATE);
-        } else {
-            self.stop();
         }
     }
 

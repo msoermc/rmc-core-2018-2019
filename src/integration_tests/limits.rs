@@ -303,9 +303,9 @@ fn lower_none() {
     client.post("/robot/intake/rails/lower").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    assert_eq!(-MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_speed());
     assert_eq!(false, left_limit.load(Ordering::SeqCst));
     assert_eq!(false, right_limit.load(Ordering::SeqCst));
+    assert_eq!(-MH_ACTUATOR_RATE, actuator.get_speed());
 }
 
 #[test]
@@ -393,11 +393,14 @@ fn lower_dumper_tripped() {
 
     let limit = state.get_dumper().get_lower_limit();
 
-    client.post("/robot/modes/dump").dispatch();
+    client.post("/robot/modes/reset").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
+
+    assert_eq!(0.0, dumper.get_speed());
+    assert_eq!(true, limit.load(Ordering::SeqCst));
 
     client.post("/robot/dumper/reset").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
