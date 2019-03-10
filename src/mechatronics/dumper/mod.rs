@@ -62,7 +62,7 @@ impl Dumper {
     pub fn run_cycle(&mut self) {
         if self.enabled && self.life.is_alive() {
             // TODO;
-        } else {
+        } else if self.enabled {
             self.stop();
         }
     }
