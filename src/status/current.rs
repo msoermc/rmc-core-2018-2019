@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
 use atomic::{Atomic, Ordering};
+
 use crate::robot_map::{BROWN_CURRENT, CRITICAL_CURRENT};
 use crate::status::current::CurrentUsageLevel::{Brownout, Critical, Normal};
 
-#[derive(Copy, Clone, Eq, PartialEq, Serialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Serialize, Debug)]
 pub enum CurrentUsageLevel {
     Normal = 0,
     Brownout = 1,
@@ -39,10 +40,11 @@ impl GlobalCurrentState {
     }
 
     pub fn update_current(&mut self, current: f32) {
-        if current > BROWN_CURRENT {
-            self.level.store(Brownout, Ordering::Relaxed);
-        } else if current > CRITICAL_CURRENT {
+        self.current.store(current, Ordering::Relaxed);
+        if current >= CRITICAL_CURRENT {
             self.level.store(Critical, Ordering::Relaxed);
+        } else if current >= BROWN_CURRENT {
+            self.level.store(Brownout, Ordering::Relaxed);
         } else {
             self.level.store(Normal, Ordering::Relaxed);
         }
@@ -74,5 +76,54 @@ impl CurrentStateJson {
 
     pub fn get_level(&self) -> CurrentUsageLevel {
         self.level
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::robot_map::NORMAL_CURRENT;
+
+    use super::*;
+
+    #[test]
+    fn initial() {
+        let state = GlobalCurrentState::new();
+        assert_eq!(CurrentUsageLevel::Normal, state.get_level());
+        assert_eq!(0.0, state.get_current());
+        assert!(state.is_normal());
+    }
+
+    #[test]
+    fn update_normal() {
+        let mut state = GlobalCurrentState::new();
+
+        state.update_current(CRITICAL_CURRENT);
+        state.update_current(NORMAL_CURRENT);
+
+        assert_eq!(CurrentUsageLevel::Normal, state.get_level());
+        assert_eq!(NORMAL_CURRENT, state.get_current());
+        assert!(state.is_normal());
+    }
+
+    #[test]
+    fn update_brownout() {
+        let mut state = GlobalCurrentState::new();
+
+        state.update_current(BROWN_CURRENT);
+
+        assert_eq!(CurrentUsageLevel::Brownout, state.get_level());
+        assert_eq!(BROWN_CURRENT, state.get_current());
+        assert_eq!(false, state.is_normal());
+    }
+
+    #[test]
+    fn update_critical() {
+        let mut state = GlobalCurrentState::new();
+
+        state.update_current(CRITICAL_CURRENT);
+
+        assert_eq!(CurrentUsageLevel::Critical, state.get_level());
+        assert_eq!(CRITICAL_CURRENT, state.get_current());
+        assert_eq!(false, state.is_normal());
     }
 }
