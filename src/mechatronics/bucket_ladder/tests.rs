@@ -65,13 +65,6 @@ fn test_dig_actuators() {
     assert_eq!(0.0, environment.state.get_current_state().get_digger().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
     assert_eq!(0.0, environment.state.get_ladder().get_speed());
-
-    environment.intake.enable();
-    environment.intake.dig();
-    environment.life.kill();
-    environment.intake.run_cycle();
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
 }
 
 #[test]
@@ -116,15 +109,6 @@ fn test_raise_actuators() {
 
     assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
     assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.enable();
-    environment.intake.raise();
-    environment.life.kill();
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
 }
 
 #[test]
@@ -150,15 +134,6 @@ fn test_lower_actuators() {
 
     assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
     assert_eq!(0.0, environment.state.get_actuator().get_speed());
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.enable();
-    environment.intake.lower();
-    environment.life.kill();
     environment.intake.run_cycle();
 
 
