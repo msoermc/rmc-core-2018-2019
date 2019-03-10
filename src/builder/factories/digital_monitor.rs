@@ -29,6 +29,6 @@ impl ToString for DigitalMonitorFactory {
 
 impl SubsystemFactory<Box<Runnable>> for DigitalMonitorFactory {
     fn produce(self: Box<Self>) -> Box<Runnable> {
-        Box::new(DigitalInputMonitor::new(self.input, self.update_field, false))
+        Box::new(DigitalInputMonitor::new(self.input, self.update_field))
     }
 }

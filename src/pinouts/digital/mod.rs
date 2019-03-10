@@ -31,7 +31,7 @@ impl DigitalOutput for TestPin {
 }
 
 impl DigitalInput for TestPin {
-    fn get_value(&self) -> Option<bool> {
-        Some(self.state.load(Ordering::Relaxed))
+    fn get_value(&self) -> bool {
+        self.state.load(Ordering::Relaxed)
     }
 }
