@@ -83,19 +83,21 @@ impl Intake {
     }
 
     pub fn run_cycle(&mut self) {
-        match self.action {
-            IntakeActuatorAction::Rising => {
-                if reached_limit(self.state.get_left_actuator().get_upper(), self.state.get_right_actuator().get_upper()) {
-                    self.stop_actuators();
+        if self.enabled_cache {
+            match self.action {
+                IntakeActuatorAction::Rising => {
+                    if reached_limit(self.state.get_left_actuator().get_upper(), self.state.get_right_actuator().get_upper()) {
+                        self.stop_actuators();
+                    }
                 }
-            }
-            IntakeActuatorAction::Falling => {
-                if reached_limit(self.state.get_left_actuator().get_lower(), self.state.get_right_actuator().get_lower()) {
-                    self.stop_actuators();
+                IntakeActuatorAction::Falling => {
+                    if reached_limit(self.state.get_left_actuator().get_lower(), self.state.get_right_actuator().get_lower()) {
+                        self.stop_actuators();
+                    }
                 }
-            }
-            IntakeActuatorAction::Stopped => {
-                // Do nothing here
+                IntakeActuatorAction::Stopped => {
+                    // Do nothing here
+                }
             }
         }
     }
