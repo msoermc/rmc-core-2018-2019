@@ -69,14 +69,6 @@ impl CurrentStateJson {
             level,
         }
     }
-
-    pub fn get_current(&self) -> f32 {
-        self.current
-    }
-
-    pub fn get_level(&self) -> CurrentUsageLevel {
-        self.level
-    }
 }
 
 #[cfg(test)]
