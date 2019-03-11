@@ -26,12 +26,36 @@ fn initial_state() {
 }
 
 #[test]
-fn drive() {
+fn drive_from_stopped() {
     let (_, state, mut drive_train) = setup();
 
     drive_train.enable();
-    drive_train.drive(1.0, 1.0);
+    drive_train.drive(1.0, -1.0);
 
     assert_eq!(1.0, state.get_left().get_speed());
+    assert_eq!(-1.0, state.get_right().get_speed());
+}
+
+#[test]
+fn change_direction() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.enable();
+    drive_train.drive(1.0, -1.0);
+
+    drive_train.drive(-1.0, 1.0);
+    assert_eq!(-1.0, state.get_left().get_speed());
     assert_eq!(1.0, state.get_right().get_speed());
+}
+
+#[test]
+fn brake() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.enable();
+    drive_train.drive(1.0, -1.0);
+
+    drive_train.brake();
+    assert_eq!(0.0, state.get_left().get_speed());
+    assert_eq!(0.0, state.get_right().get_speed());
 }
