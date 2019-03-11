@@ -103,3 +103,28 @@ fn disable_stop_actuator() {
 
     assert_eq!(0.0, state.get_actuator().get_speed());
 }
+
+#[test]
+fn disable_digger_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.disable();
+
+    intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn disable_actuator_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.disable();
+
+    intake.raise();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+
+    intake.lower();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
