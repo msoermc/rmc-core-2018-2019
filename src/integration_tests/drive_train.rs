@@ -27,24 +27,11 @@ fn setup() -> (Arc<GlobalRobotState>, Client) {
 }
 
 #[test]
-fn drive_from_stopped() {
+fn drive() {
     let (state, client) = setup();
     client.post("/robot/drive_train/drive/1/-1").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
     assert_eq!(1.0, state.get_drive().get_left().get_speed());
-    assert_eq!(-1.0, state.get_drive().get_right().get_speed());
-}
-
-#[test]
-fn change_direction() {
-    let (state, client) = setup();
-    client.post(get_drive_url(1.0, 1.0)).dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
-
-    client.post(get_drive_url(-1.0, -1.0)).dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
-
-    assert_eq!(-1.0, state.get_drive().get_left().get_speed());
     assert_eq!(-1.0, state.get_drive().get_right().get_speed());
 }
 

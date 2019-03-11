@@ -1,6 +1,8 @@
-use super::*;
 use std::sync::Arc;
+
 use crate::motor_controllers::test_motor::TestMotor;
+
+use super::*;
 
 fn setup() -> (Arc<GlobalLifeState>, Arc<GlobalDriveTrainState>, DriveTrain) {
     let state = Arc::new(GlobalDriveTrainState::new());
@@ -21,4 +23,15 @@ fn initial_state() {
     assert_eq!(0.0, state.get_current_state().get_left().get_speed());
     assert_eq!(0.0, state.get_right().get_speed());
     assert_eq!(0.0, state.get_current_state().get_right().get_speed());
+}
+
+#[test]
+fn drive() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.enable();
+    drive_train.drive(1.0, 1.0);
+
+    assert_eq!(1.0, state.get_left().get_speed());
+    assert_eq!(1.0, state.get_right().get_speed());
 }
