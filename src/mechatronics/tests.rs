@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::sync::mpsc::sync_channel;
 
+use crate::framework::Runnable;
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::controller::RobotController;
@@ -11,7 +12,6 @@ use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 
 use super::*;
-use crate::framework::Runnable;
 
 fn setup() -> (Arc<GlobalRobotState>, RobotController, RobotCommandFactory) {
     let state = Arc::new(GlobalRobotState::new());
@@ -83,4 +83,30 @@ fn kill_intake() {
     assert_eq!(true, state.get_intake().get_enabled());
     assert_eq!(0.0, state.get_intake().get_digger().get_speed());
     assert_eq!(0.0, state.get_intake().get_actuator().get_speed());
+}
+
+#[test]
+fn drive() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_drive_train().enable();
+
+    controller.handle_message(Box::new(factory.generate_drive_command(1.0, -1.0).unwrap()));
+
+    assert_eq!(1.0, state.get_drive().get_left().get_speed());
+    assert_eq!(-1.0, state.get_drive().get_right().get_speed());
+}
+
+#[test]
+fn invalid_drive_values() {
+    let (_, _, factory) = setup();
+
+    assert!(factory.generate_drive_command(2.0, 1.0).is_none());
+    assert!(factory.generate_drive_command(-2.0, 1.0).is_none());
+    assert!(factory.generate_drive_command(1.0, 2.0).is_none());
+    assert!(factory.generate_drive_command(1.0, -2.0).is_none());
+    assert!(factory.generate_drive_command(-2.0, -2.0).is_none());
+    assert!(factory.generate_drive_command(2.0, 2.0).is_none());
+    assert!(factory.generate_drive_command(-2.0, 2.0).is_none());
+    assert!(factory.generate_drive_command(2.0, -2.0).is_none());
 }
