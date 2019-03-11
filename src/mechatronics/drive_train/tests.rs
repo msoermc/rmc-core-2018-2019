@@ -104,3 +104,15 @@ fn kill_forced_stasis() {
     assert_eq!(0.0, state.get_left().get_speed());
     assert_eq!(0.0, state.get_right().get_speed());
 }
+
+#[test]
+fn enable() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.disable();
+    drive_train.enable();
+    drive_train.drive(1.0, -1.0);
+
+    assert_eq!(1.0, state.get_left().get_speed());
+    assert_eq!(-1.0, state.get_right().get_speed());
+}
