@@ -12,6 +12,7 @@ use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 
 use super::*;
+use crate::robot_map::DIGGING_RATE;
 
 fn setup() -> (Arc<GlobalRobotState>, RobotController, RobotCommandFactory) {
     let state = Arc::new(GlobalRobotState::new());
@@ -122,4 +123,27 @@ fn brake() {
 
     assert_eq!(0.0, state.get_drive().get_left().get_speed());
     assert_eq!(0.0, state.get_drive().get_right().get_speed());
+}
+
+#[test]
+fn dig() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_intake().enable();
+
+    controller.handle_message(Box::new(factory.generate_dig_command()));
+
+    assert_eq!(DIGGING_RATE, state.get_intake().get_digger().get_speed());
+}
+
+#[test]
+fn stop_digging() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_intake().enable();
+    controller.get_intake().dig();
+
+    controller.handle_message(Box::new(factory.generate_stop_digger_command()));
+
+    assert_eq!(0.0, state.get_intake().get_digger().get_speed());
 }
