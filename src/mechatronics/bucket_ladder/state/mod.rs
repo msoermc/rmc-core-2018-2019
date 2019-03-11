@@ -49,7 +49,7 @@ impl GlobalIntakeState {
         self.right_limits.clone()
     }
 
-    pub fn get_ladder(&self) -> Arc<GlobalMotorState> {
+    pub fn get_digger(&self) -> Arc<GlobalMotorState> {
         self.digger.clone()
     }
 

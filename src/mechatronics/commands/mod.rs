@@ -12,7 +12,7 @@ impl RobotCommand for KillCommand {
         controller.get_dumper().stop();
         controller.get_drive_train().brake();
         controller.get_intake().stop_actuators();
-        controller.get_intake().stop_ladder();
+        controller.get_intake().stop_digging();
     }
 }
 
@@ -85,7 +85,7 @@ pub struct StopDiggerCommand {}
 
 impl RobotCommand for StopDiggerCommand {
     fn execute(&self, controller: &mut RobotController) {
-        controller.get_intake().stop_ladder();
+        controller.get_intake().stop_digging();
     }
 }
 

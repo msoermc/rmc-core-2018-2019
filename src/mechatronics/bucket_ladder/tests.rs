@@ -4,17 +4,10 @@ use crate::motor_controllers::test_motor::TestMotor;
 
 use super::*;
 
-struct IntakeEnvironment {
-    pub state: Arc<GlobalIntakeState>,
-    pub life: Arc<GlobalLifeState>,
-    pub intake: Intake,
-}
-
 fn setup() -> (Arc<GlobalLifeState>, Arc<GlobalIntakeState>, Intake) {
     let state = Arc::new(GlobalIntakeState::new());
 
-    let ladder = Box::new(TestMotor::new(state.get_ladder()));
-
+    let ladder = Box::new(TestMotor::new(state.get_digger()));
     let actuator = Box::new(TestMotor::new(state.get_actuator()));
 
     let life = Arc::new(GlobalLifeState::new());
@@ -24,15 +17,67 @@ fn setup() -> (Arc<GlobalLifeState>, Arc<GlobalIntakeState>, Intake) {
 }
 
 #[test]
-fn test_setup() {
+fn initial_state() {
     let (_, state, _) = setup();
 
-    assert_eq!(0.0, state.get_ladder().get_speed());
-    assert_eq!(0.0, state.get_ladder().get_current_state().get_speed());
+    assert_eq!(0.0, state.get_digger().get_speed());
 
-
-    assert_eq!(0.0, state.get_actuator().get_current_state().get_speed());
     assert_eq!(0.0, state.get_actuator().get_speed());
     assert_eq!(false, state.get_enabled());
-    assert_eq!(false, state.get_current_state().get_enabled());
+}
+
+#[test]
+fn initial_digger_immobility() {
+    let (_, state, mut intake) = setup();
+
+    intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn initial_actuator_immobility() {
+    let (_, state, mut intake) = setup();
+
+    intake.raise();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+
+    intake.lower();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn digging() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.dig();
+    assert_eq!(DIGGING_RATE, state.get_digger().get_speed());
+}
+
+#[test]
+fn stop_digging() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.dig();
+    intake.stop_digging();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn raise() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.raise();
+    assert_eq!(MH_ACTUATOR_RATE, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.lower();
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_actuator().get_speed());
 }
