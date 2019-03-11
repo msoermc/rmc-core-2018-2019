@@ -158,3 +158,145 @@ fn kill_digger_stasis() {
     intake.dig();
     assert_eq!(0.0, state.get_digger().get_speed());
 }
+
+#[test]
+fn upper_left_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_left_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_right_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_right_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_both_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_both_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_left_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_left_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_right_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_right_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_both_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_both_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
