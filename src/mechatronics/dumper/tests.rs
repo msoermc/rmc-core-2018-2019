@@ -32,3 +32,13 @@ fn initial_immobility() {
     assert_eq!(0.0, state.get_motor().get_speed());
     assert_eq!(false, state.get_enabled());
 }
+
+#[test]
+fn test_dump() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.dump();
+    assert_eq!(0.0, state.get_motor().get_speed());
+}
