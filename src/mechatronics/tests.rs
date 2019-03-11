@@ -45,6 +45,15 @@ fn kill_status() {
 }
 
 #[test]
+fn revive() {
+    let (state, mut controller, factory) = setup();
+    controller.handle_message(Box::new(factory.generate_kill_command()));
+    controller.handle_message(Box::new(factory.generate_revive_command()));
+
+    assert_eq!(true, state.get_life().is_alive());
+}
+
+#[test]
 fn kill_drive() {
     let (state, mut controller, factory) = setup();
 
