@@ -153,3 +153,64 @@ fn upper_limit_reverse() {
 
     assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
 }
+
+#[test]
+fn test_upper_limit_maintain_reset() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.reset();
+    state.get_upper_limit().store(true, Ordering::SeqCst);
+
+    assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+}
+
+#[test]
+fn lower_limit_stop() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+    dumper.reset();
+
+    state.get_lower_limit().store(true, Ordering::SeqCst);
+    dumper.run_cycle();
+
+    assert_eq!(0.0, state.get_motor().get_speed());
+}
+
+#[test]
+fn lower_limit_stasis() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    state.get_lower_limit().store(true, Ordering::SeqCst);
+    dumper.reset();
+
+    assert_eq!(0.0, state.get_motor().get_speed());
+}
+
+#[test]
+fn lower_limit_reverse() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    state.get_lower_limit().store(true, Ordering::SeqCst);
+    dumper.dump();
+
+    assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+}
+
+#[test]
+fn test_lower_limit_maintain_dump() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.dump();
+    state.get_lower_limit().store(true, Ordering::SeqCst);
+
+    assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+}
