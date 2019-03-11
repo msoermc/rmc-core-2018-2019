@@ -75,7 +75,7 @@ impl RobotController {
         &self.life
     }
 
-    fn handle_message(&mut self, command: Box<RobotCommand>) {
+    pub fn handle_message(&mut self, command: Box<RobotCommand>) {
         command.execute(self);
     }
 }
