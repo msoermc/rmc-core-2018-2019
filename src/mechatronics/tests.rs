@@ -110,3 +110,16 @@ fn invalid_drive_values() {
     assert!(factory.generate_drive_command(-2.0, 2.0).is_none());
     assert!(factory.generate_drive_command(2.0, -2.0).is_none());
 }
+
+#[test]
+fn brake() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_drive_train().enable();
+
+    controller.handle_message(Box::new(factory.generate_drive_command(1.0, -1.0).unwrap()));
+    controller.handle_message(Box::new(factory.generate_brake_command()));
+
+    assert_eq!(0.0, state.get_drive().get_left().get_speed());
+    assert_eq!(0.0, state.get_drive().get_right().get_speed());
+}
