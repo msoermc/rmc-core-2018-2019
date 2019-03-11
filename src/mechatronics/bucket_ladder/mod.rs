@@ -54,14 +54,14 @@ impl Intake {
     }
 
     pub fn raise(&mut self) {
-        if !reached_limit(self.state.get_left_actuator().get_upper(), self.state.get_right_actuator().get_upper()) && self.enabled_cache {
+        if !reached_limit(self.state.get_left_actuator().get_upper(), self.state.get_right_actuator().get_upper()) && self.enabled_cache && self.life.is_alive() {
             self.actuator.set_speed(MH_ACTUATOR_RATE);
             self.action = IntakeActuatorAction::Rising;
         }
     }
 
     pub fn lower(&mut self) {
-        if !reached_limit(self.state.get_left_actuator().get_lower(), self.state.get_right_actuator().get_lower()) && self.enabled_cache {
+        if !reached_limit(self.state.get_left_actuator().get_lower(), self.state.get_right_actuator().get_lower()) && self.enabled_cache && self.life.is_alive() {
             self.actuator.set_speed(-MH_ACTUATOR_RATE);
             self.action = IntakeActuatorAction::Falling;
         }
