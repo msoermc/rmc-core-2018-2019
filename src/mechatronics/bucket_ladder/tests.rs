@@ -81,3 +81,25 @@ fn lower() {
     intake.lower();
     assert_eq!(-MH_ACTUATOR_RATE, state.get_actuator().get_speed());
 }
+
+#[test]
+fn disable_stop_digger() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.dig();
+    intake.disable();
+
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn disable_stop_actuator() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.raise();
+    intake.disable();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
