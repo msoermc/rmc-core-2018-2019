@@ -91,3 +91,14 @@ fn disable_stop() {
     dumper.disable();
     assert_eq!(0.0, state.get_motor().get_speed());
 }
+
+#[test]
+fn enable() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.disable();
+    dumper.enable();
+
+    dumper.dump();
+    assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+}
