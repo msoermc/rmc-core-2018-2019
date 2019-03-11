@@ -26,6 +26,16 @@ fn initial_state() {
 }
 
 #[test]
+fn initial_immobility() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.drive(1.0, -1.0);
+
+    assert_eq!(0.0, state.get_left().get_speed());
+    assert_eq!(0.0, state.get_right().get_speed());
+}
+
+#[test]
 fn drive_from_stopped() {
     let (_, state, mut drive_train) = setup();
 
@@ -77,6 +87,18 @@ fn disable_forced_stasis() {
     let (_, state, mut drive_train) = setup();
 
     drive_train.disable();
+    drive_train.drive(1.0, -1.0);
+
+    assert_eq!(0.0, state.get_left().get_speed());
+    assert_eq!(0.0, state.get_right().get_speed());
+}
+
+#[test]
+fn kill_forced_stasis() {
+    let (life, state, mut drive_train) = setup();
+
+    drive_train.enable();
+    life.kill();
     drive_train.drive(1.0, -1.0);
 
     assert_eq!(0.0, state.get_left().get_speed());
