@@ -1,6 +1,8 @@
-use super::*;
 use std::sync::Arc;
+
 use crate::motor_controllers::test_motor::TestMotor;
+
+use super::*;
 
 fn setup() -> (Arc<GlobalLifeState>, Arc<GlobalDumperState>, Dumper) {
     let life = Arc::new(GlobalLifeState::new());
@@ -59,7 +61,33 @@ fn stop() {
 
     dumper.enable();
 
-    dumper.reset();
+    dumper.dump();
     dumper.stop();
+    assert_eq!(0.0, state.get_motor().get_speed());
+}
+
+#[test]
+fn disable_stasis() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.disable();
+
+    dumper.dump();
+    assert_eq!(0.0, state.get_motor().get_speed());
+    assert_eq!(false, state.get_enabled());
+
+    dumper.reset();
+    assert_eq!(0.0, state.get_motor().get_speed());
+    assert_eq!(false, state.get_enabled());
+}
+
+#[test]
+fn disable_stop() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.dump();
+    dumper.disable();
     assert_eq!(0.0, state.get_motor().get_speed());
 }
