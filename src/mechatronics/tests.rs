@@ -12,7 +12,7 @@ use crate::status::life::GlobalLifeState;
 use crate::status::robot_state::GlobalRobotState;
 
 use super::*;
-use crate::robot_map::{DIGGING_RATE, MH_ACTUATOR_RATE};
+use crate::robot_map::{DIGGING_RATE, MH_ACTUATOR_RATE, DUMPING_RATE, DUMPER_RESET_RATE};
 
 fn setup() -> (Arc<GlobalRobotState>, RobotController, RobotCommandFactory) {
     let state = Arc::new(GlobalRobotState::new());
@@ -180,4 +180,38 @@ fn stop_rising() {
     controller.handle_message(Box::new(factory.generate_stop_actuators_command()));
 
     assert_eq!(0.0, state.get_intake().get_actuator().get_speed());
+}
+
+#[test]
+fn dump() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_dumper().enable();
+
+    controller.handle_message(Box::new(factory.generate_dump_command()));
+
+    assert_eq!(DUMPING_RATE, state.get_dumper().get_motor().get_speed());
+}
+
+#[test]
+fn reset_dumper() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_dumper().enable();
+
+    controller.handle_message(Box::new(factory.generate_reset_dumper_command()));
+
+    assert_eq!(DUMPER_RESET_RATE, state.get_dumper().get_motor().get_speed());
+}
+
+#[test]
+fn stop_dumper() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_dumper().enable();
+    controller.get_dumper().dump();
+
+    controller.handle_message(Box::new(factory.generate_stop_dumper_command()));
+
+    assert_eq!(0.0, state.get_dumper().get_motor().get_speed());
 }
