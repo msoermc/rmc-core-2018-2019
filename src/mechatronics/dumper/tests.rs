@@ -34,11 +34,32 @@ fn initial_immobility() {
 }
 
 #[test]
-fn test_dump() {
+fn dump() {
     let (_, state, mut dumper) = setup();
 
     dumper.enable();
 
     dumper.dump();
     assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
+}
+
+#[test]
+fn reset() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.reset();
+    assert_eq!(DUMPER_RESET_RATE, state.get_motor().get_speed());
+}
+
+#[test]
+fn stop() {
+    let (_, state, mut dumper) = setup();
+
+    dumper.enable();
+
+    dumper.reset();
+    dumper.stop();
+    assert_eq!(0.0, state.get_motor().get_speed());
 }
