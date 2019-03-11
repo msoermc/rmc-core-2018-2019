@@ -23,3 +23,12 @@ mod benchmarking;
 
 #[cfg(test)]
 mod limits;
+
+#[cfg(test)]
+mod dumper;
+
+#[cfg(test)]
+mod drive_train;
+
+#[cfg(test)]
+mod intake;
