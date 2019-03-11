@@ -59,3 +59,26 @@ fn brake() {
     assert_eq!(0.0, state.get_left().get_speed());
     assert_eq!(0.0, state.get_right().get_speed());
 }
+
+#[test]
+fn disable_forced_brake() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.enable();
+    drive_train.drive(1.0, -1.0);
+
+    drive_train.disable();
+    assert_eq!(0.0, state.get_left().get_speed());
+    assert_eq!(0.0, state.get_right().get_speed());
+}
+
+#[test]
+fn disable_forced_stasis() {
+    let (_, state, mut drive_train) = setup();
+
+    drive_train.disable();
+    drive_train.drive(1.0, -1.0);
+
+    assert_eq!(0.0, state.get_left().get_speed());
+    assert_eq!(0.0, state.get_right().get_speed());
+}
