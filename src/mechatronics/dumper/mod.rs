@@ -17,6 +17,7 @@ pub struct Dumper {
     state: Arc<GlobalDumperState>,
     life: Arc<GlobalLifeState>,
     enabled: bool,
+    action: DumperAction,
 }
 
 impl Dumper {
@@ -27,6 +28,7 @@ impl Dumper {
             state,
             life,
             enabled,
+            action: DumperAction::Stopped,
         }
     }
 
@@ -42,20 +44,45 @@ impl Dumper {
     }
 
     pub fn dump(&mut self) {
-        if self.enabled && self.life.is_alive() && !self.state.get_upper_limit().load(Ordering::Relaxed) {
+        if self.enabled && !self.state.get_upper_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPING_RATE);
+            self.action = DumperAction::Dumping;
         }
     }
 
     pub fn reset(&mut self) {
-        if self.enabled && self.life.is_alive() && !self.state.get_lower_limit().load(Ordering::Relaxed) {
+        if self.enabled && !self.state.get_lower_limit().load(Ordering::Relaxed) {
             self.motors.set_speed(DUMPER_RESET_RATE);
+            self.action = DumperAction::Resetting;
         }
     }
 
     pub fn stop(&mut self) {
         self.motors.stop();
+        self.action = DumperAction::Stopped
     }
 
-    pub fn run_cycle(&mut self) {}
+    pub fn run_cycle(&mut self) {
+        if self.enabled {
+            match self.action {
+                DumperAction::Dumping => {
+                    if self.state.get_upper_limit().load(Ordering::Relaxed) {
+                        self.stop();
+                    }
+                },
+                DumperAction::Resetting => {
+                    if self.state.get_lower_limit().load(Ordering::Relaxed) {
+                        self.stop();
+                    }
+                },
+                DumperAction::Stopped => {},
+            }
+        }
+    }
+}
+
+enum DumperAction {
+    Dumping,
+    Resetting,
+    Stopped,
 }
