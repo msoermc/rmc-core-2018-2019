@@ -49,7 +49,7 @@ impl Intake {
     pub fn disable(&mut self) {
         self.state.set_enabled(false);
         self.enabled_cache = false;
-        self.stop_ladder();
+        self.stop_digging();
         self.stop_actuators();
     }
 
@@ -78,7 +78,7 @@ impl Intake {
         }
     }
 
-    pub fn stop_ladder(&mut self) {
+    pub fn stop_digging(&mut self) {
         self.ladder.stop();
     }
 
