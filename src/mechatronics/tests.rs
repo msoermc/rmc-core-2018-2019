@@ -160,6 +160,17 @@ fn raise() {
 }
 
 #[test]
+fn lower() {
+    let (state, mut controller, factory) = setup();
+
+    controller.get_intake().enable();
+
+    controller.handle_message(Box::new(factory.generate_lower_actuators_command()));
+
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_speed());
+}
+
+#[test]
 fn stop_rising() {
     let (state, mut controller, factory) = setup();
 
