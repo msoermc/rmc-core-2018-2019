@@ -102,3 +102,17 @@ fn enable() {
     dumper.dump();
     assert_eq!(DUMPING_RATE, state.get_motor().get_speed());
 }
+
+#[test]
+fn kill_stasis() {
+    let (life, state, mut dumper) = setup();
+
+    life.kill();
+    dumper.enable();
+
+    dumper.dump();
+    assert_eq!(0.0, state.get_motor().get_speed());
+
+    dumper.reset();
+    assert_eq!(0.0, state.get_motor().get_speed());
+}
