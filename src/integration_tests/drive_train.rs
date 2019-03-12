@@ -14,21 +14,14 @@ fn get_brake_url() -> String {
     "/robot/drive_train/brake".to_owned()
 }
 
-fn setup() -> (Arc<GlobalRobotState>, Client) {
-    let mut builder = RobotAssemblyBuilder::new();
-    let state = builder.get_state();
-    builder.with_test();
-    let robot = builder.generate().assemble();
-    let client = robot.launch().engage_testing_server();
-
-    client.post("/robot/modes/drive").dispatch();
-
-    (state, client)
+fn get_enable_drive_url() -> String {
+    "/robot/modes/drive".to_owned()
 }
 
 #[test]
 fn drive() {
     let (state, client) = setup();
+    client.post(get_enable_drive_url()).dispatch();
     client.post("/robot/drive_train/drive/1/-1").dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
     assert_eq!(1.0, state.get_drive().get_left().get_speed());
@@ -38,6 +31,7 @@ fn drive() {
 #[test]
 fn brake() {
     let (state, client) = setup();
+    client.post(get_enable_drive_url());
     client.post(get_drive_url(1.0, 1.0)).dispatch();
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
