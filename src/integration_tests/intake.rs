@@ -342,5 +342,7 @@ fn lower_none() {
 
     assert_eq!(false, left_limit.load(Ordering::SeqCst));
     assert_eq!(false, right_limit.load(Ordering::SeqCst));
-    assert_eq!(-MH_ACTUATOR_RATE, actuator.get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_current_state().get_intake().get_actuator().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_intake().get_current_state().get_actuator().get_speed());
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_current_state().get_speed());
 }
