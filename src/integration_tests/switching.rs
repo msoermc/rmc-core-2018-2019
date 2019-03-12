@@ -1,22 +1,19 @@
 use rocket::http::ContentType;
 use rocket::local::LocalResponse;
-use rocket_contrib::json::Json;
-use serde::ser::Serialize;
 
 use crate::comms::RobotMode;
 
 use super::*;
-use crate::logging::launch_logger;
 
 const TIMEOUT_MILLIS: u64 = 50;
 
 fn switch(client: &Client, mode: RobotMode) -> LocalResponse {
-    client.post("/robot/mode")
+    client.post("/robot")
         .header(ContentType::JSON)
         .body(match mode {
-            RobotMode::Digging => r#""Digging""#,
-            RobotMode::Driving => r#""Driving""#,
-            RobotMode::Dumping => r#""Dumping""#,
+            RobotMode::Digging => r#"{ "mode":"Digging" }"#,
+            RobotMode::Driving => r#"{ "mode":"Driving" }"#,
+            RobotMode::Dumping => r#"{ "mode":"Dumping" }"#,
         })
         .dispatch()
 }

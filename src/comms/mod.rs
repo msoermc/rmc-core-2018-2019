@@ -2,14 +2,11 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
 use rocket_contrib::json::Json;
-use serde::ser::Serialize;
 
-use crate::main;
 use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
@@ -17,17 +14,6 @@ use crate::status::robot_state::RobotStateInstance;
 
 #[cfg(test)]
 mod tests;
-
-/// Contains all of the state elements used by the server.
-struct ServerState {
-    /// A sender object which will send messages to the mechatronics controller.
-    messenger: RobotMessenger,
-
-    /// A struct containing the entire state of the robot and all of it's component systems.
-    state: Arc<GlobalRobotState>,
-
-    command_factory: RobotCommandFactory,
-}
 
 /// Prepares the server for launch.
 pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_factory: RobotCommandFactory) -> Rocket {
@@ -40,7 +26,7 @@ pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_fa
                               index,
                               files,
                               favicon,
-                              update_mode,
+                              post_robot,
                               ])
 }
 
@@ -51,13 +37,36 @@ pub enum RobotMode {
     Dumping,
 }
 
-#[post("/robot/mode", format = "application/json", data = "<mode>")]
-fn update_mode(mode: Json<RobotMode>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
-    match mode.into_inner() {
-        RobotMode::Digging => messenger.send_command(Box::new(factory.generate_intake_switch_command())),
-        RobotMode::Driving => messenger.send_command(Box::new(factory.generate_drive_switch_command())),
-        RobotMode::Dumping => messenger.send_command(Box::new(factory.generate_dumper_switch_command())),
-    }
+#[derive(Serialize, Deserialize)]
+pub enum RobotLifeRestId {
+    Alive,
+    Dead,
+}
+
+#[derive(Deserialize, Serialize)]
+struct RobotPostRequest {
+    mode: Option<RobotMode>,
+    life: Option<RobotLifeRestId>,
+}
+
+#[post("/robot", format = "application/json", data = "<robot>")]
+fn post_robot(robot: Json<RobotPostRequest>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
+    let RobotPostRequest { mode: mode_opt, life: life_opt} = robot.into_inner();
+
+    if let Some(life) = life_opt {
+        match life {
+            RobotLifeRestId::Alive => messenger.send_command(Box::new(factory.generate_revive_command())),
+            RobotLifeRestId::Dead => messenger.send_command(Box::new(factory.generate_kill_command())),
+        }
+    };
+
+    if let Some(mode) = mode_opt {
+        match mode {
+            RobotMode::Digging => messenger.send_command(Box::new(factory.generate_intake_switch_command())),
+            RobotMode::Driving => messenger.send_command(Box::new(factory.generate_drive_switch_command())),
+            RobotMode::Dumping => messenger.send_command(Box::new(factory.generate_dumper_switch_command())),
+        }
+    };
 }
 
 /// Responds with the current state of the robot, as a JSON object.
