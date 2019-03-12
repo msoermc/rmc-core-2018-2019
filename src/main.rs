@@ -13,9 +13,6 @@ extern crate slog;
 
 use crate::builder::config::RobotAssemblyBuilder;
 
-/// Contains all code responsible for monitoring system power.
-pub mod power;
-
 /// Contains code for benchmarking the performance of the system.
 pub mod benchmarking;
 
@@ -51,6 +48,8 @@ pub mod status;
 
 pub mod builder;
 
+pub mod sensors;
+
 /// Contains integration tests which test the full stack of the software.
 #[cfg(test)]
 mod integration_tests;
@@ -59,12 +58,10 @@ fn main() {
     let _logging_guard = logging::launch_logger();
     let mut builder = RobotAssemblyBuilder::new();
 
-    builder
-        .with_production_ladder()
-        .with_production_dumper()
-        .with_production_drive();
+    builder.with_production();
 
     builder.generate()
         .assemble()
-        .launch();
+        .launch()
+        .engage_production_server();
 }

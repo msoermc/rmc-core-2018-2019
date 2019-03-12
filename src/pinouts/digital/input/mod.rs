@@ -1,3 +1,3 @@
-pub trait DigitalInput {
-    fn get_value(&self) -> Option<bool>;
+pub trait DigitalInput: Send {
+    fn get_value(&self) -> bool;
 }

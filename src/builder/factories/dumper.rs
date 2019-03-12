@@ -69,30 +69,26 @@ impl ToString for PrintDumperFactory {
 }
 
 impl SubsystemFactory<Dumper> for ProductionDumperFactory {
-    fn produce(&self) -> Dumper {
+    fn produce(self: Box<Self>) -> Dumper {
         let state = &self.state;
         let pwm = self.io.generate_pwm(DUMPER_PWM_CHIP, DUMPER_PWM_NUM);
-        let dumper_motor = Box::new(RoboClaw::new(pwm));
+        let dumper_motor = Box::new(RoboClaw::new(pwm, state.get_dumper().get_motor()));
 
-        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
-
-        Dumper::new(state.get_life(), dumper_group, state.get_dumper())
+        Dumper::new(state.get_life(), dumper_motor, state.get_dumper())
     }
 }
 
 impl SubsystemFactory<Dumper> for TestDumperFactory {
-    fn produce(&self) -> Dumper {
+    fn produce(self: Box<Self>) -> Dumper {
         let state = &self.state;
         let dumper_motor = Box::new(TestMotor::new(state.get_dumper().get_motor()));
 
-        let dumper_group = Box::new(MotorGroup::new(vec![dumper_motor], state.get_dumper().get_motor()));
-
-        Dumper::new(state.get_life(), dumper_group, state.get_dumper())
+        Dumper::new(state.get_life(), dumper_motor, state.get_dumper())
     }
 }
 
 impl SubsystemFactory<Dumper> for PrintDumperFactory {
-    fn produce(&self) -> Dumper {
+    fn produce(self: Box<Self>) -> Dumper {
         let state = &self.state;
         let dumper_motor = Box::new(PrintMotor::new("Dumper", state.get_dumper().get_motor()));
 

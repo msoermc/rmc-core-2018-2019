@@ -1,7 +1,7 @@
 use std::sync::mpsc::SyncSender;
+use std::thread;
 
 use crate::mechatronics::commands::RobotCommand;
-use std::thread;
 
 /// The controller module contains the `RobotController` struct.
 /// The `RobotController` struct owns instances of the `DriveTrain` and the `MaterialHandler`.
@@ -16,6 +16,9 @@ pub mod drive_train;
 pub mod dumper;
 
 pub mod bucket_ladder;
+
+#[cfg(test)]
+mod tests;
 
 pub struct RobotMessenger {
     channel: SyncSender<Box<RobotCommand>>,

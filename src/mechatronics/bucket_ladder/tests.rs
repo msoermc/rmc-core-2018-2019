@@ -4,246 +4,307 @@ use crate::motor_controllers::test_motor::TestMotor;
 
 use super::*;
 
-struct IntakeEnvironment {
-    pub state: Arc<GlobalIntakeState>,
-    pub life: Arc<GlobalLifeState>,
-    pub intake: Intake,
-}
-
-fn create_environment() -> IntakeEnvironment {
+fn setup() -> (Arc<GlobalLifeState>, Arc<GlobalIntakeState>, Intake) {
     let state = Arc::new(GlobalIntakeState::new());
 
-    let ladder = Box::new(TestMotor::new(state.get_ladder()));
-
+    let ladder = Box::new(TestMotor::new(state.get_digger()));
     let actuator = Box::new(TestMotor::new(state.get_actuator()));
 
     let life = Arc::new(GlobalLifeState::new());
     let intake = Intake::new(ladder, actuator, state.clone(), life.clone());
 
-    IntakeEnvironment {
-        state,
-        life,
-        intake,
-    }
+    (life, state, intake)
 }
 
 #[test]
-fn test_setup() {
-    let environment = create_environment();
+fn initial_state() {
+    let (_, state, _) = setup();
 
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
+    assert_eq!(0.0, state.get_digger().get_speed());
 
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-    assert_eq!(false, environment.state.get_enabled());
-    assert_eq!(false, environment.state.get_current_state().get_enabled());
+    assert_eq!(0.0, state.get_actuator().get_speed());
+    assert_eq!(false, state.get_enabled());
 }
 
 #[test]
-fn test_dig_actuators() {
-    let mut environment = create_environment();
-    environment.intake.enable();
+fn initial_digger_immobility() {
+    let (_, state, mut intake) = setup();
 
-    environment.intake.dig();
-    assert_eq!(DIGGING_RATE, environment.state.get_current_state().get_digger().get_speed());
-    assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_speed());
-
-    environment.intake.run_cycle();
-    assert_eq!(DIGGING_RATE, environment.state.get_current_state().get_digger().get_speed());
-    assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(DIGGING_RATE, environment.state.get_ladder().get_speed());
-
-    environment.intake.disable();
-    environment.intake.dig();
-    assert_eq!(0.0, environment.state.get_current_state().get_digger().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
-    environment.intake.run_cycle();
-    assert_eq!(0.0, environment.state.get_current_state().get_digger().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
-
-    environment.intake.enable();
-    environment.intake.dig();
-    environment.life.kill();
-    environment.intake.run_cycle();
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
+    intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
 }
 
 #[test]
-fn test_stop_digger() {
-    let mut environment = create_environment();
-    environment.intake.enable();
-    environment.intake.dig();
-    environment.intake.stop_ladder();
-    assert_eq!(0.0, environment.state.get_ladder().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_ladder().get_speed());
+fn initial_actuator_immobility() {
+    let (_, state, mut intake) = setup();
+
+    intake.raise();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+
+    intake.lower();
+    assert_eq!(0.0, state.get_actuator().get_speed());
 }
 
 #[test]
-fn test_raise_actuators() {
-    let mut environment = create_environment();
-    environment.intake.enable();
+fn digging() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
 
-    environment.intake.raise();
-
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_actuator().get_speed());
-
-
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
-
-    environment.intake.run_cycle();
-
-
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
-
-    environment.intake.disable();
-    environment.intake.raise();
-
-    assert_eq!(0.0, environment.state.get_current_state().get_actuator().get_speed());
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.enable();
-    environment.intake.raise();
-    environment.life.kill();
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
+    intake.dig();
+    assert_eq!(DIGGING_RATE, state.get_digger().get_speed());
 }
 
 #[test]
-fn test_lower_actuators() {
-    let mut environment = create_environment();
-    environment.intake.enable();
+fn stop_digging() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
 
-    environment.intake.lower();
-
-
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
-
-    environment.intake.run_cycle();
-
-
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
-
-    environment.intake.disable();
-    environment.intake.lower();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.enable();
-    environment.intake.lower();
-    environment.life.kill();
-    environment.intake.run_cycle();
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
+    intake.dig();
+    intake.stop_digging();
+    assert_eq!(0.0, state.get_digger().get_speed());
 }
 
 #[test]
-fn test_raise_limits() {
-    let mut environment = create_environment();
-    environment.intake.enable();
+fn raise() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
 
-    environment.state.get_right_actuator().set_upper(true);
-    environment.state.get_left_actuator().set_upper(true);
-
-    assert_eq!(true, environment.state.get_right_actuator().get_current_state().get_upper());
-    assert_eq!(true, environment.state.get_left_actuator().get_current_state().get_upper());
-
-    assert_eq!(true, environment.state.get_current_state().get_right_actuator().get_upper());
-    assert_eq!(true, environment.state.get_current_state().get_left_actuator().get_upper());
-
-    environment.intake.raise();
-
-    assert_eq!(0.0, environment.state.get_current_state().get_actuator().get_speed());
-
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.lower();
-
-
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(-MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
+    intake.raise();
+    assert_eq!(MH_ACTUATOR_RATE, state.get_actuator().get_speed());
 }
 
 #[test]
-fn test_lower_limits() {
-    let mut environment = create_environment();
-    environment.intake.enable();
+fn lower() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
 
-    environment.state.get_right_actuator().set_lower(true);
-    environment.state.get_left_actuator().set_lower(true);
-
-    assert_eq!(true, environment.state.get_right_actuator().get_current_state().get_lower());
-    assert_eq!(true, environment.state.get_left_actuator().get_current_state().get_lower());
-
-    assert_eq!(true, environment.state.get_current_state().get_right_actuator().get_lower());
-    assert_eq!(true, environment.state.get_current_state().get_left_actuator().get_lower());
-
-    environment.intake.lower();
-
-    assert_eq!(0.0, environment.state.get_current_state().get_actuator().get_speed());
-
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
-
-    environment.intake.raise();
-
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_current_state().get_actuator().get_speed());
-
-
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(MH_ACTUATOR_RATE, environment.state.get_actuator().get_speed());
+    intake.lower();
+    assert_eq!(-MH_ACTUATOR_RATE, state.get_actuator().get_speed());
 }
 
 #[test]
-fn test_stop_actuators() {
-    let mut environment = create_environment();
-    environment.intake.enable();
-    environment.intake.raise();
-    environment.intake.stop_actuators();
+fn disable_stop_digger() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
 
+    intake.dig();
+    intake.disable();
 
-    assert_eq!(0.0, environment.state.get_actuator().get_current_state().get_speed());
-    assert_eq!(0.0, environment.state.get_actuator().get_speed());
+    assert_eq!(0.0, state.get_digger().get_speed());
 }
 
 #[test]
-fn test_enabling() {
-    let mut environment = create_environment();
-    environment.intake.enable();
-    assert_eq!(true, environment.state.get_enabled());
-    assert_eq!(true, environment.state.get_current_state().get_enabled());
-    environment.intake.disable();
-    assert_eq!(false, environment.state.get_enabled());
-    assert_eq!(false, environment.state.get_current_state().get_enabled());
+fn disable_stop_actuator() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.raise();
+    intake.disable();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn disable_digger_stasis() {
+    let (_, state, mut intake) = setup();
+
+    intake.disable();
+
+    intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn disable_actuator_stasis() {
+    let (_, state, mut intake) = setup();
+
+    intake.disable();
+
+    intake.raise();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+
+    intake.lower();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn kill_actuator_raise_stasis() {
+    let (life, state, mut intake) = setup();
+    intake.enable();
+
+    life.kill();
+
+    intake.raise();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn kill_actuator_lower_stasis() {
+    let (life, state, mut intake) = setup();
+    intake.enable();
+
+    life.kill();
+
+    intake.lower();
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn kill_digger_stasis() {
+    let (life, state, mut intake) = setup();
+
+    life.kill();
+
+    intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn upper_left_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_left_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_right_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_right_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_both_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.raise();
+
+    state.get_left_actuator().set_upper(true);
+    state.get_right_actuator().set_upper(true);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+    assert_eq!(true, state.get_left_actuator().get_upper().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_right_actuator().get_upper().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_current_state().get_left_actuator().get_upper());
+    assert_eq!(true, state.get_current_state().get_right_actuator().get_upper());
+}
+
+#[test]
+fn lower_both_limit_stop() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+    intake.lower();
+
+    state.get_right_actuator().set_lower(true);
+    state.get_left_actuator().set_lower(true);
+    intake.run_cycle();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+    assert_eq!(true, state.get_left_actuator().get_lower().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_right_actuator().get_lower().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_current_state().get_left_actuator().get_lower());
+    assert_eq!(true, state.get_current_state().get_right_actuator().get_lower());
+}
+
+#[test]
+fn upper_left_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_left_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_right_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_right_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn upper_both_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    intake.raise();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
+}
+
+#[test]
+fn lower_both_limit_stasis() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
+    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    intake.lower();
+
+    assert_eq!(0.0, state.get_actuator().get_speed());
 }

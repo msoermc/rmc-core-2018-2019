@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use atomic::Ordering;
+
 use crate::mechatronics::dumper::state::GlobalDumperState;
 use crate::motor_controllers::MotorController;
 use crate::robot_map::*;
@@ -15,6 +17,7 @@ pub struct Dumper {
     state: Arc<GlobalDumperState>,
     life: Arc<GlobalLifeState>,
     enabled: bool,
+    action: DumperAction,
 }
 
 impl Dumper {
@@ -24,7 +27,8 @@ impl Dumper {
             motors,
             state,
             life,
-            enabled
+            enabled,
+            action: DumperAction::Stopped,
         }
     }
 
@@ -40,30 +44,45 @@ impl Dumper {
     }
 
     pub fn dump(&mut self) {
-        if self.enabled && self.life.is_alive() {
+        if self.enabled && !self.state.get_upper_limit().load(Ordering::Relaxed) && self.life.is_alive() {
             self.motors.set_speed(DUMPING_RATE);
-        } else {
-            self.stop();
+            self.action = DumperAction::Dumping;
         }
     }
 
     pub fn reset(&mut self) {
-        if self.enabled && self.life.is_alive() {
+        if self.enabled && !self.state.get_lower_limit().load(Ordering::Relaxed) && self.life.is_alive() {
             self.motors.set_speed(DUMPER_RESET_RATE);
-        } else {
-            self.stop();
+            self.action = DumperAction::Resetting;
         }
     }
 
     pub fn stop(&mut self) {
         self.motors.stop();
+        self.action = DumperAction::Stopped
     }
 
     pub fn run_cycle(&mut self) {
-        if self.enabled && self.life.is_alive() {
-            // TODO;
-        } else {
-            self.stop();
+        if self.enabled {
+            match self.action {
+                DumperAction::Dumping => {
+                    if self.state.get_upper_limit().load(Ordering::Relaxed) {
+                        self.stop();
+                    }
+                },
+                DumperAction::Resetting => {
+                    if self.state.get_lower_limit().load(Ordering::Relaxed) {
+                        self.stop();
+                    }
+                },
+                DumperAction::Stopped => {},
+            }
         }
     }
+}
+
+enum DumperAction {
+    Dumping,
+    Resetting,
+    Stopped,
 }

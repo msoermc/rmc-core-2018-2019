@@ -1,5 +1,7 @@
+use std::thread;
+
 /// The runnable trait represents a process which should initialize itself and run repeatedly.
-pub trait Runnable {
+pub trait Runnable: Send {
     /// Initializes the Runnable, returning a result object indicating whether the action was
     /// successful.
     fn init(&mut self);
@@ -16,6 +18,37 @@ pub trait Runnable {
         self.init();
         loop {
             self.run();
+            thread::yield_now();
         }
+    }
+}
+
+pub struct CompositeRunnable {
+    children: Vec<Box<Runnable>>
+}
+
+impl Runnable for CompositeRunnable {
+    fn init(&mut self) {
+        for child in &mut self.children {
+            child.init();
+        }
+    }
+
+    fn run(&mut self) {
+        for child in &mut self.children {
+            child.run();
+        }
+    }
+}
+
+impl CompositeRunnable {
+    pub fn new() -> Self {
+        Self {
+            children: Vec::new()
+        }
+    }
+
+    pub fn add_runnable(&mut self, runnable: Box<Runnable>) {
+        self.children.push(runnable)
     }
 }

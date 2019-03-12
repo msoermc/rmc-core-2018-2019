@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
+use std::thread::current;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::mechatronics::bucket_ladder::state::IntakeStateInstance;
@@ -8,11 +9,13 @@ use crate::mechatronics::drive_train::state::DriveTrainStateInstance;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
 use crate::mechatronics::dumper::state::DumperStateInstance;
 use crate::mechatronics::dumper::state::GlobalDumperState;
+use crate::status::current::{CurrentStateJson, GlobalCurrentState};
 use crate::status::life::GlobalLifeState;
 use crate::status::life::LifeStateInstance;
 
 pub struct GlobalRobotState {
     life: Arc<GlobalLifeState>,
+    current: Arc<GlobalCurrentState>,
     drive: Arc<GlobalDriveTrainState>,
     dumper: Arc<GlobalDumperState>,
     intake: Arc<GlobalIntakeState>,
@@ -24,6 +27,7 @@ impl GlobalRobotState {
     pub fn new() -> Self {
         Self {
             life: Arc::new(GlobalLifeState::new()),
+            current: Arc::new(GlobalCurrentState::new()),
             drive: Arc::new(GlobalDriveTrainState::new()),
             dumper: Arc::new(GlobalDumperState::new()),
             intake: Arc::new(GlobalIntakeState::new()),
@@ -34,6 +38,10 @@ impl GlobalRobotState {
 
     pub fn get_life(&self) -> Arc<GlobalLifeState> {
         self.life.clone()
+    }
+
+    pub fn get_current(&self) -> Arc<GlobalCurrentState> {
+        self.current.clone()
     }
 
     pub fn get_drive(&self) -> Arc<GlobalDriveTrainState> {
@@ -51,6 +59,7 @@ impl GlobalRobotState {
     pub fn get_current_state(&self) -> RobotStateInstance {
         RobotStateInstance::new(
             self.life.get_current_state(),
+            self.current.get_json(),
             self.drive.get_current_state(),
             self.dumper.get_current_state(),
             self.intake.get_current_state(),
@@ -71,6 +80,7 @@ impl GlobalRobotState {
 #[derive(Serialize)]
 pub struct RobotStateInstance {
     life: LifeStateInstance,
+    current: CurrentStateJson,
     drive: DriveTrainStateInstance,
     dumper: DumperStateInstance,
     intake: IntakeStateInstance,
@@ -79,10 +89,11 @@ pub struct RobotStateInstance {
 }
 
 impl RobotStateInstance {
-    pub fn new(life: LifeStateInstance, drive: DriveTrainStateInstance, dumper: DumperStateInstance,
+    pub fn new(life: LifeStateInstance, current: CurrentStateJson, drive: DriveTrainStateInstance, dumper: DumperStateInstance,
                intake: IntakeStateInstance, cycles_per_sec: usize, cycle_counter: usize) -> Self {
         Self {
             life,
+            current,
             drive,
             dumper,
             intake,

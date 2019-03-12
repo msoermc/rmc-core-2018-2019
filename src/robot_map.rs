@@ -1,8 +1,4 @@
 use libbeaglebone::pins::Pin;
-use libbeaglebone::pins::Pin::GPIO_P8_11;
-use libbeaglebone::pins::Pin::GPIO_P8_17;
-use libbeaglebone::pins::Pin::GPIO_P8_9;
-use libbeaglebone::pins::Pin::GPIO_P9_12;
 use slog::Level;
 
 // P9.14
@@ -33,17 +29,18 @@ pub const DIGGER_PWM_NUM: u8 = 1;
 pub const ACTUATOR_PWM_CHIP: u8 = 0;
 pub const ACTUATOR_PWM_NUM: u8 = 0;
 
-// P9.12
-pub const FRONT_LEFT_DIRECTION: Pin = GPIO_P9_12;
+pub const FRONT_LEFT_DIRECTION: Pin = Pin::GPIO_P9_12;
+pub const FRONT_RIGHT_DIRECTION: Pin = Pin::GPIO_P8_9;
+pub const REAR_LEFT_DIRECTION: Pin = Pin::GPIO_P8_17;
+pub const REAR_RIGHT_DIRECTION: Pin = Pin::GPIO_P8_11;
 
-// P8.9
-pub const FRONT_RIGHT_DIRECTION: Pin = GPIO_P8_9;
+pub const LEFT_UPPER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P9_15;
+pub const LEFT_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P9_30;
+pub const RIGHT_UPPER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_7;
+pub const RIGHT_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_8;
 
-// P8.17
-pub const REAR_LEFT_DIRECTION: Pin = GPIO_P8_17;
-
-// P8.11
-pub const REAR_RIGHT_DIRECTION: Pin = GPIO_P8_11;
+pub const DUMPER_UPPER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_15;
+pub const DUMPER_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_16;
 
 /// The path of the folder which logs will be kept in.
 /// If the folder does not exist, the program will create it.
@@ -63,3 +60,8 @@ pub const DUMPING_RATE: f32 = 1.0;
 
 /// The speed used by the dumper to reset it's position.
 pub const DUMPER_RESET_RATE: f32 = -1.0;
+
+// Thresholds for current levels (Currently placeholder)
+pub const NORMAL_CURRENT: f32 = 1.8;
+pub const BROWN_CURRENT: f32 = 2.0;
+pub const CRITICAL_CURRENT: f32 = 3.3;
