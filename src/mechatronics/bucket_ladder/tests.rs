@@ -220,6 +220,8 @@ fn upper_both_limit_stop() {
     assert_eq!(0.0, state.get_actuator().get_speed());
     assert_eq!(true, state.get_left_actuator().get_upper().load(Ordering::SeqCst));
     assert_eq!(true, state.get_right_actuator().get_upper().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_current_state().get_left_actuator().get_upper());
+    assert_eq!(true, state.get_current_state().get_right_actuator().get_upper());
 }
 
 #[test]
@@ -235,6 +237,8 @@ fn lower_both_limit_stop() {
     assert_eq!(0.0, state.get_actuator().get_speed());
     assert_eq!(true, state.get_left_actuator().get_lower().load(Ordering::SeqCst));
     assert_eq!(true, state.get_right_actuator().get_lower().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_current_state().get_left_actuator().get_lower());
+    assert_eq!(true, state.get_current_state().get_right_actuator().get_lower());
 }
 
 #[test]
