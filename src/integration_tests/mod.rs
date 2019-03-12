@@ -29,6 +29,9 @@ mod drive_train;
 #[cfg(test)]
 mod intake;
 
+#[cfg(test)]
+mod killing;
+
 fn setup() -> (Arc<GlobalRobotState>, Client) {
     let mut builder = RobotAssemblyBuilder::new();
     let state = builder.get_state();
