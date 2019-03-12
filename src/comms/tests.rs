@@ -1,19 +1,28 @@
 use std::sync::mpsc::Receiver;
+use std::sync::mpsc::sync_channel;
 
-use rocket::local::Client;
+use rocket::http::ContentType;
+use rocket::http::Status;
+use rocket::local::{Client, LocalResponse};
 
 use crate::comms;
 use crate::mechatronics::commands::RobotCommand;
 
 use super::*;
-use std::sync::mpsc::sync_channel;
-
-use rocket::http::Status;
 
 struct TestEnvironment {
     receiver: Receiver<Box<RobotCommand>>,
     client: Client,
     status: Arc<GlobalRobotState>,
+}
+
+impl TestEnvironment {
+    pub fn send_drive(&self, left: f32, right: f32) -> LocalResponse {
+        self.client.put("/robot/drive")
+            .header(ContentType::JSON)
+            .body(format!("{{ 'drive' : {{ 'left': {}, 'right': {} }} }}", left, right))
+            .dispatch()
+    }
 }
 
 fn setup() -> TestEnvironment {
@@ -40,32 +49,36 @@ fn setup() -> TestEnvironment {
 #[test]
 fn test_bad_switch() {
     let env = setup();
-    let response = env.client.post("/robot/modes/invalid").dispatch();
-    assert_eq!(Status::BadRequest, response.status());
+    let response = env.client
+        .put("/robot")
+        .header(ContentType::JSON)
+        .body(r#"{ "mode" : "invalid" }"#)
+        .dispatch();
+    assert_eq!(Status::UnprocessableEntity, response.status());
 }
 
 #[test]
 fn test_bad_drive() {
     let env = setup();
-    let response = env.client.post("/robot/drive_train/drive/2/1").dispatch();
+    let response = env.send_drive(2.0, 1.0);
     assert_eq!(Status::BadRequest, response.status());
-    let response = env.client.post("/robot/drive_train/drive/1/2").dispatch();
+    let response = env.send_drive(1.0, 2.0);
     assert_eq!(Status::BadRequest, response.status());
-    let response = env.client.post("/robot/drive_train/drive/2/2").dispatch();
+    let response = env.send_drive(2.0, 2.0);
     assert_eq!(Status::BadRequest, response.status());
     let env = setup();
-    let response = env.client.post("/robot/drive_train/drive/-2/1").dispatch();
+    let response = env.send_drive(-2.0, 1.0);
     assert_eq!(Status::BadRequest, response.status());
-    let response = env.client.post("/robot/drive_train/drive/1/-2").dispatch();
+    let response = env.send_drive(1.0, -2.0);
     assert_eq!(Status::BadRequest, response.status());
-    let response = env.client.post("/robot/drive_train/drive/-2/-2").dispatch();
+    let response = env.send_drive(-2.0, -2.0);
     assert_eq!(Status::BadRequest, response.status());
 }
 
 #[test]
 fn test_state() {
     let env = setup();
-    let mut response = env.client.get("/robot/state").dispatch();
+    let mut response = env.client.get("/robot").dispatch();
     assert_eq!(Status::Ok, response.status());
     assert!(response.body().is_some());
 }
