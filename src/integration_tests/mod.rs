@@ -15,16 +15,10 @@ use rocket::local::Client;
 mod initialization;
 
 #[cfg(test)]
-mod mechatronics;
-
-#[cfg(test)]
 mod switching;
 
 #[cfg(test)]
 mod benchmarking;
-
-#[cfg(test)]
-mod limits;
 
 #[cfg(test)]
 mod dumper;
