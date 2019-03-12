@@ -7,12 +7,13 @@ use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
 use rocket_contrib::json::Json;
+use serde::ser::Serialize;
 
+use crate::main;
 use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
-use crate::main;
 
 #[cfg(test)]
 mod tests;
@@ -38,18 +39,20 @@ pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_fa
                routes![get_state,
                               index,
                               files,
-                              favicon,])
+                              favicon,
+                              update_mode,
+                              ])
 }
 
 #[derive(Deserialize, Serialize)]
-enum RobotMode {
+pub enum RobotMode {
     Digging,
     Driving,
     Dumping,
 }
 
-#[post("/robot/mode", data = "<mode>")]
-fn update_mode(mode: Json<RobotMode>, state: State<ServerState>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
+#[post("/robot/mode", format = "application/json", data = "<mode>")]
+fn update_mode(mode: Json<RobotMode>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
     match mode.into_inner() {
         RobotMode::Digging => messenger.send_command(Box::new(factory.generate_intake_switch_command())),
         RobotMode::Driving => messenger.send_command(Box::new(factory.generate_drive_switch_command())),
