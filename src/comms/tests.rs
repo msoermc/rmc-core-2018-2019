@@ -1,4 +1,3 @@
-use std::sync::mpsc::channel;
 use std::sync::mpsc::Receiver;
 
 use rocket::local::Client;
@@ -8,6 +7,8 @@ use crate::mechatronics::commands::RobotCommand;
 
 use super::*;
 use std::sync::mpsc::sync_channel;
+
+use rocket::http::Status;
 
 struct TestEnvironment {
     receiver: Receiver<Box<RobotCommand>>,
