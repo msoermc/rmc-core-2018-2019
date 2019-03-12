@@ -213,11 +213,13 @@ fn upper_both_limit_stop() {
     intake.enable();
     intake.raise();
 
-    state.get_left_actuator().get_upper().store(true, Ordering::SeqCst);
-    state.get_right_actuator().get_upper().store(true, Ordering::SeqCst);
+    state.get_left_actuator().set_upper(true);
+    state.get_right_actuator().set_upper(true);
     intake.run_cycle();
 
     assert_eq!(0.0, state.get_actuator().get_speed());
+    assert_eq!(true, state.get_left_actuator().get_upper().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_right_actuator().get_upper().load(Ordering::SeqCst));
 }
 
 #[test]
@@ -226,11 +228,13 @@ fn lower_both_limit_stop() {
     intake.enable();
     intake.lower();
 
-    state.get_left_actuator().get_lower().store(true, Ordering::SeqCst);
-    state.get_right_actuator().get_lower().store(true, Ordering::SeqCst);
+    state.get_right_actuator().set_lower(true);
+    state.get_left_actuator().set_lower(true);
     intake.run_cycle();
 
     assert_eq!(0.0, state.get_actuator().get_speed());
+    assert_eq!(true, state.get_left_actuator().get_lower().load(Ordering::SeqCst));
+    assert_eq!(true, state.get_right_actuator().get_lower().load(Ordering::SeqCst));
 }
 
 #[test]
