@@ -8,7 +8,7 @@ use super::*;
 const TIMEOUT_MILLIS: u64 = 50;
 
 fn switch(client: &Client, mode: RobotMode) -> LocalResponse {
-    client.post("/robot")
+    client.put("/robot")
         .header(ContentType::JSON)
         .body(match mode {
             RobotMode::Digging => r#"{ "mode":"Digging" }"#,

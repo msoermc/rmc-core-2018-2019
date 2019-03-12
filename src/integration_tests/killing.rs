@@ -7,7 +7,7 @@ use rocket::local::LocalResponse;
 const TIMEOUT_MILLIS: u64 = 30;
 
 pub fn send_life(client: &Client, life: RobotLifeRestId) -> LocalResponse {
-    client.post("/robot").header(ContentType::JSON).body(
+    client.put("/robot").header(ContentType::JSON).body(
         match life {
             RobotLifeRestId::Alive => r#"{ "life" : "Alive" }"#,
             RobotLifeRestId::Dead =>  r#"{ "life" : "Dead" }"#,
