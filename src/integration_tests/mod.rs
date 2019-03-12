@@ -8,6 +8,8 @@ use rocket::http::Status;
 use crate::robot_map::*;
 
 use super::*;
+use crate::status::robot_state::GlobalRobotState;
+use rocket::local::Client;
 
 #[cfg(test)]
 mod initialization;
@@ -32,3 +34,13 @@ mod drive_train;
 
 #[cfg(test)]
 mod intake;
+
+fn setup() -> (Arc<GlobalRobotState>, Client) {
+    let mut builder = RobotAssemblyBuilder::new();
+    let state = builder.get_state();
+    builder.with_test();
+    let robot = builder.generate().assemble();
+    let client = robot.launch().engage_testing_server();
+
+    (state, client)
+}
