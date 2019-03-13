@@ -1,32 +1,61 @@
-use super::*;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+use rocket::http::ContentType;
+use rocket::local::LocalResponse;
+
 use crate::pinouts::digital::TestPin;
+
+use super::*;
 
 const TIMEOUT_MILLIS: u64 = 30;
 
-fn get_enable_dumper_url() -> String {
-    "/robot/modes/dump".to_owned()
+fn enable_dumper(client: &Client) -> LocalResponse {
+    let response = client.put("/robot")
+        .header(ContentType::JSON)
+        .body(r#"{ "mode" : "Dumping" }"#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    response
 }
 
-fn get_dump_url() -> String {
-    "/robot/dumper/dump".to_owned()
+fn send_dump(client: &Client) -> LocalResponse {
+    let response = client.put("/robot/dumper")
+        .header(ContentType::JSON)
+        .body(r#" "Dump" "#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    response
 }
 
-fn get_reset_url() -> String {
-    "/robot/dumper/reset".to_owned()
+fn send_reset(client: &Client) -> LocalResponse {
+    let response = client.put("/robot/dumper")
+        .header(ContentType::JSON)
+        .body(r#" "Reset" "#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    response
 }
 
-fn get_stop_url() -> String {
-    "/robot/dumper/stop".to_owned()
+fn send_stop(client: &Client) -> LocalResponse {
+    let response = client.put("/robot/dumper")
+        .header(ContentType::JSON)
+        .body(r#" "Stop" "#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, response.status());
+    response
 }
 
 #[test]
 fn dump() {
     let (state, client) = setup();
-    client.post(get_enable_dumper_url()).dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_dump_url()).dispatch();
+    send_dump(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(DUMPING_RATE, state.get_current_state().get_dumper().get_motor().get_speed());
@@ -36,10 +65,10 @@ fn dump() {
 #[test]
 fn reset() {
     let (state, client) = setup();
-    client.post(get_enable_dumper_url()).dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_reset_url()).dispatch();
+    send_reset(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(DUMPER_RESET_RATE, state.get_current_state().get_dumper().get_motor().get_speed());
@@ -49,13 +78,13 @@ fn reset() {
 #[test]
 fn stop() {
     let (state, client) = setup();
-    client.post(get_enable_dumper_url()).dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_dump_url()).dispatch();
+    send_dump(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_stop_url()).dispatch();
+    send_stop(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, state.get_current_state().get_dumper().get_motor().get_speed());
@@ -82,13 +111,13 @@ fn upper_dumper_tripped() {
 
     let upper_limit = state.get_dumper().get_upper_limit();
 
-    client.post("/robot/modes/dump").dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     upper_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/dumper/dump").dispatch();
+    send_dump(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, dumper.get_speed());
@@ -115,12 +144,12 @@ fn upper_dumper_not_tripped() {
 
     let upper_limit = state.get_dumper().get_upper_limit();
 
-    client.post("/robot/modes/dump").dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/dumper/dump").dispatch();
+    send_dump(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(DUMPING_RATE, dumper.get_speed());
@@ -147,7 +176,7 @@ fn lower_dumper_tripped() {
 
     let limit = state.get_dumper().get_lower_limit();
 
-    client.post("/robot/modes/reset").dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     input.store(true, Ordering::SeqCst);
@@ -156,7 +185,7 @@ fn lower_dumper_tripped() {
     assert_eq!(0.0, dumper.get_speed());
     assert_eq!(true, limit.load(Ordering::SeqCst));
 
-    client.post("/robot/dumper/reset").dispatch();
+    send_reset(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, dumper.get_speed());
@@ -183,12 +212,12 @@ fn lower_dumper_not_tripped() {
 
     let limit = state.get_dumper().get_lower_limit();
 
-    client.post("/robot/modes/dump").dispatch();
+    enable_dumper(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/dumper/reset").dispatch();
+    send_reset(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(DUMPER_RESET_RATE, dumper.get_speed());

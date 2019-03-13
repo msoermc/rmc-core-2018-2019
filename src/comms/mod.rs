@@ -30,6 +30,7 @@ pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_fa
                               put_robot,
                               put_drive,
                               put_intake,
+                              put_dumper,
                               ])
 }
 
@@ -74,6 +75,13 @@ pub enum ActuatorAction {
 #[derive(Serialize, Deserialize)]
 pub enum DiggerAction {
     Dig,
+    Stop,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum DumperAction {
+    Reset,
+    Dump,
     Stop,
 }
 
@@ -135,6 +143,17 @@ fn put_intake(request: Json<IntakePutRequest>, messenger: State<RobotMessenger>,
                 DiggerAction::Stop => Box::new(factory.generate_stop_digger_command()),
             });
     };
+}
+
+#[put("/robot/dumper", format = "application/json", data = "<action>")]
+fn put_dumper(action: Json<DumperAction>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
+    messenger.send_command(
+        match action.into_inner() {
+            DumperAction::Reset => Box::new(factory.generate_reset_dumper_command()),
+            DumperAction::Dump => Box::new(factory.generate_dump_command()),
+            DumperAction::Stop => Box::new(factory.generate_stop_dumper_command()),
+        }
+    );
 }
 
 /// Responds with the current state of the robot, as a JSON object.

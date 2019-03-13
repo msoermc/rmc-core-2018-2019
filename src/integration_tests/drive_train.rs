@@ -1,10 +1,10 @@
 use rocket::http::ContentType;
 use rocket::local::{Client, LocalResponse};
 
+use crate::logging::launch_logger;
 use crate::status::robot_state::GlobalRobotState;
 
 use super::*;
-use crate::logging::launch_logger;
 
 const TIMEOUT_MILLIS: u64 = 30;
 

@@ -1,8 +1,10 @@
-use crate::comms::RobotLifeRestId;
 use rocket::http::ContentType;
-use super::*;
-use rocket::Response;
 use rocket::local::LocalResponse;
+use rocket::Response;
+
+use crate::comms::RobotLifeRestId;
+
+use super::*;
 
 const TIMEOUT_MILLIS: u64 = 30;
 
@@ -10,7 +12,7 @@ pub fn send_life(client: &Client, life: RobotLifeRestId) -> LocalResponse {
     client.put("/robot").header(ContentType::JSON).body(
         match life {
             RobotLifeRestId::Alive => r#"{ "life" : "Alive" }"#,
-            RobotLifeRestId::Dead =>  r#"{ "life" : "Dead" }"#,
+            RobotLifeRestId::Dead => r#"{ "life" : "Dead" }"#,
         }
     ).dispatch()
 }
