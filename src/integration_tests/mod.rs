@@ -4,12 +4,12 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use rocket::http::Status;
+use rocket::local::Client;
 
 use crate::robot_map::*;
+use crate::status::robot_state::GlobalRobotState;
 
 use super::*;
-use crate::status::robot_state::GlobalRobotState;
-use rocket::local::Client;
 
 #[cfg(test)]
 mod initialization;

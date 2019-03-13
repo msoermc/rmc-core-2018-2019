@@ -1,6 +1,7 @@
-use super::*;
 use std::sync::atomic::Ordering;
 use std::thread::spawn;
+
+use super::*;
 
 #[test]
 fn controller_cycles_per_second() {
