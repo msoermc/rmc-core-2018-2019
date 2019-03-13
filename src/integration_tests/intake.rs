@@ -1,41 +1,73 @@
-use super::*;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+use rocket::http::ContentType;
+use rocket::local::LocalResponse;
+
 use crate::pinouts::digital::TestPin;
+
+use super::*;
 
 const TIMEOUT_MILLIS: u64 = 30;
 
-fn get_enable_url() -> String {
-    "/robot/modes/dig".to_owned()
+fn enable_intake(client: &Client) -> LocalResponse {
+    client.put("/robot")
+        .header(ContentType::JSON)
+        .body(r#"{ "mode" : "Digging" }"#)
+        .dispatch()
 }
 
-fn get_digging_url() -> String {
-    "/robot/intake/digger/dig".to_owned()
+fn send_dig(client: &Client) -> LocalResponse {
+    client.put("/robot/intake")
+        .header(ContentType::JSON)
+        .body(r#"{ "digger" : "Dig" }"#)
+        .dispatch()
 }
 
-fn get_stop_digging_url() -> String {
-    "/robot/intake/digger/stop".to_owned()
+fn send_stop_digging(client: &Client) -> LocalResponse {
+    client.put("/robot/intake")
+        .header(ContentType::JSON)
+        .body(r#"{"digger":"Stop"}"#)
+        .dispatch()
 }
 
-fn get_stop_actuators_url() -> String {
-    "/robot/intake/rails/stop".to_owned()
+fn send_stop_actuators(client: &Client) -> LocalResponse {
+    client.put("/robot/intake")
+        .header(ContentType::JSON)
+        .body(r#"{"actuator":"Stop"}"#)
+        .dispatch()
 }
 
-fn get_raise_actuators_url() -> String {
-    "/robot/intake/rails/raise".to_owned()
+fn send_raise(client: &Client) -> LocalResponse {
+    let res = client.put("/robot/intake")
+        .header(ContentType::JSON)
+        .body(r#"{"actuator":"Raise"}"#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, res.status());
+    res
 }
 
-fn get_lower_actuators_url() -> String {
-    "/robot/intake/rails/lower".to_owned()
+fn send_lower(client: &Client) -> LocalResponse {
+    let res = client.put("/robot/intake")
+        .header(ContentType::JSON)
+        .body(r#"{"actuator":"Lower"}"#)
+        .dispatch();
+
+    assert_eq!(Status::Ok, res.status());
+    res
 }
 
 #[test]
 fn dig() {
     let (state, client) = setup();
-    client.post(get_enable_url()).dispatch();
-    sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_digging_url()).dispatch();
+    let response = enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
+    assert_eq!(Status::Ok, response.status());
+
+    let response = send_dig(&client);
+    sleep(Duration::from_millis(TIMEOUT_MILLIS));
+    assert_eq!(Status::Ok, response.status());
 
     assert_eq!(DIGGING_RATE, state.get_current_state().get_intake().get_digger().get_speed());
     assert_eq!(DIGGING_RATE, state.get_intake().get_current_state().get_digger().get_speed());
@@ -44,13 +76,13 @@ fn dig() {
 #[test]
 fn stop_digging() {
     let (state, client) = setup();
-    client.post(get_enable_url()).dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_digging_url()).dispatch();
+    send_dig(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_stop_digging_url()).dispatch();
+    send_stop_digging(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
@@ -60,13 +92,13 @@ fn stop_digging() {
 #[test]
 fn stop_raise_actuators() {
     let (state, client) = setup();
-    client.post(get_enable_url()).dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_raise_actuators_url()).dispatch();
+    send_raise(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_stop_actuators_url()).dispatch();
+    send_stop_actuators(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
@@ -77,13 +109,13 @@ fn stop_raise_actuators() {
 #[test]
 fn stop_lower_actuators() {
     let (state, client) = setup();
-    client.post(get_enable_url()).dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_lower_actuators_url()).dispatch();
+    send_lower(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post(get_stop_actuators_url()).dispatch();
+    send_stop_actuators(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, state.get_current_state().get_intake().get_digger().get_speed());
@@ -114,13 +146,13 @@ fn upper_left() {
     let left_limit = state.get_intake().get_left_actuator().get_upper();
     let right_limit = state.get_intake().get_right_actuator().get_upper();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     left_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/raise").dispatch();
+    send_raise(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -152,13 +184,13 @@ fn upper_right() {
     let left_limit = state.get_intake().get_left_actuator().get_upper();
     let right_limit = state.get_intake().get_right_actuator().get_upper();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     right_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/raise").dispatch();
+    send_raise(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -190,14 +222,14 @@ fn upper_both() {
     let left_limit = state.get_intake().get_left_actuator().get_upper();
     let right_limit = state.get_intake().get_right_actuator().get_upper();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     left_input.store(true, Ordering::SeqCst);
     right_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/raise").dispatch();
+    send_raise(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -229,10 +261,10 @@ fn upper_none() {
     let left_limit = state.get_intake().get_left_actuator().get_upper();
     let right_limit = state.get_intake().get_right_actuator().get_upper();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/raise").dispatch();
+    send_raise(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(MH_ACTUATOR_RATE, state.get_intake().get_actuator().get_speed());
@@ -264,13 +296,13 @@ fn lower_left() {
     let left_limit = state.get_intake().get_left_actuator().get_lower();
     let right_limit = state.get_intake().get_right_actuator().get_lower();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     left_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/lower").dispatch();
+    send_lower(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -302,13 +334,13 @@ fn lower_right() {
     let left_limit = state.get_intake().get_left_actuator().get_lower();
     let right_limit = state.get_intake().get_right_actuator().get_lower();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     right_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/lower").dispatch();
+    send_lower(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -340,14 +372,14 @@ fn lower_both() {
     let left_limit = state.get_intake().get_left_actuator().get_lower();
     let right_limit = state.get_intake().get_right_actuator().get_lower();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     left_input.store(true, Ordering::SeqCst);
     right_input.store(true, Ordering::SeqCst);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/lower").dispatch();
+    send_lower(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(0.0, actuator.get_speed());
@@ -379,10 +411,10 @@ fn lower_none() {
     let left_limit = state.get_intake().get_left_actuator().get_lower();
     let right_limit = state.get_intake().get_right_actuator().get_lower();
 
-    client.post("/robot/modes/dig").dispatch();
+    enable_intake(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
-    client.post("/robot/intake/rails/lower").dispatch();
+    send_lower(&client);
     sleep(Duration::from_millis(TIMEOUT_MILLIS));
 
     assert_eq!(false, left_limit.load(Ordering::SeqCst));

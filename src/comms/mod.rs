@@ -2,6 +2,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::Rocket;
 use rocket::State;
@@ -11,8 +12,6 @@ use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
-
-use rocket::http::Status;
 
 #[cfg(test)]
 mod tests;
@@ -30,6 +29,7 @@ pub fn stage(messenger: RobotMessenger, state: Arc<GlobalRobotState>, command_fa
                               favicon,
                               put_robot,
                               put_drive,
+                              put_intake,
                               ])
 }
 
@@ -47,7 +47,7 @@ pub enum RobotLifeRestId {
 }
 
 #[derive(Deserialize, Serialize)]
-struct RobotPostRequest {
+struct RobotPutRequest {
     mode: Option<RobotMode>,
     life: Option<RobotLifeRestId>,
 }
@@ -55,12 +55,31 @@ struct RobotPostRequest {
 #[derive(Serialize, Deserialize)]
 pub enum DriveTrainAction {
     Drive { left: f32, right: f32 },
-    Brake
+    Brake,
+}
+
+#[derive(Serialize, Deserialize)]
+struct IntakePutRequest {
+    digger: Option<DiggerAction>,
+    actuator: Option<ActuatorAction>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum ActuatorAction {
+    Raise,
+    Lower,
+    Stop,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum DiggerAction {
+    Dig,
+    Stop,
 }
 
 #[put("/robot", format = "application/json", data = "<robot>")]
-fn put_robot(robot: Json<RobotPostRequest>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
-    let RobotPostRequest { mode: mode_opt, life: life_opt } = robot.into_inner();
+fn put_robot(robot: Json<RobotPutRequest>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
+    let RobotPutRequest { mode: mode_opt, life: life_opt } = robot.into_inner();
 
     if let Some(life) = life_opt {
         match life {
@@ -88,14 +107,35 @@ fn put_drive(action: Json<DriveTrainAction>, messenger: State<RobotMessenger>, f
             } else {
                 Status::BadRequest
             }
-        },
+        }
         DriveTrainAction::Brake => {
             messenger.send_command(Box::new(factory.generate_brake_command()));
             Status::Ok
-        },
+        }
     }
 }
 
+#[put("/robot/intake", format = "application/json", data = "<request>")]
+fn put_intake(request: Json<IntakePutRequest>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) {
+    let IntakePutRequest { digger: digger_opt, actuator: actuator_opt } = request.into_inner();
+
+    if let Some(actuator) = actuator_opt {
+        messenger.send_command(
+            match actuator {
+                ActuatorAction::Raise => Box::new(factory.generate_raise_actuators_command()),
+                ActuatorAction::Lower => Box::new(factory.generate_lower_actuators_command()),
+                ActuatorAction::Stop => Box::new(factory.generate_stop_actuators_command()),
+            });
+    };
+
+    if let Some(digger) = digger_opt {
+        messenger.send_command(
+            match digger {
+                DiggerAction::Dig => Box::new(factory.generate_dig_command()),
+                DiggerAction::Stop => Box::new(factory.generate_stop_digger_command()),
+            });
+    };
+}
 
 /// Responds with the current state of the robot, as a JSON object.
 #[get("/robot")]
