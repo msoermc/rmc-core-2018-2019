@@ -1,13 +1,13 @@
 setInterval(get_state, 500);
 
 function drive_from_form() {
-    let left = $("#left-drive").val();
-    let right = $("#right-drive").val();
+    let left = parseFloat($("#left-drive").val());
+    let right = parseFloat($("#right-drive").val());
     drive(left, right)
 }
 
 function get_state() {
-    fetch("/robot/state",
+    fetch("/robot",
         {
             method: "GET",
             headers: {
@@ -29,79 +29,101 @@ function get_state() {
 }
 
 function kill() {
-    let url = "/robot/kill";
-    post_command(url);
+    putRobot({life: "Dead"});
 }
 
 function revive() {
-    let url = "/robot/revive";
-    post_command(url);
+    putRobot({life: "Alive"});
 }
 
 function switch_to_drive() {
-    let url = "/robot/modes/drive";
-    post_command(url);
+    putRobot({mode: "Drive"});
 }
 
 function switch_to_dump() {
-    let url = "/robot/modes/dump";
-    post_command(url);
+    putRobot({mode: "Dump"});
 }
 
 function switch_to_dig() {
-    let url = "/robot/modes/dig";
-    post_command(url);
+    putRobot({mode: "Dig"});
 }
 
 function brake() {
-    let url = "/robot/drive_train/brake";
-    post_command(url);
+    putData("/robot/drive", "Brake")
 }
 
 function dig() {
-    post_command("/robot/intake/digger/dig");
+    putIntake({digger: "Dig"})
 }
 
 function stop_digging() {
-    post_command("/robot/intake/digger/stop");
+    putIntake({digger: "Stop"})
 }
 
 function dump() {
-    post_command("/robot/dumper/dump");
+    putDumper("Dig")
 }
 
 function reset_dumper() {
-    post_command("/robot/dumper/reset");
+    putDumper("Reset")
 }
 
 function stop_dumping() {
-    post_command("/robot/dumper/stop");
+    putDumper("Stop")
 }
 
 function raise_actuators() {
-    post_command("/robot/intake/rails/raise");
+    putIntake({actuator: "Raise"});
 }
 
 function lower_actuators() {
-    post_command("/robot/intake/rails/lower");
+    putIntake({actuator: "Lower"});
 }
 
 function stop_actuators() {
-    post_command("/robot/intake/rails/stop");
+    putIntake({actuator: "Stop"});
+}
+
+function putIntake(action) {
+    let url = "/robot/intake";
+    putData(url, action);
+}
+
+function putDumper(action) {
+    putData("/robot/dumper", action)
 }
 
 function drive(left, right) {
-    let url = "/robot/drive_train/drive/" + left + "/" + right;
-    post_command(url);
+    let url = "/robot/drive/";
+    let data = {
+        Drive: {
+            left: left,
+            right: right,
+        }
+    };
+
+    console.log("Drive: ", data);
+
+    putData(url, data)
 }
 
-function post_command(url) {
-    fetch(url, {method: "POST"})
-        .then(function (value) {
-            // I'll be damned if I know what to do here.
+function putRobot(action) {
+    putData("/robot", action)
+}
+
+function putData(url, data) {
+    return fetch(url, {
+        method: "PUT",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            console.log("Fetch succeeded: ", response)
         })
-        .catch(function (reason) {
-            alert("Malformed request!");
+        .catch(error => {
+            return console.log("Fetch failed: ", JSON.stringify(error));
         });
-    get_state();
 }
