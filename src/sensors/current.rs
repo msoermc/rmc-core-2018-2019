@@ -3,7 +3,6 @@ use std::sync::Arc;
 use crate::framework::Runnable;
 use crate::pinouts::analog::input::AnalogInput;
 use crate::status::current::GlobalCurrentState;
-use rocket::config::Array;
 use crate::robot_map::BROWN_CURRENT;
 use std::sync::mpsc::Sender;
 

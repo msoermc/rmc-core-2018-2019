@@ -4,7 +4,6 @@ use std::sync::atomic::Ordering;
 
 use crate::pinouts::digital::output::DigitalOutput;
 use crate::pinouts::digital::input::DigitalInput;
-use std::pin::Pin;
 
 pub mod input;
 
