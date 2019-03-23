@@ -5,20 +5,23 @@ use crate::pinouts::analog::input::AnalogInput;
 use crate::status::current::GlobalCurrentState;
 use rocket::config::Array;
 use crate::robot_map::BROWN_CURRENT;
+use std::sync::mpsc::Sender;
 
 /// Monitors current and updates it's state accordingly.
 pub struct CurrentMonitor {
     input: Box<AnalogInput>,
     current: Arc<GlobalCurrentState>,
     old_values: [f32; 3],
+    raw_data_output: Sender<f32>,
 }
 
 impl CurrentMonitor {
-    pub fn new(input: Box<AnalogInput>, current: Arc<GlobalCurrentState>) -> Self {
+    pub fn new(input: Box<AnalogInput>, current: Arc<GlobalCurrentState>, raw_data_output: Sender<f32>) -> Self {
         Self {
             input,
             current,
             old_values: [0.0; 3],
+            raw_data_output
         }
     }
 }
