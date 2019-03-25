@@ -5,7 +5,10 @@ use crate::pinouts::analog::output::PwmOutput;
 
 use super::MotorController;
 
-const OUTPUT_VOLTAGE: f32 = 3.3;
+//Multiply by this and add PWM neutral pulse length to convert speed to pulse width (ns)
+const OUTPUT_CONVERSION: f3 = 500.0;
+//Motor is driven to neutral/stopped when PWM outputs 1500ns pulse
+const PWM_NEUTRAL: f32 = 1500.0;
 
 pub struct RoboClaw {
     pwm: Box<PwmOutput>,
@@ -14,7 +17,7 @@ pub struct RoboClaw {
 
 impl MotorController for RoboClaw {
     fn set_speed(&mut self, new_speed: f32) {
-        let value = (new_speed + 1.0) / OUTPUT_VOLTAGE;
+        let value = (new_speed * OUTPUT_CONVERSION) + PWM_NEUTRAL;
         self.pwm.set_value(value);
         self.state.set_speed(new_speed);
     }
@@ -59,7 +62,7 @@ mod tests {
     use super::*;
 
     fn output_to_voltage(val: f32) -> f32 {
-        (val + 1.0) / OUTPUT_VOLTAGE
+        (val * OUTPUT_CONVERSION) + PWM_NEUTRAL
     }
 
     #[test]
@@ -69,7 +72,7 @@ mod tests {
 
         let _motor = RoboClaw::new(pwm, Arc::new(GlobalMotorState::new()));
 
-        assert_eq!(output_to_voltage(0.0), output.load(Ordering::SeqCst));
+        assert_eq!((0.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, output.load(Ordering::SeqCst));
     }
 
     #[test]
@@ -81,8 +84,8 @@ mod tests {
 
         motor.set_speed(1.0);
 
-        assert_eq!(2.0 / OUTPUT_VOLTAGE, output.load(Ordering::SeqCst));
-        assert_eq!(1.0, motor.get_motor_state().get_speed())
+        assert_eq!((2.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, output.load(Ordering::SeqCst));
+        assert_eq!((1.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, motor.get_motor_state().get_speed())
     }
 
     #[test]
@@ -94,8 +97,8 @@ mod tests {
 
         motor.set_speed(-1.0);
 
-        assert_eq!(0.0, output.load(Ordering::SeqCst));
-        assert_eq!(-1.0, motor.get_motor_state().get_speed())
+        assert_eq!((0.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, output.load(Ordering::SeqCst));
+        assert_eq!((-1.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, motor.get_motor_state().get_speed())
     }
 
     #[test]
@@ -109,7 +112,7 @@ mod tests {
 
         motor.stop();
 
-        assert_eq!(1.0 / OUTPUT_VOLTAGE, output.load(Ordering::SeqCst));
-        assert_eq!(0.0, motor.get_motor_state().get_speed())
+        assert_eq!((1.0  * OUTPUT_CONVERSION) + PWM_NEUTRAL, output.load(Ordering::SeqCst));
+        assert_eq!((0.0 * OUTPUT_CONVERSION) + PWM_NEUTRAL, motor.get_motor_state().get_speed())
     }
 }
