@@ -6,7 +6,7 @@ use crate::pinouts::analog::output::PwmOutput;
 use super::MotorController;
 
 //Multiply by this and add PWM neutral pulse length to convert speed to pulse width (ns)
-const OUTPUT_CONVERSION: f3 = 500.0;
+const OUTPUT_CONVERSION: f32 = 500.0;
 //Motor is driven to neutral/stopped when PWM outputs 1500ns pulse
 const PWM_NEUTRAL: f32 = 1500.0;
 
