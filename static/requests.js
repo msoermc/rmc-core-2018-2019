@@ -19,7 +19,6 @@ function get_state() {
             // TODO find a better way to display state.
             response.json().then(value => {
                 $("#state-view").text(JSON.stringify(value));
-                console.log(JSON.stringify(value));
             })
 
         })
@@ -37,15 +36,15 @@ function revive() {
 }
 
 function switch_to_drive() {
-    putRobot({mode: "Drive"});
+    putRobot({mode: "Driving"});
 }
 
 function switch_to_dump() {
-    putRobot({mode: "Dump"});
+    putRobot({mode: "Dumping"});
 }
 
 function switch_to_dig() {
-    putRobot({mode: "Dig"});
+    putRobot({mode: "Digging"});
 }
 
 function brake() {

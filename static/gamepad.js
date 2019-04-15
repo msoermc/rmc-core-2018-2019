@@ -2,6 +2,10 @@ let gamepad;
 let connectionStatus;
 let previousTime = 0;
 
+let gamepad_connection = false;
+
+setInterval(update, 200);
+
 window.addEventListener("gamepadconnected", function (e) {
     gamepad = navigator.getGamepads()[e.gamepad.index];
     connectionStatus = document.getElementById("connectionStatus");
@@ -11,51 +15,57 @@ window.addEventListener("gamepadconnected", function (e) {
 
     connectionStatus.innerHTML = "Connected";
     connectionStatus.style.color = "black";
-    update();
+    gamepad_connection = true;
 });
 
 window.addEventListener("gamepaddisconnected", function () {
     console.log("Gamepad disconnected");
     connectionStatus.innerHTML = "Disconnected";
     connectionStatus.style.color = "red";
-    cancelAnimationFrame(update);
+    gamepad_connection = false;
 });
 
-function update(timestamp) {
-    if(timestamp > previousTime + 500) {
-        previousTime = timestamp;
-
-        // Run every .5 sec
-        console.log(previousTime);
+function update() {
+    if (gamepad_connection) {
+        render();
     }
-    render();
 }
 
 function render() {
-    draw_axis("movement-axis", gamepad.axes[0] * 45 + 50, gamepad.axes[1] * 45 + 50);
-    draw_axis("camera-axis", gamepad.axes[2] * 45 + 50, gamepad.axes[3] * 45 + 50);
+    let leftJoyXAxis = gamepad.axes[0];
+    let leftJoyYAxis = gamepad.axes[1];
+    let rightJoyXAxis = gamepad.axes[3];
+    let rightJoyYAxis = gamepad.axes[4];
 
-    draw_button("a", gamepad.buttons[0].pressed);
-    draw_button("b", gamepad.buttons[1].pressed);
-    draw_button("x", gamepad.buttons[2].pressed);
-    draw_button("y", gamepad.buttons[3].pressed);
+    let aButton = gamepad.buttons[0].pressed;
+    let bButton = gamepad.buttons[1].pressed;
+    let xButton = gamepad.buttons[2].pressed;
+    let yButton = gamepad.buttons[3].pressed;
+    let lbButton = gamepad.buttons[4].pressed;
+    let rbButton = gamepad.buttons[5].pressed;
+    let backButton = gamepad.buttons[6].pressed;
+    let startButton = gamepad.buttons[7].pressed;
+    let homeButton = gamepad.buttons[8].pressed;
+    let leftJoyButton = gamepad.buttons[9].pressed;
+    let rightJoyButton = gamepad.buttons[10].pressed;
 
-    draw_button("lb", gamepad.buttons[4].pressed);
-    draw_button("rb", gamepad.buttons[5].pressed);
-    draw_button("lt", gamepad.buttons[6].pressed);
-    draw_button("rt", gamepad.buttons[7].pressed);
+    draw_axis("movement-axis", leftJoyXAxis * 45 + 50, leftJoyYAxis * 45 + 50);
+    draw_axis("camera-axis", rightJoyXAxis * 45 + 50, rightJoyYAxis * 45 + 50);
 
-    draw_button("back", gamepad.buttons[8].pressed);
-    draw_button("start", gamepad.buttons[9].pressed);
-    draw_button("ljoy", gamepad.buttons[10].pressed);
-    draw_button("rjoy", gamepad.buttons[11].pressed);
+    draw_button("a", aButton);
+    draw_button("b", bButton);
+    draw_button("x", xButton);
+    draw_button("y", yButton);
 
-    draw_button("up", gamepad.buttons[12].pressed);
-    draw_button("down", gamepad.buttons[13].pressed);
-    draw_button("left", gamepad.buttons[14].pressed);
-    draw_button("right", gamepad.buttons[15].pressed);
+    draw_button("lb", lbButton);
+    draw_button("rb", rbButton);
 
-    requestAnimationFrame(update);
+    draw_button("back", backButton);
+    draw_button("start", startButton);
+    draw_button("ljoy", leftJoyButton);
+    draw_button("rjoy", rightJoyButton);
+
+    drive(-leftJoyYAxis, -rightJoyYAxis);
 }
 
 function draw_axis(axis, x, y) {
