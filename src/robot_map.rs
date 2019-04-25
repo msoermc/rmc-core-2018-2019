@@ -47,7 +47,7 @@ pub const DUMPER_LOWER_ACTUATOR_LIMIT: Pin = Pin::GPIO_P8_16;
 pub const LOG_PATH: &str = "./rmc.log";
 
 /// The lowest level of logs which will be displayed to the user.
-pub const LOG_FILTER_LEVEL: Level = Level::Warning;
+pub const LOG_FILTER_LEVEL: Level = Level::Info;
 
 /// The speed given to the motors as they dig.
 pub const DIGGING_RATE: f32 = 0.25;
