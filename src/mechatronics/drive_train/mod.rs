@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::mechatronics::drive_train::state::GlobalDriveTrainState;
 use crate::motor_controllers::MotorController;
 use crate::status::life::GlobalLifeState;
+use crate::motor_controllers::decorators::inversion::InvertedMotor;
 
 pub mod state;
 
@@ -24,7 +25,7 @@ impl DriveTrain {
         let enabled = state.get_enabled();
         Self {
             state,
-            left,
+            left: Box::new(InvertedMotor::new(left)),
             right,
             robot_status,
             enabled,
