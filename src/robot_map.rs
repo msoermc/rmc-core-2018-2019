@@ -50,16 +50,16 @@ pub const LOG_PATH: &str = "./rmc.log";
 pub const LOG_FILTER_LEVEL: Level = Level::Warning;
 
 /// The speed given to the motors as they dig.
-pub const DIGGING_RATE: f32 = 1.0;
+pub const DIGGING_RATE: f32 = 0.25;
 
 /// The speed at which the actuators move.
-pub const MH_ACTUATOR_RATE: f32 = 1.0;
+pub const MH_ACTUATOR_RATE: f32 = 0.25;
 
 /// The speed used by the motors to dump material.
-pub const DUMPING_RATE: f32 = 1.0;
+pub const DUMPING_RATE: f32 = 0.25;
 
 /// The speed used by the dumper to reset it's position.
-pub const DUMPER_RESET_RATE: f32 = -1.0;
+pub const DUMPER_RESET_RATE: f32 = -DUMPING_RATE;
 
 // Thresholds for current levels (Currently placeholder)
 pub const NORMAL_CURRENT: f32 = 1.8;
