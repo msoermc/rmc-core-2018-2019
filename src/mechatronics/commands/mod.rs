@@ -4,6 +4,14 @@ pub trait RobotCommand: Send {
     fn execute(&self, controller: &mut RobotController);
 }
 
+pub struct ReverseDiggerCommand {}
+
+impl RobotCommand for ReverseDiggerCommand {
+    fn execute(&self, controller: &mut RobotController) {
+        controller.get_intake().reverse();
+    }
+}
+
 pub struct KillCommand {}
 
 impl RobotCommand for KillCommand {
@@ -180,6 +188,8 @@ impl RobotCommandFactory {
     pub fn generate_dig_command(&self) -> DigCommand {
         DigCommand {}
     }
+
+    pub fn generate_reverse_digger_command(&self) -> ReverseDiggerCommand { ReverseDiggerCommand {} }
 
     pub fn generate_stop_digger_command(&self) -> StopDiggerCommand {
         StopDiggerCommand {}
