@@ -12,6 +12,7 @@ use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
+use std::fmt::Display;
 
 #[cfg(test)]
 mod tests;
@@ -53,7 +54,7 @@ struct RobotPutRequest {
     life: Option<RobotLifeRestId>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum DriveTrainAction {
     Drive { left: f32, right: f32 },
     Brake,
@@ -107,6 +108,7 @@ fn put_robot(robot: Json<RobotPutRequest>, messenger: State<RobotMessenger>, fac
 
 #[put("/robot/drive", format = "application/json", data = "<action>")]
 fn put_drive(action: Json<DriveTrainAction>, messenger: State<RobotMessenger>, factory: State<RobotCommandFactory>) -> Status {
+    info!("Drive JSON: {:#?}", action);
     match action.into_inner() {
         DriveTrainAction::Drive { left, right } => {
             if let Some(command) = factory.generate_drive_command(left, right) {
