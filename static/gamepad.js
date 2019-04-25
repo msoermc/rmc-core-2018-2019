@@ -42,6 +42,11 @@ function update() {
     }
 }
 
+function round(value, precision) {
+    let multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+}
+
 function render() {
     let leftJoyXAxis = gamepad.axes[0];
     let leftJoyYAxis = gamepad.axes[1];
@@ -78,7 +83,13 @@ function render() {
     draw_button("ljoy", leftJoyButton);
     draw_button("rjoy", rightJoyButton);
 
-    drive(-leftJoyYAxis + leftYCalib, -rightJoyYAxis + rightYCalib);
+    let leftCalibValue = leftJoyYAxis - leftYCalib;
+    let rightCalibValue = rightJoyYAxis - rightYCalib;
+
+    let leftOut = -round(leftCalibValue, 2);
+    let rightOut = -round(rightCalibValue, 2);
+
+    drive(leftOut, rightOut);
 }
 
 function draw_axis(axis, x, y) {
