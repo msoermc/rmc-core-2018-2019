@@ -4,6 +4,9 @@ let previousTime = 0;
 
 let gamepad_connection = false;
 
+let leftYCalib = 0;
+let rightYCalib = 0;
+
 setInterval(update, 500);
 
 window.addEventListener("gamepadconnected", function (e) {
@@ -12,6 +15,14 @@ window.addEventListener("gamepadconnected", function (e) {
     console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
         e.gamepad.index, e.gamepad.id,
         e.gamepad.buttons.length, e.gamepad.axes.length);
+
+    let leftJoyXAxis = gamepad.axes[0];
+    let leftJoyYAxis = gamepad.axes[1];
+    let rightJoyXAxis = gamepad.axes[3];
+    let rightJoyYAxis = gamepad.axes[4];
+
+    leftYCalib = leftJoyYAxis;
+    rightYCalib = rightJoyYAxis;
 
     connectionStatus.innerHTML = "Connected";
     connectionStatus.style.color = "black";
@@ -67,7 +78,7 @@ function render() {
     draw_button("ljoy", leftJoyButton);
     draw_button("rjoy", rightJoyButton);
 
-    drive(-leftJoyYAxis, -rightJoyYAxis);
+    drive(-leftJoyYAxis + leftYCalib, -rightJoyYAxis + rightYCalib);
 }
 
 function draw_axis(axis, x, y) {
