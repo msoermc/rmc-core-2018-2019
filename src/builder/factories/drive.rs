@@ -10,6 +10,7 @@ use crate::motor_controllers::test_motor::TestMotor;
 use crate::pinouts::factories::IoFactory;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
+use crate::motor_controllers::decorators::inversion::InvertedMotor;
 
 pub struct ProductionDriveFactory {
     state: Arc<GlobalRobotState>,
@@ -88,6 +89,8 @@ impl SubsystemFactory<DriveTrain> for ProductionDriveFactory {
 
         let left_drive = Box::new(MotorGroup::new(vec![front_left_motor, rear_left_motor], self.state.get_drive().get_left()));
         let right_drive = Box::new(MotorGroup::new(vec![front_right_motor, rear_right_motor], self.state.get_drive().get_right()));
+
+        let left_drive = Box::new(InvertedMotor::new(left_drive));
 
         DriveTrain::new(self.state.get_drive(), left_drive, right_drive, self.state.get_life())
     }
