@@ -52,6 +52,8 @@ function render() {
     draw_axis("movement-axis", leftJoyXAxis * 45 + 50, leftJoyYAxis * 45 + 50);
     draw_axis("camera-axis", rightJoyXAxis * 45 + 50, rightJoyYAxis * 45 + 50);
 
+    console.log("(" + leftJoyYAxis + ", " + rightJoyYAxis + ")");
+
     draw_button("a", aButton);
     draw_button("b", bButton);
     draw_button("x", xButton);
