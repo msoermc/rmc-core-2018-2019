@@ -4,7 +4,7 @@ let previousTime = 0;
 
 let gamepad_connection = false;
 
-setInterval(update, 200);
+setInterval(update, 500);
 
 window.addEventListener("gamepadconnected", function (e) {
     gamepad = navigator.getGamepads()[e.gamepad.index];
