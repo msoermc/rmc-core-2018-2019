@@ -55,7 +55,26 @@ fn digging() {
 }
 
 #[test]
+fn reversing() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.reverse();
+    assert_eq!(-DIGGING_RATE, state.get_digger().get_speed());
+}
+
+#[test]
 fn stop_digging() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.dig();
+    intake.stop_digging();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn stop_reverse() {
     let (_, state, mut intake) = setup();
     intake.enable();
 
@@ -94,6 +113,17 @@ fn disable_stop_digger() {
 }
 
 #[test]
+fn disable_stop_reverse() {
+    let (_, state, mut intake) = setup();
+    intake.enable();
+
+    intake.reverse();
+    intake.disable();
+
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
 fn disable_stop_actuator() {
     let (_, state, mut intake) = setup();
     intake.enable();
@@ -111,6 +141,16 @@ fn disable_digger_stasis() {
     intake.disable();
 
     intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn disable_digger_reverse_stasis() {
+    let (_, state, mut intake) = setup();
+
+    intake.disable();
+
+    intake.reverse();
     assert_eq!(0.0, state.get_digger().get_speed());
 }
 
@@ -156,6 +196,16 @@ fn kill_digger_stasis() {
     life.kill();
 
     intake.dig();
+    assert_eq!(0.0, state.get_digger().get_speed());
+}
+
+#[test]
+fn kill_digger_reverse_stasis() {
+    let (life, state, mut intake) = setup();
+
+    life.kill();
+
+    intake.reverse();
     assert_eq!(0.0, state.get_digger().get_speed());
 }
 

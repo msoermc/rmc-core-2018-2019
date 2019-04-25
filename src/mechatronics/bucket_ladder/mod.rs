@@ -78,6 +78,12 @@ impl Intake {
         }
     }
 
+    pub fn reverse(&mut self) {
+        if self.is_enabled() && self.life.is_alive() {
+            self.ladder.set_speed(-DIGGING_RATE);
+        }
+    }
+
     pub fn stop_digging(&mut self) {
         self.ladder.stop();
     }
