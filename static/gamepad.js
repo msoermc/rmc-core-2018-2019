@@ -86,8 +86,8 @@ function render() {
     let leftCalibValue = leftJoyYAxis - leftYCalib;
     let rightCalibValue = rightJoyYAxis - rightYCalib;
 
-    let leftOut = -round(leftCalibValue, 2);
-    let rightOut = -round(rightCalibValue, 2);
+    let leftOut = -round(leftCalibValue, 1);
+    let rightOut = -round(rightCalibValue, 1);
 
     drive(leftOut, rightOut);
 }
