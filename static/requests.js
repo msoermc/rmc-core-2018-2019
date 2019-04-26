@@ -60,7 +60,7 @@ function stop_digging() {
 }
 
 function dump() {
-    putDumper("Dig")
+    putDumper("Dump")
 }
 
 function reset_dumper() {
