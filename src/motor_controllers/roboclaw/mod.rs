@@ -9,9 +9,9 @@ use super::MotorController;
 mod tests;
 
 //Multiply by this and add PWM neutral pulse length to convert speed to pulse width (ns)
-const OUTPUT_CONVERSION: f32 = 0.25;
+const OUTPUT_CONVERSION: f32 = 500.0;
 //Motor is driven to neutral/stopped when PWM outputs 1500ns pulse
-const PWM_NEUTRAL: f32 = 0.75;
+const PWM_NEUTRAL: f32 = 1500.0;
 
 pub struct RoboClaw {
     pwm: Box<PwmOutput>,
@@ -21,7 +21,7 @@ pub struct RoboClaw {
 impl MotorController for RoboClaw {
     fn set_speed(&mut self, new_speed: f32) {
         let value = (new_speed * OUTPUT_CONVERSION) + PWM_NEUTRAL;
-        self.pwm.set_value(value);
+        self.pwm.set_pulse_duty_cycle(value);
         self.state.set_speed(new_speed);
     }
 
