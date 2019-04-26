@@ -18,11 +18,11 @@ pub const REAR_RIGHT_PWM_CHIP: u8 = 6;
 pub const REAR_RIGHT_PWM_NUMBER: u8 = 0;
 
 // P9.22
-pub const DUMPER_PWM_CHIP: u8 = 1;
+pub const DUMPER_PWM_CHIP: u8 = 2;
 pub const DUMPER_PWM_NUM: u8 = 0;
 
 // P9.21
-pub const DIGGER_PWM_CHIP: u8 = 1;
+pub const DIGGER_PWM_CHIP: u8 = 2;
 pub const DIGGER_PWM_NUM: u8 = 1;
 
 // P9.42
