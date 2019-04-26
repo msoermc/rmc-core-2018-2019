@@ -35,7 +35,8 @@ impl MotorController for RoboClaw {
 }
 
 impl RoboClaw {
-    pub fn new(pwm: Box<PwmOutput>, state: Arc<GlobalMotorState>) -> Self {
+    pub fn new(mut pwm: Box<PwmOutput>, state: Arc<GlobalMotorState>) -> Self {
+        pwm.set_period(20_000);
         let mut result = RoboClaw {
             pwm,
             state,
