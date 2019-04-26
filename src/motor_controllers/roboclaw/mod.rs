@@ -21,7 +21,7 @@ pub struct RoboClaw {
 impl MotorController for RoboClaw {
     fn set_speed(&mut self, new_speed: f32) {
         let value = (new_speed * OUTPUT_CONVERSION) + PWM_NEUTRAL;
-        self.pwm.set_pulse_duty_cycle(value as u32);
+        self.pwm.set_value(value / 20_000.0);
         self.state.set_speed(new_speed);
     }
 
