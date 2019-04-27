@@ -26,7 +26,7 @@ pub const DIGGER_PWM_CHIP: u8 = 1;
 pub const DIGGER_PWM_NUM: u8 = 1;
 
 // P9.42
-pub const ACTUATOR_PWM_CHIP: u8 = 2;
+pub const ACTUATOR_PWM_CHIP: u8 = 0;
 pub const ACTUATOR_PWM_NUM: u8 = 0;
 
 pub const FRONT_LEFT_DIRECTION: Pin = Pin::GPIO_P9_12;
