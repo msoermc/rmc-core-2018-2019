@@ -42,7 +42,7 @@ impl LibBeagleBonePwm {
     pub fn new(chip: u8, num: u8) -> Self {
         let mut pwm = PWM::new(chip, num);
 
-        if let Err(e) = pwm.set_period(20_000) {
+        if let Err(e) = pwm.set_period(20_000_000) {
             error!("{}", e);
         }
         if let Err(e) = pwm.set_export(DeviceState::Exported) {
