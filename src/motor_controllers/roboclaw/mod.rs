@@ -17,7 +17,7 @@ const FULL_FORWARD: u32 = 1_750_000;
 // 1.25 ms = 1,250 us = 1,250,000 ns
 const FULL_BACKWARD: u32 = 1_250_000;
 
-// 20.00 ms = 20,000 us = 20,000,000 ns
+// 2.00 ms = 2,000 us = 2,000,000 ns
 const PERIOD: u32 = 20_000_000;
 
 //Multiply by this and add PWM neutral pulse length to convert speed to pulse width (ns)
