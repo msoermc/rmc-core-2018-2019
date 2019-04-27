@@ -23,6 +23,7 @@ impl MotorController for RoboClaw {
         let value = (new_speed * OUTPUT_CONVERSION) + PWM_NEUTRAL;
         self.pwm.set_value(value / 20_000.0);
         self.state.set_speed(new_speed);
+        info!("Speed: {}", value);
     }
 
     fn stop(&mut self) {
