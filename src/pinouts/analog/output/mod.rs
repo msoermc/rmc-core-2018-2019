@@ -1,6 +1,5 @@
 use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
-use atomic::Ordering;
+use atomic::{Ordering, Atomic};
 
 pub mod pwm;
 
@@ -17,8 +16,8 @@ pub trait PwmOutput: AnalogOutput {
 
 pub struct TestPwm {
     value: Arc<atomic::Atomic<f32>>,
-    duty_cycle: Arc<AtomicUsize>,
-    period: Arc<AtomicUsize>,
+    duty_cycle: Arc<Atomic<usize>>,
+    period: Arc<Atomic<usize>>,
 }
 
 impl AnalogOutput for TestPwm {
@@ -42,12 +41,12 @@ impl TestPwm {
     pub fn new(state: Arc<atomic::Atomic<f32>>) -> Self {
         Self {
             value: state,
-            duty_cycle: Arc::new(AtomicUsize::new(0)),
-            period: Arc::new(AtomicUsize::new(20_000))
+            duty_cycle: Arc::new(Atomic::new(0)),
+            period: Arc::new(Atomic::new(20_000)),
         }
     }
 
-    pub fn pwm(value: Arc<atomic::Atomic<f32>>, duty_cycle: Arc<AtomicUsize>, period: Arc<AtomicUsize>) -> Self {
+    pub fn pwm(value: Arc<atomic::Atomic<f32>>, duty_cycle: Arc<Atomic<usize>>, period: Arc<Atomic<usize>>) -> Self {
         Self {
             value,
             duty_cycle,

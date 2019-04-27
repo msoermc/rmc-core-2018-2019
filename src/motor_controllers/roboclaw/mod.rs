@@ -8,10 +8,20 @@ use super::MotorController;
 #[cfg(test)]
 mod tests;
 
+// 1.50 ms = 1,500 us = 1,500,000 ns
+const BRAKE: u32 = 1_500_000;
+
+// 1.75 ms = 1,750 us = 1,750,000 ns
+const FULL_FORWARD: u32 = 1_750_000;
+
+// 1.25 ms = 1,250 us = 1,250,000 ns
+const FULL_BACKWARD: u32 = 1_250_000;
+
+// 2.00 ms = 2,000 us = 2,000,000 ns
+const PERIOD: u32 = 20_000_000;
+
 //Multiply by this and add PWM neutral pulse length to convert speed to pulse width (ns)
-const OUTPUT_CONVERSION: f32 = 500.0;
-//Motor is driven to neutral/stopped when PWM outputs 1500ns pulse
-const PWM_NEUTRAL: f32 = 1500.0;
+const COEFFICIENT: f32 = (FULL_FORWARD - BRAKE) as f32;
 
 pub struct RoboClaw {
     pwm: Box<PwmOutput>,
@@ -20,10 +30,11 @@ pub struct RoboClaw {
 
 impl MotorController for RoboClaw {
     fn set_speed(&mut self, new_speed: f32) {
-        let value = (new_speed * OUTPUT_CONVERSION) + PWM_NEUTRAL;
-        self.pwm.set_value(value / 20_000.0);
+        let base_speed = (new_speed * COEFFICIENT) as i32;
+        let width = (base_speed + BRAKE as i32) as u32;
+        self.pwm.set_pulse_duty_cycle(width);
         self.state.set_speed(new_speed);
-        info!("Speed: {}", value);
+        info!("Speed: {}", width);
     }
 
     fn stop(&mut self) {
@@ -37,7 +48,7 @@ impl MotorController for RoboClaw {
 
 impl RoboClaw {
     pub fn new(mut pwm: Box<PwmOutput>, state: Arc<GlobalMotorState>) -> Self {
-        pwm.set_period(20_000);
+        pwm.set_period(PERIOD);
         let mut result = RoboClaw {
             pwm,
             state,
