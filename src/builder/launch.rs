@@ -6,21 +6,25 @@ use crate::benchmarking::ControllerBench;
 use crate::framework::{Runnable, CompositeRunnable};
 use crate::mechatronics::controller::RobotController;
 use crate::builder::robot::Robot;
+use crate::arduino::Arduino;
+use std::thread::yield_now;
 
 pub struct RobotLauncher {
     controller: RobotController,
     bfr: Rocket,
     bench: Option<ControllerBench>,
-    monitor: CompositeRunnable
+    monitor: CompositeRunnable,
+    arduino: Option<Arduino>,
 }
 
 impl RobotLauncher {
-    pub fn new(controller: RobotController, bfr: Rocket, bench: Option<ControllerBench>, monitor: CompositeRunnable) -> Self {
+    pub fn new(controller: RobotController, bfr: Rocket, bench: Option<ControllerBench>, monitor: CompositeRunnable, arduino: Option<Arduino>) -> Self {
         Self {
             controller,
             bfr,
             bench,
             monitor,
+            arduino,
         }
     }
 

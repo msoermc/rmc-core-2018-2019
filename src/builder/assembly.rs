@@ -12,6 +12,7 @@ use crate::mechatronics::dumper::Dumper;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::framework::CompositeRunnable;
+use crate::arduino::Arduino;
 
 pub struct RobotAssembler {
     dumper: Dumper,
@@ -19,18 +20,20 @@ pub struct RobotAssembler {
     intake: Intake,
     state: Arc<GlobalRobotState>,
     bench: Option<ControllerBench>,
-    monitor: CompositeRunnable
+    monitor: CompositeRunnable,
+    arduino: Option<Arduino>
 }
 
 impl RobotAssembler {
-    pub fn new(dumper: Dumper, drive: DriveTrain, intake: Intake, state: Arc<GlobalRobotState>, bench: Option<ControllerBench>, monitor: CompositeRunnable) -> Self {
+    pub fn new(dumper: Dumper, drive: DriveTrain, intake: Intake, state: Arc<GlobalRobotState>, bench: Option<ControllerBench>, monitor: CompositeRunnable, arduino: Option<Arduino>) -> Self {
         Self {
             dumper,
             drive,
             intake,
             state,
             bench,
-            monitor
+            monitor,
+            arduino
         }
     }
 
@@ -44,7 +47,7 @@ impl RobotAssembler {
 
         let robot_controller = RobotController::new(controller_receiver, self.drive, self.dumper, self.intake, self.state.get_life(), self.state.get_cycle_counter());
 
-        RobotLauncher::new(robot_controller, bfr, self.bench, self.monitor)
+        RobotLauncher::new(robot_controller, bfr, self.bench, self.monitor, self.arduino)
     }
 }
 

@@ -26,6 +26,8 @@ use crate::pinouts::enable_pins;
 use crate::pinouts::factories::IoFactory;
 use crate::robot_map::*;
 use crate::status::robot_state::GlobalRobotState;
+use std::sync::mpsc::{Receiver, Sender, channel};
+use crate::arduino::Arduino;
 
 pub struct RobotAssemblyBuilder {
     dumper: Box<SubsystemFactory<Dumper>>,
@@ -41,11 +43,15 @@ pub struct RobotAssemblyBuilder {
     bench: Option<ControllerBench>,
     io: Rc<IoFactory>,
     pin_enabled_status: bool,
+    arduino_sender: Sender<u8>,
+    arduino_receiver: Option<Receiver<u8>>,
+    arduino: Option<Arduino>
 }
 
 impl RobotAssemblyBuilder {
     pub fn new() -> Self {
         let state = Arc::new(GlobalRobotState::new());
+        let (s, r) = channel();
 
         Self {
             dumper: Box::new(PrintDumperFactory::new(state.clone())),
@@ -61,6 +67,9 @@ impl RobotAssemblyBuilder {
             bench: None,
             io: Rc::new(IoFactory::new()),
             pin_enabled_status: false,
+            arduino_sender: s,
+            arduino_receiver: Some(r),
+            arduino: None,
         }
     }
 
@@ -122,7 +131,7 @@ impl RobotAssemblyBuilder {
     }
 
     pub fn with_production_dumper(&mut self) -> &mut Self {
-        self.dumper = Box::new(ProductionDumperFactory::new(self.state.clone(), self.io.clone()));
+        self.dumper = Box::new(ProductionDumperFactory::new(self.state.clone(), self.arduino_sender.clone()));
         self.with_pinouts()
     }
 
@@ -133,12 +142,17 @@ impl RobotAssemblyBuilder {
 
     pub fn with_production_ladder(&mut self) -> &mut Self {
         self.intake = Box::new(ProductionIntakeFactory::new(
-            self.state.clone(), self.io.clone()));
+            self.state.clone(), self.arduino_sender.clone()));
         self.left_upper_limit = self.make_production_limit(self.state.get_intake().get_left_actuator().get_upper().clone(), LEFT_UPPER_ACTUATOR_LIMIT);
         self.right_upper_limit = self.make_production_limit(self.state.get_intake().get_right_actuator().get_upper().clone(), RIGHT_UPPER_ACTUATOR_LIMIT);
         self.left_lower_limit = self.make_production_limit(self.state.get_intake().get_left_actuator().get_lower().clone(), LEFT_LOWER_ACTUATOR_LIMIT);
         self.right_lower_limit = self.make_production_limit(self.state.get_intake().get_right_actuator().get_lower().clone(), RIGHT_LOWER_ACTUATOR_LIMIT);
         self.with_pinouts()
+    }
+
+    pub fn with_arduino(&mut self) -> &mut Self {
+        self.arduino = Some(Arduino::new(self.arduino_receiver.take().unwrap()));
+        self
     }
 
     pub fn with_test_ladder(&mut self) -> &mut Self {
@@ -176,7 +190,7 @@ impl RobotAssemblyBuilder {
             monitor.add_runnable(sensor.produce());
         }
 
-        RobotAssembler::new(dumper, drive, intake, self.state, self.bench, monitor)
+        RobotAssembler::new(dumper, drive, intake, self.state, self.bench, monitor, self.arduino)
     }
 
     pub fn get_drive_factory(&self) -> String {

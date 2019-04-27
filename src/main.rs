@@ -11,6 +11,8 @@ extern crate serde_derive;
 #[macro_use(o)]
 extern crate slog;
 
+pub mod arduino;
+
 use crate::builder::config::RobotAssemblyBuilder;
 
 /// Contains code for benchmarking the performance of the system.

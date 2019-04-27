@@ -13,8 +13,15 @@ use crate::robot_map::ACTUATOR_PWM_NUM;
 use crate::robot_map::DIGGER_PWM_CHIP;
 use crate::robot_map::DIGGER_PWM_NUM;
 use crate::status::robot_state::GlobalRobotState;
+use std::sync::mpsc::Sender;
+use crate::arduino::ArduinoMotor;
 
 pub struct ProductionIntakeFactory {
+    state: Arc<GlobalRobotState>,
+    io: Sender<u8>
+}
+
+pub struct IoIntakeFactory {
     state: Arc<GlobalRobotState>,
     io: Rc<IoFactory>,
 }
@@ -28,6 +35,15 @@ pub struct PrintIntakeFactory {
 }
 
 impl ProductionIntakeFactory {
+    pub fn new(state: Arc<GlobalRobotState>, io: Sender<u8>) -> Self {
+        Self {
+            state,
+            io,
+        }
+    }
+}
+
+impl IoIntakeFactory {
     pub fn new(state: Arc<GlobalRobotState>, io: Rc<IoFactory>) -> Self {
         Self {
             state,
@@ -58,6 +74,12 @@ impl ToString for ProductionIntakeFactory {
     }
 }
 
+impl ToString for IoIntakeFactory {
+    fn to_string(&self) -> String {
+        "io intake".to_owned()
+    }
+}
+
 impl ToString for TestIntakeFactory {
     fn to_string(&self) -> String {
         "test intake".to_owned()
@@ -71,6 +93,16 @@ impl ToString for PrintIntakeFactory {
 }
 
 impl SubsystemFactory<Intake> for ProductionIntakeFactory {
+    fn produce(self: Box<Self>) -> Intake {
+        let state = &self.state;
+        let digger_motor = Box::new(ArduinoMotor::new(self.io.clone(), 2, state.get_intake().get_digger()));
+        let actuator = Box::new(ArduinoMotor::new(self.io, 1, state.get_intake().get_actuator()));
+
+        Intake::new(digger_motor, actuator, state.get_intake(), state.get_life())
+    }
+}
+
+impl SubsystemFactory<Intake> for IoIntakeFactory {
     fn produce(self: Box<Self>) -> Intake {
         let state = &self.state;
         let digger_pwm = self.io.generate_pwm(DIGGER_PWM_CHIP, DIGGER_PWM_NUM);
