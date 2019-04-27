@@ -116,5 +116,6 @@ impl Intake {
 
 #[inline]
 fn reached_limit(left: Arc<AtomicBool>, right: Arc<AtomicBool>) -> bool {
-    left.load(Ordering::SeqCst) || right.load(Ordering::SeqCst)
+    true
+    //left.load(Ordering::SeqCst) || right.load(Ordering::SeqCst)
 }
