@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BB_IP=192.168.0.175
+BB_IP=192.168.7.2
 BB_PASSWD=msoe
 ROBOT_DIR=/home/rmc/robot
 
