@@ -11,8 +11,15 @@ use crate::pinouts::factories::IoFactory;
 use crate::robot_map::DUMPER_PWM_CHIP;
 use crate::robot_map::DUMPER_PWM_NUM;
 use crate::status::robot_state::GlobalRobotState;
+use std::sync::mpsc::Sender;
+use crate::arduino::ArduinoMotor;
 
 pub struct ProductionDumperFactory {
+    state: Arc<GlobalRobotState>,
+    io: Sender<u8>,
+}
+
+pub struct IoDumperFactory {
     state: Arc<GlobalRobotState>,
     io: Rc<IoFactory>,
 }
@@ -26,6 +33,15 @@ pub struct PrintDumperFactory {
 }
 
 impl ProductionDumperFactory {
+    pub fn new(state: Arc<GlobalRobotState>, io: Sender<u8>) -> Self {
+        Self {
+            state,
+            io,
+        }
+    }
+}
+
+impl IoDumperFactory {
     pub fn new(state: Arc<GlobalRobotState>, io: Rc<IoFactory>) -> Self {
         Self {
             state,
@@ -56,6 +72,13 @@ impl ToString for ProductionDumperFactory {
     }
 }
 
+impl ToString for IoDumperFactory {
+    fn to_string(&self) -> String {
+        "io dumper".to_owned()
+    }
+}
+
+
 impl ToString for TestDumperFactory {
     fn to_string(&self) -> String {
         "test dumper".to_owned()
@@ -69,6 +92,15 @@ impl ToString for PrintDumperFactory {
 }
 
 impl SubsystemFactory<Dumper> for ProductionDumperFactory {
+    fn produce(self: Box<Self>) -> Dumper {
+        let state = &self.state;
+        let dumper_motor = Box::new(ArduinoMotor::new(self.io, 3, state.get_dumper().get_motor()));
+
+        Dumper::new(state.get_life(), dumper_motor, state.get_dumper())
+    }
+}
+
+impl SubsystemFactory<Dumper> for IoDumperFactory {
     fn produce(self: Box<Self>) -> Dumper {
         let state = &self.state;
         let pwm = self.io.generate_pwm(DUMPER_PWM_CHIP, DUMPER_PWM_NUM);

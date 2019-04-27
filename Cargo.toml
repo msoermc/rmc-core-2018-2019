@@ -18,6 +18,7 @@ serde_derive = ""
 rocket = ""
 rocket_contrib = ""
 atomic = ""
+serialport = "3.2.0"
 
 #[build-dependencies.mml]
 #version = "0.1"
