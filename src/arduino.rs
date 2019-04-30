@@ -33,7 +33,7 @@ impl MotorController for ArduinoMotor {
             0
         };
 
-        let speed = (new_speed.abs() * 100.0) as u8;
+        let speed = (new_speed.abs() * 10.0) as u8  * 10;
 
         info!("Speed: {}", speed);
 
