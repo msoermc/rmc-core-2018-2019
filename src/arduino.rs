@@ -73,7 +73,9 @@ impl Arduino {
     }
 
     fn run(&mut self) {
-        let val = self.channel.recv().unwrap();
+        let val = if let Err(e) = self.channel.recv() {
+            error!("{}", e)
+        };
         if let Err(e) = self.port.write(&[val]) {
             error!("{}", e)
         };
