@@ -42,7 +42,9 @@ impl MotorController for ArduinoMotor {
     }
 
     fn stop(&mut self) {
-        self.channel.send(self.id);
+        if let Err(e) = self.channel.send(self.id) {
+            error!("{}", e);
+        };
     }
 
     fn get_motor_state(&self) -> &GlobalMotorState {
