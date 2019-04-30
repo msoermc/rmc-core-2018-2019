@@ -10,15 +10,17 @@ pub struct Robot {
     bfr: Rocket,
     _bench: Option<JoinHandle<()>>,
     _monitor: JoinHandle<()>,
+    _arduino: Option<JoinHandle<()>>
 }
 
 impl Robot {
-    pub fn new(controller: JoinHandle<()>, bfr: Rocket, bench: Option<JoinHandle<()>>, monitor: JoinHandle<()>) -> Self {
+    pub fn new(controller: JoinHandle<()>, bfr: Rocket, bench: Option<JoinHandle<()>>, monitor: JoinHandle<()>, arduino: Option<JoinHandle<()>>) -> Self {
         Self {
             controller,
             bfr,
             _bench: bench,
             _monitor: monitor,
+            _arduino: arduino
         }
     }
 

@@ -38,8 +38,10 @@ impl RobotLauncher {
             bench.launch();
         }).unwrap());
 
+        let arduino_thread = self.arduino.map(|ard| ard.launch());
+
         let monitor_thread = thread::Builder::new().name("Monitor Thread".to_string()).spawn(move || monitor.start()).unwrap();
 
-        Robot::new(controller_thread, self.bfr, bench_thread, monitor_thread)
+        Robot::new(controller_thread, self.bfr, bench_thread, monitor_thread, arduino_thread)
     }
 }
