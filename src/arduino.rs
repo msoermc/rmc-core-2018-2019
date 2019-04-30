@@ -27,6 +27,7 @@ impl ArduinoMotor {
 
 impl MotorController for ArduinoMotor {
     fn set_speed(&mut self, new_speed: f32) {
+        self.state.set_speed(new_speed);
         let dir = if new_speed < 0.0 {
             100
         } else {
