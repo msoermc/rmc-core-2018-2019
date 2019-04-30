@@ -90,3 +90,9 @@ impl Arduino {
         };
     }
 }
+
+impl Drop for Arduino {
+    fn drop(&mut self) {
+        error!("Dropping Arduino!");
+    }
+}
