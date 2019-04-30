@@ -74,7 +74,11 @@ impl Arduino {
 
     fn run(&mut self) {
         let val = self.channel.recv().unwrap();
-        self.port.write(&[val]).unwrap();
-        self.port.flush().unwrap();
+        if let Err(e) = self.port.write(&[val]) {
+            error!("{}", e)
+        };
+        if let Err(e) = self.port.flush() {
+            error!("{}", e)
+        };
     }
 }
