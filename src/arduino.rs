@@ -6,7 +6,8 @@ use crate::framework::Runnable;
 use serialport::{available_ports, open, SerialPort};
 use std::{io, thread};
 use std::io::Write;
-use std::thread::yield_now;
+use std::thread::{yield_now, JoinHandle, Thread};
+use crate::mechatronics::commands::ResetDumperCommand;
 
 pub struct ArduinoMotor {
     channel: Sender<u8>,
@@ -64,14 +65,13 @@ impl Arduino {
         }
     }
 
-    pub fn launch(mut self) {
-        let arduino_thread =
-            thread::Builder::new().name("Arduino Thread".to_owned()).spawn(move || {
+    pub fn launch(mut self) -> JoinHandle<()> {
+        thread::Builder::new().name("Arduino Thread".to_owned()).spawn(move || {
                 loop {
                     self.run();
                     yield_now();
                 }
-            });
+            }).unwrap()
     }
 
     fn run(&mut self) {
