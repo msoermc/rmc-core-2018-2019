@@ -1,13 +1,11 @@
 use crate::motor_controllers::{MotorController, GlobalMotorState};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::Arc;
-use crate::framework::Runnable;
 
 use serialport::{available_ports, open, SerialPort};
 use std::{io, thread};
 use std::io::Write;
-use std::thread::{yield_now, JoinHandle, Thread};
-use crate::mechatronics::commands::ResetDumperCommand;
+use std::thread::{yield_now, JoinHandle};
 
 pub struct ArduinoMotor {
     channel: Sender<u8>,
@@ -34,7 +32,7 @@ impl MotorController for ArduinoMotor {
             0
         };
 
-        let speed = (new_speed.abs() * 10.0) as u8  * 10;
+        let speed = (new_speed.abs() * 10.0) as u8 * 10;
 
         info!("Speed: {}", speed);
 
@@ -62,6 +60,10 @@ impl Arduino {
         let mut serialport = open(&available_ports().expect("No serial port")[0].port_name)
             .expect("Failed to open serial port");
 
+        if let Err(e) = serialport.set_baud_rate(9600) {
+            error!("{}", e);
+        };
+
         Self {
             channel,
             port: serialport,
@@ -70,11 +72,11 @@ impl Arduino {
 
     pub fn launch(mut self) -> JoinHandle<()> {
         thread::Builder::new().name("Arduino Thread".to_owned()).spawn(move || {
-                loop {
-                    self.run();
-                    yield_now();
-                }
-            }).unwrap()
+            loop {
+                self.run();
+                yield_now();
+            }
+        }).unwrap()
     }
 
     fn run(&mut self) {
