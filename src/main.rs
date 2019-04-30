@@ -60,6 +60,7 @@ fn main() {
     let _logging_guard = logging::launch_logger();
     let mut builder = RobotAssemblyBuilder::new();
 
+    builder.with_arduino();
     builder.with_production();
 
     builder.generate()
