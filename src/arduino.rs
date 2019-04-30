@@ -34,7 +34,9 @@ impl MotorController for ArduinoMotor {
 
         let speed = (new_speed.abs() * 10.0) as u8;
 
-        self.channel.send(dir + speed + self.id).unwrap();
+        if let Err(e) = self.channel.send(dir + speed + self.id) {
+            error!("{}", e);
+        };
     }
 
     fn stop(&mut self) {
