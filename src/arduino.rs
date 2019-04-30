@@ -82,6 +82,7 @@ impl Arduino {
                 0
             }
         };
+        info!("Arduino: {}", val);
         if let Err(e) = self.port.write(&[val]) {
             error!("{}", e)
         };
