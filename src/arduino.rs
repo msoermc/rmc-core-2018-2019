@@ -59,6 +59,7 @@ pub struct Arduino {
 
 impl Arduino {
     pub fn new(channel: Receiver<u8>) -> Self {
+        info!("Serials: {:?}", &available_ports().expect("No serial port"));
         let mut serialport = open(&available_ports().expect("No serial port")[0].port_name)
             .expect("Failed to open serial port");
 
