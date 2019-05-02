@@ -61,7 +61,8 @@ fn main() {
     let mut builder = RobotAssemblyBuilder::new();
 
     builder.with_arduino();
-    builder.with_production();
+    builder.with_production_dumper();
+    builder.with_production_ladder();
 
     builder.generate()
         .assemble()
