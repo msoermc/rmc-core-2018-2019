@@ -9,6 +9,7 @@ let rightYCalib = 0;
 
 setInterval(update, 500);
 
+
 window.addEventListener("gamepadconnected", function (e) {
     gamepad = navigator.getGamepads()[e.gamepad.index];
     connectionStatus = document.getElementById("connectionStatus");
@@ -45,6 +46,7 @@ function update() {
 function round(value, precision) {
     let multiplier = Math.pow(10, precision || 0);
     return Math.round(value * multiplier) / multiplier;
+
 }
 
 function render() {
