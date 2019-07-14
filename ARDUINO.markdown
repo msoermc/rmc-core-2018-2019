@@ -5,7 +5,7 @@ Data transmissions occur via serial (UART) with a Baud rate of 115200.
 Checksums are calculated by taking the base 256 modulus of the sum of
 all bytes in the message following the checksum, including spacers.
 
-10 is not a valid command ID. This decision was made to prevent
+10 (0x0a) is not a valid command ID. This decision was made to prevent
 ambiguity with the header series.
 
 ## Format
@@ -18,16 +18,17 @@ Bytes  |3        | 1        | 1      | 1       | 1      | 2      | 1      | 2
 
 Command | Name   | Part 1     | Part 2
 --------|--------|------------|-------
-1       | Drive  | {LEFT}     | {Right}
-2       | Height | {VELOCITY} | Unused
-3       | Dumper | {VELOCITY} | Unused
-4       | Digger | {VELOCITY) | Unused
+1       | Left   | {VELOCITY} | Unused
+2       | Right  | {VELOCITY} | Unused
+3       | Height | {VELOCITY} | Unused
+4       | Dumper | {VELOCITY} | Unused
+5       | Digger | {VELOCITY) | Unused
 
 The velocities (including for the drive command) are provided as signed
 16 bit integers with the domain \[-1000..1000], with -1000 being full
-reverse and 1000 being full forward. Forwards indicates exactly what you
-would expect for the drive train, a motion towards dumping and a motion
-towards digging.
+reverse and 1000 being full forward. Forwards indicates a forwards
+motion for the drive train, a motion towards dumping for the dumper and
+a motion towards digging for the digger.
 
 ## Rationale
 This protocol was designed to carry a high volume of fixed-size data
