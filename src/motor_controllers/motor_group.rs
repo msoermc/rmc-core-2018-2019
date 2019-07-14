@@ -4,7 +4,7 @@ use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorController;
 
 pub struct MotorGroup {
-    motors: Vec<Box<MotorController>>,
+    motors: Vec<Box<dyn MotorController>>,
     state: Arc<GlobalMotorState>,
 }
 
@@ -31,7 +31,7 @@ impl MotorController for MotorGroup {
 }
 
 impl MotorGroup {
-    pub fn new(motors: Vec<Box<MotorController>>, state: Arc<GlobalMotorState>) -> Self {
+    pub fn new(motors: Vec<Box<dyn MotorController>>, state: Arc<GlobalMotorState>) -> Self {
         Self {
             motors,
             state,

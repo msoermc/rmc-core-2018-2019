@@ -1,10 +1,9 @@
 use crate::builder::factories::SubsystemFactory;
-use crate::arduino::Arduino;
-use std::fmt::{Display, Formatter};
+use crate::arduino::{Arduino, ArduinoMessage};
 use std::sync::mpsc::Receiver;
 
 pub struct ArduinoFactory {
-    channel: Receiver<u8>,
+    channel: Receiver<ArduinoMessage>,
 }
 
 impl ToString for ArduinoFactory {

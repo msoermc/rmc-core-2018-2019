@@ -6,7 +6,7 @@ use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorController;
 
 pub struct FlagMotor {
-    motor: Box<MotorController>,
+    motor: Box<dyn MotorController>,
     disabled: Arc<AtomicBool>,
 }
 
@@ -29,7 +29,7 @@ impl MotorController for FlagMotor {
 }
 
 impl FlagMotor {
-    pub fn new(motor: Box<MotorController>, disabled: Arc<AtomicBool>) -> Self {
+    pub fn new(motor: Box<dyn MotorController>, disabled: Arc<AtomicBool>) -> Self {
         Self {
             motor,
             disabled,

@@ -13,7 +13,7 @@ pub mod state;
 mod tests;
 
 pub struct Dumper {
-    motors: Box<MotorController>,
+    motors: Box<dyn MotorController>,
     state: Arc<GlobalDumperState>,
     life: Arc<GlobalLifeState>,
     enabled: bool,
@@ -21,7 +21,7 @@ pub struct Dumper {
 }
 
 impl Dumper {
-    pub fn new(life: Arc<GlobalLifeState>, motors: Box<MotorController>, state: Arc<GlobalDumperState>) -> Self {
+    pub fn new(life: Arc<GlobalLifeState>, motors: Box<dyn MotorController>, state: Arc<GlobalDumperState>) -> Self {
         let enabled = state.get_enabled();
         Self {
             motors,

@@ -12,15 +12,15 @@ mod tests;
 /// Manages and controls the drive train.
 pub struct DriveTrain {
     state: Arc<GlobalDriveTrainState>,
-    left: Box<MotorController>,
-    right: Box<MotorController>,
+    left: Box<dyn MotorController>,
+    right: Box<dyn MotorController>,
     robot_status: Arc<GlobalLifeState>,
     enabled: bool,
 }
 
 impl DriveTrain {
-    pub fn new(state: Arc<GlobalDriveTrainState>, left: Box<MotorController>,
-               right: Box<MotorController>, robot_status: Arc<GlobalLifeState>) -> Self {
+    pub fn new(state: Arc<GlobalDriveTrainState>, left: Box<dyn MotorController>,
+               right: Box<dyn MotorController>, robot_status: Arc<GlobalLifeState>) -> Self {
         let enabled = state.get_enabled();
         Self {
             state,

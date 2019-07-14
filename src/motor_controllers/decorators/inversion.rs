@@ -2,7 +2,7 @@ use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorController;
 
 pub struct InvertedMotor {
-    motor: Box<MotorController>,
+    motor: Box<dyn MotorController>,
 }
 
 impl MotorController for InvertedMotor {
@@ -20,7 +20,7 @@ impl MotorController for InvertedMotor {
 }
 
 impl InvertedMotor {
-    pub fn new(motor: Box<MotorController>) -> Self {
+    pub fn new(motor: Box<dyn MotorController>) -> Self {
         Self {
             motor,
         }

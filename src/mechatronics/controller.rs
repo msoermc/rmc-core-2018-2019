@@ -17,7 +17,7 @@ pub enum MechState {
 }
 
 pub struct RobotController {
-    command_receiver: Receiver<Box<RobotCommand>>,
+    command_receiver: Receiver<Box<dyn RobotCommand>>,
     drive_train: DriveTrain,
     dumper: Dumper,
     intake: Intake,
@@ -47,7 +47,7 @@ impl Runnable for RobotController {
 }
 
 impl RobotController {
-    pub fn new(command_receiver: Receiver<Box<RobotCommand>>, drive_train: DriveTrain,
+    pub fn new(command_receiver: Receiver<Box<dyn RobotCommand>>, drive_train: DriveTrain,
                dumper: Dumper, intake: Intake, life: Arc<GlobalLifeState>, cycles: Arc<AtomicUsize>) -> Self {
         Self {
             command_receiver,
@@ -75,7 +75,7 @@ impl RobotController {
         &self.life
     }
 
-    pub fn handle_message(&mut self, command: Box<RobotCommand>) {
+    pub fn handle_message(&mut self, command: Box<dyn RobotCommand>) {
         command.execute(self);
     }
 }

@@ -7,7 +7,6 @@ use crate::framework::{Runnable, CompositeRunnable};
 use crate::mechatronics::controller::RobotController;
 use crate::builder::robot::Robot;
 use crate::arduino::Arduino;
-use std::thread::yield_now;
 
 pub struct RobotLauncher {
     controller: RobotController,

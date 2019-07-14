@@ -7,7 +7,7 @@ use crate::motor_controllers::GlobalMotorState;
 use crate::motor_controllers::MotorController;
 
 pub struct DualLimitMotor {
-    motor: Box<MotorController>,
+    motor: Box<dyn MotorController>,
     upper: Arc<AtomicBool>,
     lower: Arc<AtomicBool>,
 }
@@ -32,7 +32,7 @@ impl MotorController for DualLimitMotor {
 }
 
 impl DualLimitMotor {
-    pub fn new(motor: Box<MotorController>, upper: Arc<AtomicBool>, lower: Arc<AtomicBool>) -> Self {
+    pub fn new(motor: Box<dyn MotorController>, upper: Arc<AtomicBool>, lower: Arc<AtomicBool>) -> Self {
         Self {
             motor,
             upper,

@@ -12,7 +12,6 @@ use crate::mechatronics::commands::RobotCommandFactory;
 use crate::mechatronics::RobotMessenger;
 use crate::status::robot_state::GlobalRobotState;
 use crate::status::robot_state::RobotStateInstance;
-use std::fmt::Display;
 
 #[cfg(test)]
 mod tests;

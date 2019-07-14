@@ -1,29 +1,17 @@
-use std::rc::Rc;
 use std::sync::Arc;
 
 use crate::builder::factories::SubsystemFactory;
 use crate::mechatronics::bucket_ladder::Intake;
 use crate::motor_controllers::motor_group::MotorGroup;
 use crate::motor_controllers::print_motor::PrintMotor;
-use crate::motor_controllers::roboclaw::RoboClaw;
 use crate::motor_controllers::test_motor::TestMotor;
-use crate::pinouts::factories::IoFactory;
-use crate::robot_map::ACTUATOR_PWM_CHIP;
-use crate::robot_map::ACTUATOR_PWM_NUM;
-use crate::robot_map::DIGGER_PWM_CHIP;
-use crate::robot_map::DIGGER_PWM_NUM;
 use crate::status::robot_state::GlobalRobotState;
 use std::sync::mpsc::Sender;
-use crate::arduino::ArduinoMotor;
+use crate::arduino::{ArduinoMotor, ArduinoMessage};
 
 pub struct ProductionIntakeFactory {
     state: Arc<GlobalRobotState>,
-    io: Sender<u8>
-}
-
-pub struct IoIntakeFactory {
-    state: Arc<GlobalRobotState>,
-    io: Rc<IoFactory>,
+    io: Sender<ArduinoMessage>
 }
 
 pub struct TestIntakeFactory {
@@ -35,16 +23,7 @@ pub struct PrintIntakeFactory {
 }
 
 impl ProductionIntakeFactory {
-    pub fn new(state: Arc<GlobalRobotState>, io: Sender<u8>) -> Self {
-        Self {
-            state,
-            io,
-        }
-    }
-}
-
-impl IoIntakeFactory {
-    pub fn new(state: Arc<GlobalRobotState>, io: Rc<IoFactory>) -> Self {
+    pub fn new(state: Arc<GlobalRobotState>, io: Sender<ArduinoMessage>) -> Self {
         Self {
             state,
             io,
@@ -74,12 +53,6 @@ impl ToString for ProductionIntakeFactory {
     }
 }
 
-impl ToString for IoIntakeFactory {
-    fn to_string(&self) -> String {
-        "io intake".to_owned()
-    }
-}
-
 impl ToString for TestIntakeFactory {
     fn to_string(&self) -> String {
         "test intake".to_owned()
@@ -95,20 +68,8 @@ impl ToString for PrintIntakeFactory {
 impl SubsystemFactory<Intake> for ProductionIntakeFactory {
     fn produce(self: Box<Self>) -> Intake {
         let state = &self.state;
-        let digger_motor = Box::new(ArduinoMotor::new(self.io.clone(), 2, state.get_intake().get_digger()));
-        let actuator = Box::new(ArduinoMotor::new(self.io, 1, state.get_intake().get_actuator()));
-
-        Intake::new(digger_motor, actuator, state.get_intake(), state.get_life())
-    }
-}
-
-impl SubsystemFactory<Intake> for IoIntakeFactory {
-    fn produce(self: Box<Self>) -> Intake {
-        let state = &self.state;
-        let digger_pwm = self.io.generate_pwm(DIGGER_PWM_CHIP, DIGGER_PWM_NUM);
-        let actuator_pwm = self.io.generate_pwm(ACTUATOR_PWM_CHIP, ACTUATOR_PWM_NUM);
-        let digger_motor = Box::new(RoboClaw::new(digger_pwm, state.get_intake().get_digger()));
-        let actuator = Box::new(RoboClaw::new(actuator_pwm, state.get_intake().get_actuator()));
+        let digger_motor = Box::new(ArduinoMotor::new(self.io.clone(), 5, state.get_intake().get_digger()));
+        let actuator = Box::new(ArduinoMotor::new(self.io, 3, state.get_intake().get_actuator()));
 
         Intake::new(digger_motor, actuator, state.get_intake(), state.get_life())
     }

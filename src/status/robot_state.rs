@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
-use std::thread::current;
 
 use crate::mechatronics::bucket_ladder::state::GlobalIntakeState;
 use crate::mechatronics::bucket_ladder::state::IntakeStateInstance;

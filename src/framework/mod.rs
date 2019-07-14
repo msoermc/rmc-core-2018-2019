@@ -24,7 +24,7 @@ pub trait Runnable: Send {
 }
 
 pub struct CompositeRunnable {
-    children: Vec<Box<Runnable>>
+    children: Vec<Box<dyn Runnable>>
 }
 
 impl Runnable for CompositeRunnable {
@@ -48,7 +48,7 @@ impl CompositeRunnable {
         }
     }
 
-    pub fn add_runnable(&mut self, runnable: Box<Runnable>) {
+    pub fn add_runnable(&mut self, runnable: Box<dyn Runnable>) {
         self.children.push(runnable)
     }
 }

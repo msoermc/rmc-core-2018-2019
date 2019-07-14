@@ -22,9 +22,6 @@ pub mod benchmarking;
 /// It's purpose is not well defined, and we plan to phase this out at some point.
 pub mod framework;
 
-/// Contains traits, functions, and structures used for pinouts.
-pub mod pinouts;
-
 /// Contains all structs and traits for operating different motor controllers, as well as the motor
 /// state structs.
 pub mod motor_controllers;
@@ -49,8 +46,6 @@ pub mod logging;
 pub mod status;
 
 pub mod builder;
-
-pub mod sensors;
 
 /// Contains integration tests which test the full stack of the software.
 #[cfg(test)]

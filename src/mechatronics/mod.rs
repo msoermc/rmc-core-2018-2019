@@ -21,18 +21,18 @@ pub mod bucket_ladder;
 mod tests;
 
 pub struct RobotMessenger {
-    channel: SyncSender<Box<RobotCommand>>,
+    channel: SyncSender<Box<dyn RobotCommand>>,
 }
 
 impl RobotMessenger {
-    pub fn new(channel: SyncSender<Box<RobotCommand>>) -> Self {
+    pub fn new(channel: SyncSender<Box<dyn RobotCommand>>) -> Self {
         Self {
             channel,
         }
     }
 
     #[inline]
-    pub fn send_command(&self, command: Box<RobotCommand>) {
+    pub fn send_command(&self, command: Box<dyn RobotCommand>) {
         self.channel.send(command).unwrap();
         thread::yield_now()
     }
