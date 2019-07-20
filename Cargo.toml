@@ -3,7 +3,6 @@ name = "rmc-core"
 version = "0.1.0"
 authors = ["Noah Kennedy <noah.kennedy.professional@gmail.com>", "Isaiah Rondeau <isaiahrondeau@gmail.com>", "Wallace Watler <watlerathome@gmail.com>", "Cody Nettesheim <nettesheimcj@msoe.edu>"]
 edition = "2018"
-build = "build.rs"
 
 [dependencies]
 slog = ""
@@ -19,6 +18,3 @@ rocket_contrib = ""
 atomic = ""
 serialport = "3.2.0"
 byteorder = "1.3.2"
-
-#[build-dependencies.mml]
-#version = "0.1"
