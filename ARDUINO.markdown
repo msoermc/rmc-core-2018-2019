@@ -23,6 +23,11 @@ Command | Name   | Part 1     | Part 2
 3       | Height | {VELOCITY} | Unused
 4       | Dumper | {VELOCITY} | Unused
 5       | Digger | {VELOCITY) | Unused
+6       | FR     | {VELOCITY  | {DIRECTION}
+7       | FL     | {VELOCITY  | {DIRECTION}
+8       | RR     | {VELOCITY  | {DIRECTION}
+9       | RL     | {VELOCITY  | {DIRECTION}
+
 
 The velocities (including for the drive command) are provided as signed
 16 bit integers with the domain \[-1000..1000], with -1000 being full
