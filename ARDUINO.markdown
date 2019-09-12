@@ -18,15 +18,15 @@ Bytes  |3        | 1      | 1        | 1       | 1      | 2      | 1      | 2   
 
 Command | Name   | Part 1     | Part 2
 --------|--------|------------|-------
-1       | Left   | {VELOCITY} | Unused
-2       | Right  | {VELOCITY} | Unused
-3       | Height | {VELOCITY} | Unused
-4       | Dumper | {VELOCITY} | Unused
-5       | Digger | {VELOCITY} | Unused
-6       | FR     | {VELOCITY} | {DIRECTION}
-7       | FL     | {VELOCITY} | {DIRECTION}
-8       | RR     | {VELOCITY} | {DIRECTION}
-9       | RL     | {VELOCITY} | {DIRECTION}
+1       | Left              | {VELOCITY} | Unused
+2       | Right             | {VELOCITY} | Unused
+3       | Height            | {VELOCITY} | Unused
+4       | Dumper            | {VELOCITY} | Unused
+5       | Digger            | {VELOCITY} | Unused
+6       | Front Right Drive | {VELOCITY} | Unused
+7       | Front Left Drive  | {VELOCITY} | Unused
+8       | Rear Right Drive  | {VELOCITY} | Unused
+9       | Rear Left Drive   | {VELOCITY} | Unused
 
 
 The velocities (including for the drive command) are provided as signed
