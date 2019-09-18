@@ -3,7 +3,7 @@ use std::sync::mpsc::{Sender, Receiver};
 use std::sync::Arc;
 
 use serialport::{available_ports, open, SerialPort};
-use std::{thread};
+use std::thread;
 use std::io::Write;
 use std::thread::{yield_now, JoinHandle};
 use byteorder::BigEndian;
@@ -60,9 +60,10 @@ impl MotorController for ArduinoMotor {
         debug_assert!(new_speed <= 1.0 && new_speed >= -1.0);
         self.state.set_speed(new_speed);
 
-        let speed = (new_speed * 1000.0) as u16;
+        let speed = (new_speed * 255.0).abs() as u8;
+        let dir = if new_speed < 0.0 { 1 } else { 0 };
 
-        let message = ArduinoMessage::new(self.id, speed, 0);
+        let message = ArduinoMessage::new(self.id, speed as u16, dir);
 
         info!("Speed: {}", speed);
 
