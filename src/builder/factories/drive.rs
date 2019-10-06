@@ -71,7 +71,7 @@ impl SubsystemFactory<DriveTrain> for ProductionDriveFactory {
         let left_drive = Box::new(ArduinoMotor::new(self.io.clone(), 1, self.state.get_drive().get_left()));
         let right_drive = Box::new(ArduinoMotor::new(self.io, 2, self.state.get_drive().get_right()));
 
-        let left_drive = Box::new(InvertedMotor::new(left_drive));
+//        let left_drive = Box::new(InvertedMotor::new(left_drive));
 
         DriveTrain::new(self.state.get_drive(), left_drive, right_drive, self.state.get_life())
     }

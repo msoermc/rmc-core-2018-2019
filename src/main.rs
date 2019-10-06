@@ -57,6 +57,7 @@ fn main() {
 
     builder.with_arduino();
     builder.with_production_dumper();
+    builder.with_production_drive();
     builder.with_production_ladder();
 
     builder.generate()

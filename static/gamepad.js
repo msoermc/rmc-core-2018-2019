@@ -7,7 +7,7 @@ let gamepad_connection = false;
 let leftYCalib = 0;
 let rightYCalib = 0;
 
-setInterval(update, 500);
+setInterval(update, 100);
 
 
 window.addEventListener("gamepadconnected", function (e) {

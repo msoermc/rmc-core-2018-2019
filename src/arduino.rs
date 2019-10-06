@@ -89,10 +89,10 @@ pub struct Arduino {
 impl Arduino {
     pub fn new(channel: Receiver<ArduinoMessage>) -> Self {
         info!("Serials: {:?}", &available_ports().expect("No serial port"));
-        let mut serialport = open(&available_ports().expect("No serial port")[1].port_name)
+        let mut serialport = open(&available_ports().expect("No serial port")[0].port_name)
             .expect("Failed to open serial port");
 
-        if let Err(e) = serialport.set_baud_rate(9600) {
+        if let Err(e) = serialport.set_baud_rate(115200) {
             error!("{}", e);
         };
 
@@ -126,6 +126,16 @@ impl Arduino {
         if let Err(e) = self.port.flush() {
             error!("{}", e)
         };
+
+        self.read_data();
+    }
+
+    fn read_data(&mut self) {
+        let mut buffer = [0; 256];
+        if let Ok(num_received) = self.port.read(&mut buffer) {
+            let string = std::str::from_utf8(&buffer).unwrap();
+            info!("{}", string);
+        }
     }
 }
 
